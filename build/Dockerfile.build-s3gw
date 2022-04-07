@@ -1,0 +1,9 @@
+FROM opensuse/tumbleweed
+
+ENV CEPH_DIR=/srv/ceph
+
+RUN zypper -n install bash make nano vim git ccache cmake ninja
+COPY build-radosgw.sh /usr/bin/build-radosgw.sh
+
+VOLUME ["/srv/ceph"]
+ENTRYPOINT ["/usr/bin/build-radosgw.sh"]
