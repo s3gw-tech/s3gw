@@ -65,11 +65,10 @@ One should be able to get a standalone RGW running following these steps:
 ```
 $ cd build/
 $ mkdir -p dev/rgw.foo
-$ cd dev/rgw.foo/
-$ ../bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
+$ bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
     --rgw-backend-store dbstore \
-    --rgw-data $(pwd) \
-    --run-dir $(pwd)
+    --rgw-data $(pwd)/dev/rgw.foo \
+    --run-dir $(pwd)/dev/rgw.foo
 ```
 
 Once the daemon is running, and outputting its logs to the terminal, one can
