@@ -57,6 +57,15 @@ If one is new to Ceph development, the best way to find out how to build
 these sources is to refer to the
 [original documentation](https://docs.ceph.com/en/pacific/install/build-ceph/#id1).
 
+Because we are in a fast development effort at the moment, we have chosen to
+apply patches needed to make our endeavour work on our own fork of the Ceph
+repository. This allows us fiddle with the Ceph source while experimenting,
+without polluting the upstream Ceph repository. We do intend to upstream any
+patches that make sense though.
+
+That said, we have the `aquarist-labs/ceph` repository as a requirement for
+this project. We can't guarantee that our instructions, or the project as a
+whole, will work flawlessly with the original Ceph project from `ceph/ceph`.
 
 ### Running
 
@@ -65,11 +74,10 @@ One should be able to get a standalone RGW running following these steps:
 ```
 $ cd build/
 $ mkdir -p dev/rgw.foo
-$ cd dev/rgw.foo/
-$ ../bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
+$ bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
     --rgw-backend-store dbstore \
-    --rgw-data $(pwd) \
-    --run-dir $(pwd)
+    --rgw-data $(pwd)/dev/rgw.foo \
+    --run-dir $(pwd)/dev/rgw.foo
 ```
 
 Once the daemon is running, and outputting its logs to the terminal, one can
