@@ -85,7 +85,7 @@ start issuing commands to the daemon. We rely on `s3cmd`, which can be found
 on [github](https://github.com/s3tools/s3cmd) or obtained through `pip`.
 
 `s3cmd` will require to be configured to talk to RGW. This can be achieved by
-first running `s3cmd -c $(pwd)/s3cfg --configure`. By default the configuration
+first running `s3cmd -c $(pwd)/.s3cfg --configure`. By default, the configuration
 file would be put under the user's home directory, but for our testing purposes
 it might be better to place it somewhere less intrusive.
 

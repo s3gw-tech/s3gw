@@ -32,10 +32,11 @@ mkdir -p \${mnt}/data/
 cp --verbose ${CEPH_DIR}/build/bin/radosgw \${mnt}/usr/bin/radosgw
 cp --verbose --no-dereference ${CEPH_DIR}/build/lib/*.so* \${mnt}/usr/lib64/
 buildah unmount \${ctr}
+buildah config --port 7480 \${ctr}
 buildah config --volume /data/ \${ctr}
 buildah config --env ID=s3gw \${ctr}
-buildah config --env EXTRA_ARGS= \${ctr}
-buildah config --entrypoint "radosgw -d --no-mon-config --rgw-backend-store dbstore --id \${ID} --rgw-data /data/ --run-dir /run/ \${EXTRA_ARGS}" \${ctr}
+buildah config --cmd '[]' \${ctr}
+buildah config --entrypoint '["radosgw", "-d", "--no-mon-config", "--rgw-backend-store", "dbstore", "--id", "\${ID}", "--rgw-data", "/data/", "--run-dir", "/run/"]' \${ctr}
 buildah commit --rm \${ctr} ${IMAGE_NAME}
 EOF
   buildah unshare sh ${tmpfile}

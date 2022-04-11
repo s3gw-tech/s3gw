@@ -1,7 +1,15 @@
-This README will guide you through the several steps to build the `s3gw`
-container image.
+This documentation will guide you through the several steps to build the
+`s3gw` container image.
+
+> **NOTE:** The absolute paths mentioned in this document may be different
+> on your system.
 
 # Prerequisite
+Make sure you've installed the following applications:
+
+- podman
+- buildah
+
 The build scripts expect the following directory hierarchy.
 
 ```
@@ -15,79 +23,47 @@ The build scripts expect the following directory hierarchy.
    ...
 ```
 
-If the Ceph Git repository is stored in a different path, then this
-can be customized via the `CEPH_DIR` environment variable.
-
-# Build the build environment
-To isolate the build system from your host, we provide a build environment
-based on openSUSE Tumbleweed. This containerized build environment will
-contain all necessary dependencies.
-
-## Install management tool
-To create the buidl environment, make sure to install all necessary
-tools. This can be done by running the command:
-
-```
-$ cd ~/git/s3gw-core
-$ sudo buildenvadm.sh install
-```
-
-## Create the build environment
-To create the containerized build environment run the following
-command:
-
-```
-$ cd ~/git/s3gw-core
-$ buildenvadm.sh create
-```
-
-The source code of Ceph will be mounted to `/srv/ceph` and the
-s3gw-core code is available at `/srv/s3gw-core`.
-
-## Start the build environment
-To start the build environment, run the following command:
-
-```
-$ cd ~/git/s3gw-core
-$ buildenvadm.sh start
-```
-
-You will be redirected to the `/srv/s3gw-core/build` directory within
-the containerized build environment.
-
 # Building radosgw binary
-If the binary is not compiled yet, simply run the following commands:
-
-```
-# cd ~/git/s3gw-core
-# cd build
-# ./build-radosgw.sh
-```
-
-If you are not running openSUSE Tumbleweed on your host, you can use
-the `Dockerfile.build-s3gw` file to setup a container that will
-automatically build the binary when the container is started.
+To build the `radosgw` binary, a containerized build environment is used.
+This container can be build by running the following command:
 
 ```
 $ cd ~/git/s3gw-core/build
-$ podman build --tag build-s3gw -f ./Dockerfile.build-s3gw
+$ podman build --tag build-radosgw -f ./Dockerfile.build-radosgw
 ```
 
-To trigger a build run, execute the following commands:
+If you experience connection issues while downloading the packages to be
+installed in the build environment, try using the `--net=host`
+command line argument.
+
+After the build environment container image has been build once, the
+`radosgw` binary will be build automatically when the container is
+started. Make sure the path to the Ceph Git repository in the host
+file system is correct, e.g. `../../ceph`, `~/git/ceph`, ...
+
 ```
-$ cd ~/git/s3gw-core/build
-$ podman run --replace --name build-s3gw -v ../../ceph:/srv/ceph/ localhost/build-s3gw 
+$ podman run --replace --name build-radosgw -v ../../ceph/:/srv/ceph/ localhost/build-radosgw 
 ```
 
-# Build the container image
+# Build the s3gw container image
 If the Ceph `radosgw` binary is compiled, the container image can be build
 with the following commands:
 
 ```
-# cd ~/git/s3gw-core
-# cd build
-# ./build-container.sh
+$ cd ~/git/s3gw-core/build
+$ ./build-container.sh
 ```
 
 The container build script expects the `radosgw` binary at the relative
-path `../ceph/build/bin`.
+path `../ceph/build/bin`. This can be customized via the `CEPH_DIR`
+environment variable.
+
+The container image name is `s3gw` by default. This can be customized via
+the environment variable `IMAGE_NAME`.
+
+# Running the s3gw container
+Finally, you can run the `s3gw` container with the following command:
+
+```
+$ podman run --replace --name=s3gw -it -p 7480:7480 localhost/s3gw
+```
