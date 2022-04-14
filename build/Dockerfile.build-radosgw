@@ -1,0 +1,7 @@
+FROM opensuse/tumbleweed
+
+RUN zypper -n install bash make git ccache cmake ninja
+COPY build-radosgw.sh /usr/bin/build-radosgw.sh
+
+VOLUME ["/srv/ceph"]
+ENTRYPOINT ["/usr/bin/build-radosgw.sh"]
