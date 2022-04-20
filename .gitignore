@@ -1,4 +1,4 @@
 /.idea/
 .vagrant
-environment/join-command
-environment/admin.conf
+environment/playbooks/join-command
+environment/playbooks/admin.conf

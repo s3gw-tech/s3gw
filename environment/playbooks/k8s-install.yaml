@@ -48,7 +48,7 @@
           - /bin/bash -c "sudo echo 'complete -F __start_kubectl k' >> /home/vagrant/.bashrc"      
   
 - name: k8s-2
-  hosts: masters
+  hosts: admins
   become: true
   tasks:
     - name: Initialize Kubernetes cluster using kubeadm
