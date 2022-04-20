@@ -1,1 +1,4 @@
 /.idea/
+.vagrant
+environment/join-command
+environment/admin.conf
