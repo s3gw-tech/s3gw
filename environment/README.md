@@ -7,7 +7,9 @@ machines.
 The entire build process is automated by a set of Ansible playbooks.  
 The cluster is created with exactly one `admin` node and 
 an arbitrary number of `worker` nodes.  
-Name topology for the nodes is the following:
+A single virtual machine acting as an `admin` node is also possible; in this case, it
+will be able to schedule pods as a `worker` node.  
+Name topology for nodes is the following:
 
 ```text
 admin
@@ -40,9 +42,16 @@ You can customize the build with the following environment variables:
 
 ```text
 IMAGE_NAME                  : The Vagrant box image used in the cluster
-VM_NET                      : The vm subnet used in the cluster
+VM_NET                      : The virtual machine subnet used in the cluster
 VM_NET_LAST_OCTET_START     : Vagrant will increment this value when creating vm(s) and assigning an ip
+CIDR_NET                    : The CIDR subnet used by the Calico network plugin
 WORKER_COUNT                : The number of Kubernetes workers in the cluster
+ADMIN_MEM                   : The RAM amount used by the admin node (Vagrant format)
+ADMIN_CPU                   : The CPU amount used by the admin node (Vagrant format)
+ADMIN_DISK_SIZE             : The disk size allocated for the admin node (Vagrant format) - this will be effective only for mono clusters
+WORKER_MEM                  : The RAM amount used by a worker node (Vagrant format)
+WORKER_CPU                  : The CPU amount used by a worker node (Vagrant format)
+WORKER_DISK_SIZE            : The disk size allocated for a worker node (Vagrant format)
 ```
 
 So, you could start a more specialized build with:
@@ -51,6 +60,15 @@ So, you could start a more specialized build with:
 $ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./s3gwctl.sh build
 Building environment ...
 ```
+
+You create a mono virtual machine cluster with the lone `admin` node with:
+
+```bash
+$ WORKER_COUNT=0 ./s3gwctl.sh build
+Building environment ...
+```
+
+In this case, the node will be able to schedule pods as a `worker` node.  
 
 ## Destroying the environment
 

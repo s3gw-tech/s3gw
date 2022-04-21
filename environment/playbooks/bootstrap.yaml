@@ -51,13 +51,13 @@
             "exec-opts": ["native.cgroupdriver=systemd"]
             }
             
-    - name: Restart docker
+    - name: Restart Docker
       service:
         name: docker
         state: restarted
         daemon_reload: yes
 
-    - name: Add vagrant user to docker group
+    - name: Add vagrant user to Docker group
       user:
         name: vagrant
         group: docker
