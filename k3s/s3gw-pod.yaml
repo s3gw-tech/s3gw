@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: s3gw
+  labels:
+    app.aquarist-labs.io/name: s3gw
+spec:
+  containers:
+    - name: s3gw
+      image: localhost/s3gw:latest
+      imagePullPolicy: Never
+      volumeMounts:
+      - name: s3gw-lh-store
+        mountPath: /data
+      ports:
+        - containerPort: 7480
+          name: s3gw-http
+  volumes:
+  - name: s3gw-lh-store
+    persistentVolumeClaim:
+      claimName: longhorn-s3gw-pvc
+
