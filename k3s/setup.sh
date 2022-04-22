@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 ghraw="https://raw.githubusercontent.com"
 
 function apply() {
@@ -25,18 +27,13 @@ function apply() {
     exit 1
 
   echo "creating ${desc}..."
-  kubectl apply -f ./${yaml} || (
+  k3s kubectl apply -f ./${yaml} || (
     echo "error creating ${desc}"
     exit 1
   )
 }
 
-[[ ${UID} -ne 0 ]] && \
-  echo "error: must run as root." && \
-  exit 1
-
 if [[ ! -e "./s3gw.ctr.tar" ]]; then
-
   echo "check for s3gw image locally..."
   img=$(podman images --format '{{.Repository}}:{{.Tag}}' | \
     grep 's3gw:latest')
@@ -58,26 +55,20 @@ if k3s --version >&/dev/null ; then
 fi
 
 echo "install k3s..."
-curl -sfL https://get.k3s.io | sh - || (
+curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 || (
   echo "error installing k3s."
   exit 1
 )
 
-if ! kubectl --version >&/dev/null ; then
-  echo "kubectl not present; k3s not installed?"
-  exit 1
-fi
-
-
 echo "install longhorn..."
-kubectl apply \
+k3s kubectl apply \
   -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml || (
   echo "error installing longhorn."
   exit 1
 )
 
 echo "import s3gw container image..."
-k3s ctr images import ./s3gw.ctr.tar || (
+sudo k3s ctr images import ./s3gw.ctr.tar || (
   echo "error importing s3gw image."
   exit 1
 )
@@ -91,8 +82,7 @@ apply "s3gw ingress" s3gw-ingress.yaml
 echo "wait a bit, allow us to get an ip..."
 sleep 30
 
-ip=$(kubectl get ingress s3gw-ingress \
+ip=$(k3s kubectl get ingress s3gw-ingress \
   -o jsonpath='{.status.loadBalancer.ingress[].ip}')
 
 echo "s3gw available at http://${ip}:80"
-
