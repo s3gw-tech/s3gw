@@ -60,6 +60,14 @@ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 || (
   exit 1
 )
 
+# https://longhorn.io/docs/1.2.4/deploy/install/#installing-open-iscsi
+echo "install iscsi..."
+k3s kubectl apply \
+  -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/prerequisite/longhorn-iscsi-installation.yaml || (
+  echo "error installing iscsi."
+  exit 1
+)
+
 echo "install longhorn..."
 k3s kubectl apply \
   -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml || (
