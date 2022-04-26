@@ -4,8 +4,21 @@ You can quickly run the `s3gw` container alongside with a Longhorn installation
 by following this guide.  
 You will get a fully functional Kubernetes cluster installed on top of a set of virtual
 machines.  
-The entire build process is automated by a set of Ansible playbooks.  
-The cluster is created with exactly one `admin` node and 
+
+## Table of Contents
+
+* [Description](#description)
+* [Requirements](#requirements)
+* [Building the environment](#building-the-environment)
+* [Destroying the environment](#destroying-the-environment)
+* [Accessing the environment](#accessing-the-environment)
+
+<!-- Created by https://github.com/ekalinin/github-markdown-toc -->
+
+## Description
+
+The entire environment build process is automated by a set of Ansible playbooks.  
+The cluster is created with exactly one `admin` node and
 an arbitrary number of `worker` nodes.  
 A single virtual machine acting as an `admin` node is also possible; in this case, it
 will be able to schedule pods as a `worker` node.  
@@ -22,9 +35,9 @@ worker-2
 
 Make sure you have installed the following applications on your system:
 
-- Vagrant
-- libvirt
-- Ansible
+* Vagrant
+* libvirt
+* Ansible
 
 ## Building the environment
 
@@ -101,4 +114,3 @@ Connecting to worker-2 ...
 ```
 
 When connecting to a worker node be sure to match the `WORKER_COUNT` value with the one you used in the build phase.
-
