@@ -1,0 +1,5 @@
+- name: s3gw deploy
+  hosts: admins
+  tasks:
+    - name: Copy s3gw cfg to local dir
+      copy: src=../s3gw dest=/home/vagrant mode=0777

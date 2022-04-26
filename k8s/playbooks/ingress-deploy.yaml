@@ -1,0 +1,47 @@
+- name: NGINX deploy
+  hosts: admins
+  tasks:
+    - name: Clone NGINX kubernetes-ingress
+      command: git clone https://github.com/nginxinc/kubernetes-ingress.git --branch v2.2.0 /home/vagrant/kubernetes-ingress
+    
+    - name: RBAC-1
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/ns-and-sa.yaml
+    
+    - name: RBAC-2
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/rbac/rbac.yaml
+
+    - name: Create a secret with a TLS certificate and a key for the default server in NGINX
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/default-server-secret.yaml
+
+    - name: Create a config map for customizing NGINX configuration
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/nginx-config.yaml
+
+    - name: Create an IngressClass resource
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/ingress-class.yaml
+
+    - name: Create Custom Resources
+      command: "{{ item }}"
+      with_items:
+          - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_virtualservers.yaml
+          - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_virtualserverroutes.yaml
+          - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_transportservers.yaml
+          - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_policies.yaml
+          - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_globalconfigurations.yaml
+
+    - name: Create Ingress Controller
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/deployment/nginx-ingress.yaml
+
+    - name: Create a Service for the Ingress Controller Pods
+      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/service/nodeport.yaml
+
+- name: Longhorn ingress deploy
+  hosts: admins
+  tasks:
+    - name: Copy ingresses cfg to local dir
+      copy: src=../ingresses dest=/home/vagrant mode=0777
+
+    - name: Apply ingresses cfg
+      command: "{{ item }}"
+      with_items:
+        - kubectl apply -f /home/vagrant/ingresses/lh-secret.yaml
+        - kubectl apply -f /home/vagrant/ingresses/lh-ingress.yaml

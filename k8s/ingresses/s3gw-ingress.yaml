@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: s3gw-ingress
+  namespace: s3gw-system
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - s3gw.local
+    secretName: s3gw-secret
+  rules:
+  - host: s3gw.local
+    http:
+      paths:
+      - path: /s3gw
+        pathType: Prefix
+        backend:
+          service:
+            name: s3gw-svc
+            port:
+              number: 80

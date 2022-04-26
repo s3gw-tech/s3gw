@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: s3gw
+  name: s3gw
+  namespace: s3gw-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: s3gw
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: s3gw
+    spec:
+      containers:
+        - name: s3gw
+          image: admin:5000/s3gw:latest
+          volumeMounts:
+          - name: s3gw-lh-store
+            mountPath: /data
+          ports:
+            - containerPort: 7480
+      volumes:
+      - name: s3gw-lh-store
+        persistentVolumeClaim:
+          claimName: longhorn-s3gw-pvc

@@ -48,7 +48,8 @@
         dest: "/etc/docker/daemon.json"
         content: |
             {
-            "exec-opts": ["native.cgroupdriver=systemd"]
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "insecure-registries" : ["admin:5000"]
             }
             
     - name: Restart Docker
@@ -75,6 +76,14 @@
       command: swapoff -a
 
 - name: bootstrap-3
+  hosts: admins
+  become: yes
+  tasks:
+
+    - name: Start a local registry
+      command: docker run -d -p 5000:5000 --restart=always --name registry registry:2
+
+- name: bootstrap-4
   hosts: all
   gather_facts: yes
   tasks:
