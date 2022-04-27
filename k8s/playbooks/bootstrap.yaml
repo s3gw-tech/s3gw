@@ -83,6 +83,15 @@
     - name: Start a local registry
       command: docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
+    - name: Copy host's s3gw container image to local dir
+      copy: src=../s3gw.tar dest=/home/vagrant mode=0777
+
+    - name: Import s3gw container into Docker
+      shell: cat s3gw.tar | docker import - admin:5000/s3gw:latest
+
+    - name: Push s3gw container on local registry
+      command: docker push admin:5000/s3gw
+
 - name: bootstrap-4
   hosts: all
   gather_facts: yes

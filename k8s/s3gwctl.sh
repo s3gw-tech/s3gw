@@ -28,6 +28,11 @@ build_env() {
   echo "WORKER_CPU=${WORKER_CPU}"
   echo "WORKER_DISK_SIZE=${WORKER_DISK_SIZE}" 
 
+  echo "Saving s3gw container image locally ..."
+  rm -rf ./s3gw.tar
+  podman save -o ./s3gw.tar s3gw:latest
+  echo "Saved"
+
   vagrant up
 }
 
