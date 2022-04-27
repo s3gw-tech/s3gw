@@ -13,10 +13,10 @@ spec:
   - host: s3gw.local
     http:
       paths:
-      - path: /s3gw
+      - path: /dbstore
         pathType: Prefix
         backend:
           service:
-            name: s3gw-svc
+            name: s3gw-service
             port:
               number: 80

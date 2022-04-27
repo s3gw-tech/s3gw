@@ -45,3 +45,5 @@
       with_items:
         - kubectl apply -f /home/vagrant/ingresses/lh-secret.yaml
         - kubectl apply -f /home/vagrant/ingresses/lh-ingress.yaml
+        - kubectl apply -f /home/vagrant/ingresses/s3gw-secret.yaml
+        - kubectl apply -f /home/vagrant/ingresses/s3gw-ingress.yaml

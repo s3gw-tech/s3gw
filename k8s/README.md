@@ -41,11 +41,11 @@ Make sure you have installed the following applications on your system:
 
 ## Building the environment
 
-You can build the environment with the `s3gwctl.sh` script.  
+You can build the environment with the `s3gwctl` script.  
 The simplest form you can use is:  
 
 ```bash
-$ ./s3gwctl.sh build
+$ ./s3gwctl build
 Building environment ...
 ```
 
@@ -70,14 +70,14 @@ WORKER_DISK_SIZE            : The disk size allocated for a worker node (Vagrant
 So, you could start a more specialized build with:
 
 ```bash
-$ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./s3gwctl.sh build
+$ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./s3gwctl build
 Building environment ...
 ```
 
 You create a mono virtual machine cluster with the lone `admin` node with:
 
 ```bash
-$ WORKER_COUNT=0 ./s3gwctl.sh build
+$ WORKER_COUNT=0 ./s3gwctl build
 Building environment ...
 ```
 
@@ -88,7 +88,7 @@ In this case, the node will be able to schedule pods as a `worker` node.
 You can destroy a previously built environment with:
 
 ```bash
-$ ./s3gwctl.sh destroy
+$ ./s3gwctl destroy
 Destroying environment ...
 ```
 
@@ -102,14 +102,14 @@ You can connect through `ssh` to all nodes in the cluster.
 To connect to the `admin` node run:
 
 ```bash
-$ ./s3gwctl.sh ssh admin
+$ ./s3gwctl ssh admin
 Connecting to admin ...
 ```
 
 To connect to a `worker` node run:
 
 ```bash
-$ ./s3gwctl.sh ssh worker-2
+$ ./s3gwctl ssh worker-2
 Connecting to worker-2 ...
 ```
 

@@ -7,10 +7,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - s3gw.local
+    - longhorn.local
     secretName: lh-secret
   rules:
-  - host: s3gw.local
+  - host: longhorn.local
     http:
       paths:
       - path: /
