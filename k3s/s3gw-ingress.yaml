@@ -1,18 +1,30 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix
+  namespace: s3gw-system
+spec:
+  stripPrefix:
+    prefixes:
+      - /s3gw
+    forceSlash: false
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: s3gw-ingress
+  namespace: s3gw-system
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.middlewares: s3gw-system-stripprefix@kubernetescrd
 spec:
   rules:
     - http:
         paths:
-          - path: /
+          - path: /s3gw
             pathType: Prefix
             backend:
               service:
                 name: s3gw-service
                 port:
                   number: 80
-

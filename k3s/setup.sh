@@ -18,79 +18,98 @@ set -e
 
 ghraw="https://raw.githubusercontent.com"
 
+function error() {
+  echo "[ERROR] ${@}" >&2
+}
+
 function apply() {
   desc=${1}
   yaml=${2}
 
   [[ -z "${desc}" || -z "${yaml}" ]] && \
-    echo "missing parameters to function apply" && \
+    error "Missing parameters to function apply." && \
     exit 1
 
-  echo "creating ${desc}..."
+  echo "Creating ${desc}..."
   k3s kubectl apply -f ./${yaml} || (
-    echo "error creating ${desc}"
+    error "Failed to create ${desc}."
     exit 1
   )
 }
 
 if [[ ! -e "./s3gw.ctr.tar" ]]; then
-  echo "check for s3gw image locally..."
+  echo "Checking for s3gw image locally..."
   img=$(podman images --format '{{.Repository}}:{{.Tag}}' | \
     grep 's3gw:latest')
 
   if [[ -z "${img}" ]]; then
-    echo "unable to find s3gw image locally; abort."
+    error "Unable to find s3gw image locally; abort."
     exit 1
   fi
 
   podman image save ${img} -o ./s3gw.ctr.tar || (
-    echo "error exporting s3gw image"
+    error "Failed to export s3gw image."
     exit 1
   )
 fi
 
 if k3s --version >&/dev/null ; then
-  echo "k3s already installed, we won't proceed."
+  error "K3s already installed, we won't proceed."
   exit 0
 fi
 
-echo "install k3s..."
+echo "Installing K3s..."
 curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 || (
-  echo "error installing k3s."
+  error "Failed to install K3s."
   exit 1
 )
 
 # https://longhorn.io/docs/1.2.4/deploy/install/#installing-open-iscsi
-echo "install iscsi..."
+echo "Installing iscsi..."
 k3s kubectl apply \
   -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/prerequisite/longhorn-iscsi-installation.yaml || (
-  echo "error installing iscsi."
+  error "Failed to install iscsi."
   exit 1
 )
 
-echo "install longhorn..."
+echo "Installing Longhorn..."
 k3s kubectl apply \
   -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml || (
-  echo "error installing longhorn."
+  error "Failed to install Longhorn."
   exit 1
 )
 
-echo "import s3gw container image..."
+echo "Importing s3gw container image..."
 sudo k3s ctr images import ./s3gw.ctr.tar || (
-  echo "error importing s3gw image."
+  error "Failed to import s3gw image."
   exit 1
 )
+
+# Workaround a k8s behaviour that CustomResourceDefinition must be
+# established before they can be used by a resource.
+# https://github.com/kubernetes/kubectl/issues/1117
+# k3s kubectl wait --for=condition=established --timeout=60s crd middlewares.traefik.containo.us
+echo -n "Waiting for CRD to be established..."
+while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..status.conditions[?(@.type=="Established")].status}' 2>/dev/null) != "True" ]]; do
+   echo -n "." && sleep 1;
+done
+echo
 
 apply "longhorn storage class" longhorn-storageclass.yaml
-apply "longhorn persistent volume claim" longhorn-pvc.yaml
+apply "s3gw namespace" s3gw-namespace.yaml
+apply "s3gw persistent volume claim" s3gw-pvc.yaml
 apply "s3gw pod" s3gw-pod.yaml
 apply "s3gw service" s3gw-service.yaml
 apply "s3gw ingress" s3gw-ingress.yaml
+apply "longhorn ingress" longhorn-ingress.yaml
 
-echo "wait a bit, allow us to get an ip..."
-sleep 30
-
-ip=$(k3s kubectl get ingress s3gw-ingress \
-  -o jsonpath='{.status.loadBalancer.ingress[].ip}')
-
-echo "s3gw available at http://${ip}:80"
+echo -n "Waiting for cluster to become ready..."
+ip=""
+until [ -n "${ip}" ]
+do
+  echo -n "." && sleep 1;
+  ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
+done
+echo -e "\n\n"
+echo "Longhorn UI available at http://${ip}:80/longhorn/"
+echo "s3gw available at http://${ip}:80/s3gw/"
