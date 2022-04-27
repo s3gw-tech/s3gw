@@ -6,6 +6,7 @@ BASE_IMAGE=${BASE_IMAGE:-"registry.opensuse.org/opensuse/tumbleweed:latest"}
 IMAGE_NAME=${IMAGE_NAME:-"s3gw"}
 CEPH_DIR=$(realpath ${CEPH_DIR:-"../../ceph/"})
 INSTALL_PACKAGES=${INSTALL_PACKAGES:-"libblkid1 libexpat1 libtcmalloc4 libfmt8 libibverbs1 librdmacm1 liboath0 libicu70"}
+CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
 
 registry=
 registry_args=
@@ -22,6 +23,10 @@ build_container_image() {
   echo "BASE_IMAGE=${BASE_IMAGE}"
   echo "IMAGE_NAME=${IMAGE_NAME}"
   echo "CEPH_DIR=${CEPH_DIR}"
+  echo "CONTAINER_ENGINE=${CONTAINER_ENGINE}"
+
+  case ${CONTAINER_ENGINE} in
+    podman)
 
   tmpfile=$(mktemp)
   cat > ${tmpfile} << EOF
@@ -46,6 +51,11 @@ EOF
     buildah push ${registry_args} localhost/${IMAGE_NAME} \
       ${registry}/${IMAGE_NAME}
   fi
+      ;;
+    docker)
+    docker build -t ${IMAGE_NAME} -f ./Dockerfile.build-container ${CEPH_DIR}/build
+      ;;
+  esac
 }
 
 while [ $# -ge 1 ]; do
