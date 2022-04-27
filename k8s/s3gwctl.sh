@@ -30,7 +30,7 @@ build_env() {
 
   echo "Saving s3gw container image locally ..."
   rm -rf ./s3gw.tar
-  podman save -o ./s3gw.tar s3gw:latest
+  docker save --output s3gw.tar s3gw:latest
   echo "Saved"
 
   vagrant up

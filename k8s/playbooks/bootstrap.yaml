@@ -86,11 +86,15 @@
     - name: Copy host's s3gw container image to local dir
       copy: src=../s3gw.tar dest=/home/vagrant mode=0777
 
-    - name: Import s3gw container into Docker
-      shell: cat s3gw.tar | docker import - admin:5000/s3gw:latest
-
-    - name: Push s3gw container on local registry
-      command: docker push admin:5000/s3gw
+    - name: Import s3gw container into local registry
+      command: "{{ item }}"
+      with_items:
+        - docker load --input s3gw.tar
+        - docker tag s3gw admin:5000/s3gw
+        - docker push admin:5000/s3gw
+        - docker image rm s3gw
+        - docker image rm admin:5000/s3gw
+        - rm -rf s3gw.tar
 
 - name: bootstrap-4
   hosts: all

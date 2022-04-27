@@ -1,5 +1,15 @@
 - name: s3gw deploy
   hosts: admins
   tasks:
+
     - name: Copy s3gw cfg to local dir
       copy: src=../s3gw dest=/home/vagrant mode=0777
+
+    - name: Deploy s3gw
+      command: "{{ item }}"
+      with_items:
+        - kubectl apply -f /home/vagrant/s3gw/s3gw-namespace.yaml
+        - kubectl apply -f /home/vagrant/s3gw/lh-storageclass.yaml
+        - kubectl apply -f /home/vagrant/s3gw/lh-pvc.yaml
+        - kubectl apply -f /home/vagrant/s3gw/s3gw-deployment.yaml
+        - kubectl apply -f /home/vagrant/s3gw/s3gw-service.yaml

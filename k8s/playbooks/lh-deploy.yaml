@@ -1,5 +1,6 @@
 - name: longhorn-1
   hosts: admins
   tasks:
+  
     - name: Deploy Longhorn
       command: kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml
