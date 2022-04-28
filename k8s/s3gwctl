@@ -13,9 +13,9 @@ export ADMIN_DISK_SIZE=${ADMIN_DISK_SIZE:-"8G"}
 export WORKER_MEM=${WORKER_MEM:-"4096"}
 export WORKER_CPU=${WORKER_CPU:-"2"}
 export WORKER_DISK_SIZE=${WORKER_DISK_SIZE:-"8G"}
+export LOCAL_CNT_ENG=${LOCAL_CNT_ENG:-"podman"}
 
 build_env() {
-  echo "Building environment ..."
   echo "IMAGE_NAME=${IMAGE_NAME}"
   echo "VM_NET=${VM_NET}"
   echo "VM_NET_LAST_OCTET_START=${VM_NET_LAST_OCTET_START}"
@@ -27,13 +27,24 @@ build_env() {
   echo "WORKER_MEM=${WORKER_MEM}"
   echo "WORKER_CPU=${WORKER_CPU}"
   echo "WORKER_DISK_SIZE=${WORKER_DISK_SIZE}" 
+  echo "LOCAL_CNT_ENG=${LOCAL_CNT_ENG}" 
 
   echo "Saving s3gw container image locally ..."
   rm -rf ./s3gw.tar
-  docker save --output s3gw.tar s3gw:latest
+  if [ $LOCAL_CNT_ENG = "podman" ]; then
+    podman save -o ./s3gw.tar s3gw:latest
+  elif [ $LOCAL_CNT_ENG = "docker" ]; then
+    docker save --output ./s3gw.tar localhost/s3gw:latest
+  fi
   echo "Saved"
 
+  echo "Building environment ..."
   vagrant up
+  echo "Built"
+
+  echo "Removing previously saved s3gw container image ..."
+  rm -rf ./s3gw.tar
+  echo "Removed"
 }
 
 destroy_env() {

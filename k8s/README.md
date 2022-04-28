@@ -4,6 +4,7 @@ You can quickly run the `s3gw` container alongside with a Longhorn installation
 by following this guide.  
 You will get a fully functional Kubernetes cluster installed on top of a set of virtual
 machines.  
+If you are looking for a more lightweight environment, please refer to our [K3s section](../k3s/README.md).
 
 ## Table of Contents
 
@@ -65,6 +66,7 @@ ADMIN_DISK_SIZE             : The disk size allocated for the admin node (Vagran
 WORKER_MEM                  : The RAM amount used by a worker node (Vagrant format)
 WORKER_CPU                  : The CPU amount used by a worker node (Vagrant format)
 WORKER_DISK_SIZE            : The disk size allocated for a worker node (Vagrant format)
+LOCAL_CNT_ENG               : The host's local container engine used to build the s3gw container (podman/docker)
 ```
 
 So, you could start a more specialized build with:

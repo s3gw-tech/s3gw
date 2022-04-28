@@ -90,9 +90,9 @@
       command: "{{ item }}"
       with_items:
         - docker load --input s3gw.tar
-        - docker tag s3gw admin:5000/s3gw
+        - docker tag localhost/s3gw admin:5000/s3gw
         - docker push admin:5000/s3gw
-        - docker image rm s3gw
+        - docker image rm localhost/s3gw
         - docker image rm admin:5000/s3gw
         - rm -rf s3gw.tar
 
