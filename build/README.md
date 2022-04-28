@@ -10,6 +10,10 @@ Make sure you've installed the following applications:
 - podman
 - buildah
 
+Optionally, if you prefer building an `s3gw` container image with docker you will need:
+
+- docker
+
 The build scripts expect the following directory hierarchy.
 
 ```
@@ -54,6 +58,14 @@ $ cd ~/git/s3gw-core/build
 $ ./build-container.sh
 ```
 
+By default, this will build an `s3gw` image using podman.
+In order to build an `s3gw` image with Docker, you can run:
+
+```
+$ cd ~/git/s3gw-core/build
+$ CONTAINER_ENGINE=docker ./build-container.sh
+```
+
 The container build script expects the `radosgw` binary at the relative
 path `../ceph/build/bin`. This can be customized via the `CEPH_DIR`
 environment variable.
@@ -66,4 +78,10 @@ Finally, you can run the `s3gw` container with the following command:
 
 ```
 $ podman run --replace --name=s3gw -it -p 7480:7480 localhost/s3gw
+```
+
+or, when using Docker:
+
+```
+$ docker run -p 7480:7480 localhost/s3gw
 ```
