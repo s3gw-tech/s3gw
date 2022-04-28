@@ -83,5 +83,5 @@ $ podman run --replace --name=s3gw -it -p 7480:7480 localhost/s3gw
 or, when using Docker:
 
 ```
-$ docker run -p 7480:7480 s3gw
+$ docker run -p 7480:7480 localhost/s3gw
 ```

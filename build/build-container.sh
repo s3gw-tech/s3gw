@@ -5,7 +5,7 @@ set -e
 BASE_IMAGE=${BASE_IMAGE:-"registry.opensuse.org/opensuse/tumbleweed:latest"}
 IMAGE_NAME=${IMAGE_NAME:-"s3gw"}
 CEPH_DIR=$(realpath ${CEPH_DIR:-"../../ceph/"})
-INSTALL_PACKAGES=${INSTALL_PACKAGES:-"libblkid1 libexpat1 libtcmalloc4 libfmt8 libibverbs1 librdmacm1 liboath0 libicu70"}
+INSTALL_PACKAGES=${INSTALL_PACKAGES:-"libblkid1 libexpat1 libtcmalloc4 libfmt8 libibverbs1 librdmacm1 liboath0 libicu71"}
 CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
 
 registry=
@@ -53,7 +53,7 @@ EOF
   fi
       ;;
     docker)
-    docker build -t ${IMAGE_NAME} -f ./Dockerfile.build-container ${CEPH_DIR}/build
+    docker build -t localhost/${IMAGE_NAME} -f ./Dockerfile.build-container ${CEPH_DIR}/build
       ;;
   esac
 }

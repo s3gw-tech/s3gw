@@ -11,7 +11,7 @@ libfmt8 \
 libibverbs1 \
 librdmacm1 \ 
 liboath0 \
-libicu70
+libicu71
 
 RUN mkdir -p /data
 
