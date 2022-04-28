@@ -30,3 +30,11 @@ $ s3cmd -c ./s3cmd.cfg ls s3://
 
 Please adapt the `host_base` and `host_bucket` properties in the `s3cmd.cfg`
 configuration file if your K3s cluster is not accessible via localhost.
+
+# Configure s3gw as Longhorn backup target
+
+Use the following values in the Longhorn settings page to use the s3gw as
+backup target.
+
+Backup Target: `s3://<BUCKET_NAME>@us/`
+Backup Target Credential Secret: `s3gw-secret`

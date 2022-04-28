@@ -85,7 +85,7 @@ sudo k3s ctr images import ./s3gw.ctr.tar || (
   exit 1
 )
 
-# Workaround a k8s behaviour that CustomResourceDefinition must be
+# Workaround a K8s behaviour that CustomResourceDefinition must be
 # established before they can be used by a resource.
 # https://github.com/kubernetes/kubectl/issues/1117
 # k3s kubectl wait --for=condition=established --timeout=60s crd middlewares.traefik.containo.us
@@ -96,12 +96,13 @@ done
 echo
 
 apply "longhorn storage class" longhorn-storageclass.yaml
+apply "Longhorn ingress" longhorn-ingress.yaml
+apply "Longhorn s3gw secret" longhorn-s3gw-secret.yaml
 apply "s3gw namespace" s3gw-namespace.yaml
 apply "s3gw persistent volume claim" s3gw-pvc.yaml
 apply "s3gw pod" s3gw-pod.yaml
 apply "s3gw service" s3gw-service.yaml
 apply "s3gw ingress" s3gw-ingress.yaml
-apply "longhorn ingress" longhorn-ingress.yaml
 
 echo -n "Waiting for cluster to become ready..."
 ip=""
@@ -110,6 +111,7 @@ do
   echo -n "." && sleep 1;
   ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
 done
-echo -e "\n\n"
+echo -e "\n"
 echo "Longhorn UI available at http://${ip}:80/longhorn/"
 echo "s3gw available at http://${ip}:80/s3gw/"
+echo -e "\n"
