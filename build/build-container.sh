@@ -41,7 +41,8 @@ buildah config --port 7480 \${ctr}
 buildah config --volume /data/ \${ctr}
 buildah config --env ID=s3gw \${ctr}
 buildah config --cmd '[]' \${ctr}
-buildah config --entrypoint '["radosgw", "-d", "--no-mon-config", "--rgw-backend-store", "dbstore", "--id", "\${ID}", "--rgw-data", "/data/", "--run-dir", "/run/"]' \${ctr}
+buildah config --entrypoint '["radosgw", "-d", "--no-mon-config", "--id", "\${ID}", "--rgw-data", "/data/", "--run-dir", "/run/"]' \${ctr}
+buildah config --cmd '["--rgw-backend-store", "dbstore", "--debug-rgw", "1"]' \${ctr}
 buildah commit --rm \${ctr} ${IMAGE_NAME}
 EOF
   buildah unshare sh ${tmpfile}

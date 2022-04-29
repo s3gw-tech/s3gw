@@ -10,7 +10,7 @@ Make sure you've installed the following applications:
 - podman
 - buildah
 
-Optionally, if you prefer building an `s3gw` container image with docker you will need:
+Optionally, if you prefer building an `s3gw` container image with Docker you will need:
 
 - docker
 
@@ -84,4 +84,17 @@ or, when using Docker:
 
 ```
 $ docker run -p 7480:7480 localhost/s3gw
+```
+By default, the container will run with the following arguments:
+
+```text
+--rgw-backend-store dbstore 
+--debug-rgw 1
+```
+
+You can override them passing different values when starting the container.  
+For example if want to increase `radosgw` logging verbosity, you could run:
+
+```shell
+$ podman run -p 7480:7480 localhost/s3gw --rgw-backend-store dbstore --debug-rgw 15
 ```
