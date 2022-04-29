@@ -31,9 +31,6 @@
     - name: Create Ingress Controller
       command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/deployment/nginx-ingress.yaml
 
-    - name: Create a Service for the Ingress Controller Pods
-      command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/service/nodeport.yaml
-
 - name: Longhorn ingress deploy
   hosts: admins
   tasks:
@@ -47,3 +44,6 @@
         - kubectl apply -f /home/vagrant/ingresses/lh-ingress.yaml
         - kubectl apply -f /home/vagrant/ingresses/s3gw-secret.yaml
         - kubectl apply -f /home/vagrant/ingresses/s3gw-ingress.yaml
+
+    - name: Create a Service for the Ingress Controller Pods
+      command: kubectl apply -f /home/vagrant/ingresses/nginx-nodeport.yaml

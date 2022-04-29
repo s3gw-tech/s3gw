@@ -13,7 +13,7 @@ spec:
   - host: s3gw.local
     http:
       paths:
-      - path: /dbstore
+      - path: /
         pathType: Prefix
         backend:
           service:

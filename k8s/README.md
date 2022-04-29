@@ -13,6 +13,8 @@ If you are looking for a more lightweight environment, please refer to our [K3s 
 * [Building the environment](#building-the-environment)
 * [Destroying the environment](#destroying-the-environment)
 * [Accessing the environment](#accessing-the-environment)
+  * [ssh](#ssh)
+  * [ingress](#ingress)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
@@ -100,6 +102,8 @@ to be released by Vagrant.
 
 ## Accessing the environment
 
+### ssh
+
 You can connect through `ssh` to all nodes in the cluster.  
 To connect to the `admin` node run:
 
@@ -116,3 +120,28 @@ Connecting to worker-2 ...
 ```
 
 When connecting to a worker node be sure to match the `WORKER_COUNT` value with the one you used in the build phase.
+
+### ingress
+
+There are currently 2 services exposed with a Kubernetes ingress, each one is allocated on a separate host domain:
+
+* Longhorn dashboard, on domain: `longhorn.local`
+* s3gw, on domain: `s3gw.local`
+
+Host domains are exposed with a `nodePort` service listening on port `30443`.  
+You are required to resolve these domains with the external `ip` of one of the nodes of the cluster.  
+
+For example, you can patch host's `/etc/hosts` file with:  
+
+```text
+10.46.201.101   longhorn.local s3gw.local 
+```
+
+This will make domains `longhorn.local` and `s3gw.local` pointing to the `admin` node.  
+
+Services can now be accessed to:
+
+```text
+https://longhorn.local:30443
+https://s3gw.local:30443
+```
