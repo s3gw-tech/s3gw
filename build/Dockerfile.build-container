@@ -18,9 +18,11 @@ RUN mkdir -p /data
 COPY ./bin/radosgw /usr/bin/radosgw
 COPY ./lib/*.so* /usr/lib64/
 
-CMD ["/usr/bin/radosgw", "-d",\
+ENTRYPOINT [ "/usr/bin/radosgw","-d",\
 "--no-mon-config",\
 "--id", "${ID}",\
 "--rgw-data", "/data/",\
-"--run-dir", "/run/",\
-"--rgw-backend-store", "dbstore"]
+"--run-dir", "/run/"]
+
+CMD ["--rgw-backend-store", "dbstore",\
+"--debug-rgw", "1"]
