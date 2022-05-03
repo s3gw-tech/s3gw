@@ -1,0 +1,164 @@
+IMAGE_NAME = ENV["IMAGE_NAME"] || "generic/ubuntu2004"
+VM_NET = (ENV["VM_NET"] || "10.46.201.0").split(".0")[0]
+VM_NET_LAST_OCTET_START = Integer(ENV["VM_NET_LAST_OCTET_START"] || "101")
+CIDR_NET = ENV["CIDR_NET"] || "172.22.0.0"
+WORKER_COUNT = Integer(ENV["WORKER_COUNT"] || "1")
+ADMIN_MEM = Integer(ENV["ADMIN_MEM"] || "4096")
+ADMIN_CPU = Integer(ENV["ADMIN_CPU"] || "2")
+ADMIN_DISK_SIZE = ENV["ADMIN_DISK_SIZE"] || "8G"
+WORKER_MEM = Integer(ENV["WORKER_MEM"] || "4096")
+WORKER_CPU = Integer(ENV["WORKER_CPU"] || "2")
+WORKER_DISK_SIZE = ENV["WORKER_DISK_SIZE"] || "8G"
+
+ansible_groups = {
+  "admins" => [
+    "admin"
+  ],
+  "solo_admins" => [
+  ], 
+  "workers" => [
+    "worker-[1:#{WORKER_COUNT}]"
+  ]
+}
+
+Vagrant.configure("2") do |config|
+
+	config.vm.provider "libvirt" do |lv|
+		lv.connect_via_ssh = false
+		lv.qemu_use_session = false
+		lv.nic_model_type = "e1000"
+		lv.cpu_mode = 'host-passthrough'
+	end
+	
+	#admin node
+	config.vm.define "admin" do |admin|
+		admin.vm.provider "libvirt" do |lv|
+		  lv.memory = ADMIN_MEM
+		  lv.cpus = ADMIN_CPU
+		  if WORKER_COUNT == 0
+		  	lv.storage :file, size: ADMIN_DISK_SIZE, type: 'qcow2', serial: "6646200"
+		  end
+		end
+
+        admin.vm.box = IMAGE_NAME
+		admin.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START}"
+        admin.vm.hostname = "admin"
+
+		if WORKER_COUNT == 0
+			ansible_groups["solo_admins"] << "admin"
+			admin.vm.provision :ansible do |ansible|
+				ansible.limit = "all"
+				ansible.playbook = "playbooks/bootstrap.yaml"
+				ansible.groups = ansible_groups
+				ansible.extra_vars = {
+					worker_count: 0,
+					cidr_net: CIDR_NET
+				}
+			end
+			admin.vm.provision :ansible do |ansible|
+				ansible.limit = "all"
+				ansible.playbook = "playbooks/k8s-install.yaml"
+				ansible.groups = ansible_groups
+				ansible.extra_vars = {
+					worker_count: 0,
+					cidr_net: CIDR_NET
+				}
+			end
+			admin.vm.provision :ansible do |ansible|
+				ansible.limit = "all"
+				ansible.playbook = "playbooks/lh-deploy.yaml"
+				ansible.groups = ansible_groups
+				ansible.extra_vars = {
+					worker_count: 0,
+					cidr_net: CIDR_NET
+				}
+			end
+			admin.vm.provision :ansible do |ansible|
+				ansible.limit = "all"
+				ansible.playbook = "playbooks/s3gw-deploy.yaml"
+				ansible.groups = ansible_groups
+				ansible.extra_vars = {
+					worker_count: 0,
+					cidr_net: CIDR_NET
+				}
+			end
+			admin.vm.provision :ansible do |ansible|
+				ansible.limit = "all"
+				ansible.playbook = "playbooks/ingress-deploy.yaml"
+				ansible.groups = ansible_groups
+				ansible.extra_vars = {
+					worker_count: 0,
+					cidr_net: CIDR_NET
+				}
+			end
+		end
+    end
+
+	if WORKER_COUNT > 0
+		#worker nodes
+		(1..WORKER_COUNT).each do |i|
+			config.vm.define "worker-#{i}" do |worker|
+				worker.vm.provider "libvirt" do |lv|
+					lv.memory = WORKER_MEM
+					lv.cpus = WORKER_CPU
+					lv.storage :file, size: WORKER_DISK_SIZE, type: 'qcow2', serial: "674620#{i}"
+				end
+
+				worker.vm.box = IMAGE_NAME
+				worker.vm.hostname = "worker-#{i}"
+				worker.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i}"
+
+				# Only execute once the Ansible provisioner,
+				# when all the workers are up and ready.
+				if i == WORKER_COUNT
+					worker.vm.provision :ansible do |ansible|
+						ansible.limit = "all"
+						ansible.playbook = "playbooks/bootstrap.yaml"
+						ansible.groups = ansible_groups
+						ansible.extra_vars = {
+							worker_count: WORKER_COUNT,
+							cidr_net: CIDR_NET
+						}
+					end
+					worker.vm.provision :ansible do |ansible|
+						ansible.limit = "all"
+						ansible.playbook = "playbooks/k8s-install.yaml"
+						ansible.groups = ansible_groups
+						ansible.extra_vars = {
+							worker_count: WORKER_COUNT,
+							cidr_net: CIDR_NET
+						}
+					end
+					worker.vm.provision :ansible do |ansible|
+						ansible.limit = "all"
+						ansible.playbook = "playbooks/lh-deploy.yaml"
+						ansible.groups = ansible_groups
+						ansible.extra_vars = {
+							worker_count: 0,
+							cidr_net: CIDR_NET
+						}
+					end
+					worker.vm.provision :ansible do |ansible|
+						ansible.limit = "all"
+						ansible.playbook = "playbooks/s3gw-deploy.yaml"
+						ansible.groups = ansible_groups
+						ansible.extra_vars = {
+							worker_count: 0,
+							cidr_net: CIDR_NET
+						}
+					end
+					worker.vm.provision :ansible do |ansible|
+						ansible.limit = "all"
+						ansible.playbook = "playbooks/ingress-deploy.yaml"
+						ansible.groups = ansible_groups
+						ansible.extra_vars = {
+							worker_count: 0,
+							cidr_net: CIDR_NET
+						}
+					end
+				end
+			end
+		end
+	end
+
+end

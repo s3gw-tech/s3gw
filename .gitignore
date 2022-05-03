@@ -1,1 +1,6 @@
 /.idea/
+.vagrant
+k8s/playbooks/join-command
+k8s/playbooks/admin.conf
+k8s/playbooks/test.yaml
+k8s/s3gw.tar
