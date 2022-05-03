@@ -28,6 +28,14 @@
           - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_policies.yaml
           - kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/common/crds/k8s.nginx.org_globalconfigurations.yaml
 
+    - name: "Patch Ingress Controller yaml"
+      lineinfile:
+        path: /home/vagrant/kubernetes-ingress/deployments/deployment/nginx-ingress.yaml
+        insertafter: "args:"
+        line: "          - -enable-snippets"
+        firstmatch: yes
+        state: present
+
     - name: Create Ingress Controller
       command: kubectl apply -f /home/vagrant/kubernetes-ingress/deployments/deployment/nginx-ingress.yaml
 
