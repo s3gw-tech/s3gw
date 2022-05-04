@@ -9,11 +9,13 @@ export CIDR_NET=${CIDR_NET:-"172.22.0.0"}
 export WORKER_COUNT=${WORKER_COUNT:-"1"}
 export ADMIN_MEM=${ADMIN_MEM:-"4096"}
 export ADMIN_CPU=${ADMIN_CPU:-"2"}
+export ADMIN_DISK=${ADMIN_DISK:-"no"}
 export ADMIN_DISK_SIZE=${ADMIN_DISK_SIZE:-"8G"}
 export WORKER_MEM=${WORKER_MEM:-"4096"}
 export WORKER_CPU=${WORKER_CPU:-"2"}
+export WORKER_DISK=${WORKER_DISK:-"no"}
 export WORKER_DISK_SIZE=${WORKER_DISK_SIZE:-"8G"}
-export LOCAL_CNT_ENG=${LOCAL_CNT_ENG:-"podman"}
+export CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
 
 build_env() {
   echo "IMAGE_NAME=${IMAGE_NAME}"
@@ -23,17 +25,19 @@ build_env() {
   echo "WORKER_COUNT=${WORKER_COUNT}"
   echo "ADMIN_MEM=${ADMIN_MEM}"
   echo "ADMIN_CPU=${ADMIN_CPU}" 
+  echo "ADMIN_DISK=${ADMIN_DISK}"
   echo "ADMIN_DISK_SIZE=${ADMIN_DISK_SIZE}"
   echo "WORKER_MEM=${WORKER_MEM}"
   echo "WORKER_CPU=${WORKER_CPU}"
+  echo "WORKER_DISK=${WORKER_DISK}" 
   echo "WORKER_DISK_SIZE=${WORKER_DISK_SIZE}" 
-  echo "LOCAL_CNT_ENG=${LOCAL_CNT_ENG}" 
+  echo "CONTAINER_ENGINE=${CONTAINER_ENGINE}" 
 
   echo "Saving s3gw container image locally ..."
   rm -rf ./s3gw.tar
-  if [ $LOCAL_CNT_ENG = "podman" ]; then
+  if [ $CONTAINER_ENGINE = "podman" ]; then
     podman save -o ./s3gw.tar s3gw:latest
-  elif [ $LOCAL_CNT_ENG = "docker" ]; then
+  elif [ $CONTAINER_ENGINE = "docker" ]; then
     docker save --output ./s3gw.tar localhost/s3gw:latest
   fi
   echo "Saved"

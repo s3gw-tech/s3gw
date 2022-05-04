@@ -5,9 +5,11 @@ CIDR_NET = ENV["CIDR_NET"] || "172.22.0.0"
 WORKER_COUNT = Integer(ENV["WORKER_COUNT"] || "1")
 ADMIN_MEM = Integer(ENV["ADMIN_MEM"] || "4096")
 ADMIN_CPU = Integer(ENV["ADMIN_CPU"] || "2")
+ADMIN_DISK = ENV["ADMIN_DISK"] || "no"
 ADMIN_DISK_SIZE = ENV["ADMIN_DISK_SIZE"] || "8G"
 WORKER_MEM = Integer(ENV["WORKER_MEM"] || "4096")
 WORKER_CPU = Integer(ENV["WORKER_CPU"] || "2")
+WORKER_DISK = ENV["WORKER_DISK"] || "no"
 WORKER_DISK_SIZE = ENV["WORKER_DISK_SIZE"] || "8G"
 
 ansible_groups = {
@@ -35,7 +37,7 @@ Vagrant.configure("2") do |config|
 		admin.vm.provider "libvirt" do |lv|
 		  lv.memory = ADMIN_MEM
 		  lv.cpus = ADMIN_CPU
-		  if WORKER_COUNT == 0
+		  if WORKER_COUNT == 0 && ADMIN_DISK == "yes"
 		  	lv.storage :file, size: ADMIN_DISK_SIZE, type: 'qcow2', serial: "6646200"
 		  end
 		end
@@ -101,7 +103,9 @@ Vagrant.configure("2") do |config|
 				worker.vm.provider "libvirt" do |lv|
 					lv.memory = WORKER_MEM
 					lv.cpus = WORKER_CPU
-					lv.storage :file, size: WORKER_DISK_SIZE, type: 'qcow2', serial: "674620#{i}"
+					if WORKER_DISK == "yes"
+						lv.storage :file, size: WORKER_DISK_SIZE, type: 'qcow2', serial: "674620#{i}"
+					end
 				end
 
 				worker.vm.box = IMAGE_NAME

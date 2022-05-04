@@ -64,11 +64,13 @@ CIDR_NET                    : The CIDR subnet used by the Calico network plugin
 WORKER_COUNT                : The number of Kubernetes workers in the cluster
 ADMIN_MEM                   : The RAM amount used by the admin node (Vagrant format)
 ADMIN_CPU                   : The CPU amount used by the admin node (Vagrant format)
+ADMIN_DISK                  : yes/no, when yes a disk will be allocated for the admin node - this will be effective only for mono clusters
 ADMIN_DISK_SIZE             : The disk size allocated for the admin node (Vagrant format) - this will be effective only for mono clusters
 WORKER_MEM                  : The RAM amount used by a worker node (Vagrant format)
 WORKER_CPU                  : The CPU amount used by a worker node (Vagrant format)
+WORKER_DISK                 : yes/no, when yes a disk will be allocated for the worker node
 WORKER_DISK_SIZE            : The disk size allocated for a worker node (Vagrant format)
-LOCAL_CNT_ENG               : The host's local container engine used to build the s3gw container (podman/docker)
+CONTAINER_ENGINE            : The host's local container engine used to build the s3gw container (podman/docker)
 ```
 
 So, you could start a more specialized build with:
