@@ -17,6 +17,13 @@ export WORKER_DISK=${WORKER_DISK:-"no"}
 export WORKER_DISK_SIZE=${WORKER_DISK_SIZE:-"8G"}
 export CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
 
+start_env() {
+  echo "Starting environment ..."
+  echo "WORKER_COUNT=${WORKER_COUNT}"
+   
+  vagrant up
+}
+
 build_env() {
   echo "IMAGE_NAME=${IMAGE_NAME}"
   echo "VM_NET=${VM_NET}"
@@ -69,6 +76,10 @@ if [ $# -eq 0 ]; then
   build_env
 elif [ $# -eq 1 ]; then
   case $1 in
+    start)
+      start_env
+      break
+      ;;  
     build)
       build_env
       break

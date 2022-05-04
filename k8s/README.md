@@ -102,6 +102,19 @@ Be sure to match the `WORKER_COUNT` value with the one you used in the build pha
 Providing a lower value instead of the actual one will cause some allocated vm not
 to be released by Vagrant.
 
+## Starting the environment
+
+You can start a previously built environment with:
+
+```bash
+$ ./s3gwctl start
+Starting environment ...
+```
+
+Be sure to match the `WORKER_COUNT` value with the one you used in the build phase.  
+Providing a lower value instead of the actual one will cause some allocated vm not
+to start.
+
 ## Accessing the environment
 
 ### ssh
