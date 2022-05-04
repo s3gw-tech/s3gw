@@ -113,7 +113,7 @@ an initial user using these values.
 Should the configuration be correct, one will then be able to issue commands
 against the running RGW. E.g., `s3cmd mb s3://foo`, to create a new bucket.
 
-## Building then s3gw container image
+## Building the s3gw container image
 
 This documentation will guide you through the several steps to build the
 `s3gw` container image.
