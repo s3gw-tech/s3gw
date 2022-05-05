@@ -118,14 +118,19 @@ while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..statu
 done
 echo
 
-apply "longhorn storage class" longhorn-storageclass.yaml
-apply "Longhorn ingress" longhorn-ingress.yaml
-apply "Longhorn s3gw secret" longhorn-s3gw-secret.yaml
-apply "s3gw namespace" s3gw-namespace.yaml
-apply "s3gw persistent volume claim" s3gw-pvc.yaml
-apply "s3gw pod" s3gw-pod.yaml
-apply "s3gw service" s3gw-service.yaml
-apply "s3gw ingress" s3gw-ingress.yaml
+if [[ -e "s3gw.yaml" ]]; then
+  apply -f s3gw.yaml
+elif [[ -e "generate-spec.sh" ]]; then
+  ./generate-spec.sh s3gw.yaml
+  apply s3gw.yaml
+else
+  echo "Installing s3gw..."
+  k3s kubectl apply \
+    -f ${ghraw}/aquarist-labs/s3gw-core/main/k3s/s3gw.yaml || (
+    error "Failed to install s3gw."
+    exit 1
+  )
+fi
 
 echo -n "Waiting for cluster to become ready..."
 ip=""
