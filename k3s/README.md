@@ -2,8 +2,25 @@ This README will guide you through the setup of a K3s cluster on your system.
 
 # Setup
 
+## Note Before
+
+In some host systems, including OpenSUSE Tumbleweed, one will need to disable
+firewalld to ensure proper functioning of k3s and its pods.
+
+This is something we intend figuring out in the near future.
+
+## From the internet
+
+One can easily setup k3s with s3gw from the internet, by running
+
+```
+$ curl -sfL https://raw.githubusercontent.com/aquarist-labs/s3gw-core/main/k3s/setup.sh | sh -
+```
+
+## From source repository
+
 To install a lightweight Kubernetes cluster for development purpose run
-the following command. It will install open-iscsi and K3s on your local
+the following commands. It will install open-iscsi and K3s on your local
 system. Additionally, it will deploy Longhorn and the s3gw in the cluster.
 
 ```
