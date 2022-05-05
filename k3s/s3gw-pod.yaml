@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: s3gw
-      image: localhost/s3gw:latest
+      image: ghcr.io/aquarist-labs/s3gw:latest
       imagePullPolicy: Never
       volumeMounts:
       - name: s3gw-lh-store
