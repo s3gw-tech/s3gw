@@ -37,6 +37,18 @@ function apply() {
   )
 }
 
+use_local_image=0
+s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
+
+while [ $# -ge 1 ]; do
+  case $1 in
+    --s3gw-image)
+      s3gw_image=$2
+      ;;
+  esac
+  shift
+done
+
 if [[ ! -e "./s3gw.ctr.tar" ]]; then
   echo "Checking for s3gw image locally..."
   img=$(podman images --format '{{.Repository}}:{{.Tag}}' | \
@@ -51,6 +63,9 @@ if [[ ! -e "./s3gw.ctr.tar" ]]; then
     error "Failed to export s3gw image."
     exit 1
   )
+
+  use_local_image=1
+  echo "Using local s3gw image."
 fi
 
 if k3s --version >&/dev/null ; then
@@ -79,11 +94,19 @@ k3s kubectl apply \
   exit 1
 )
 
-echo "Importing s3gw container image..."
-sudo k3s ctr images import ./s3gw.ctr.tar || (
-  error "Failed to import s3gw image."
-  exit 1
-)
+if [ ${use_local_image} -eq 1 ]; then
+  echo "Importing local s3gw container image..."
+  sudo k3s ctr images import ./s3gw.ctr.tar || (
+    error "Failed to import local s3gw image."
+    exit 1
+  )
+else
+  echo "Pulling s3gw container image..."
+  sudo k3s ctr images pull ${s3gw_image} || (
+    error "Failed to pull s3gw image ${s3gw_image}."
+    exit 1
+  )
+fi
 
 # Workaround a K8s behaviour that CustomResourceDefinition must be
 # established before they can be used by a resource.
