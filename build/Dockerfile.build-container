@@ -2,27 +2,29 @@ FROM opensuse/tumbleweed
 LABEL Name=s3gw
 
 ARG ID=s3gw
-ENV ID=$ID
+ENV ID=${ID}
 
 RUN zypper -n install libblkid1 \
-libexpat1 \ 
-libtcmalloc4 \
-libfmt8 \
-libibverbs1 \
-librdmacm1 \ 
-liboath0 \
-libicu71
+  libexpat1 \
+  libtcmalloc4 \
+  libfmt8 \
+  libibverbs1 \
+  librdmacm1 \
+  liboath0 \
+  libicu71
 
 RUN mkdir -p /data
 
 COPY ./bin/radosgw /usr/bin/radosgw
 COPY ./lib/*.so* /usr/lib64/
 
-ENTRYPOINT [ "/usr/bin/radosgw","-d",\
-"--no-mon-config",\
-"--id", "${ID}",\
-"--rgw-data", "/data/",\
-"--run-dir", "/run/"]
+EXPOSE 7480
 
-CMD ["--rgw-backend-store", "dbstore",\
-"--debug-rgw", "1"]
+VOLUME ["/data"]
+ENTRYPOINT ["/usr/bin/radosgw", "-d", \
+  "--no-mon-config", \
+  "--id", "${ID}", \
+  "--rgw-data", "/data/", \
+  "--run-dir", "/run/"]
+CMD ["--rgw-backend-store", "dbstore", \
+  "--debug-rgw", "1"]
