@@ -52,6 +52,7 @@
         - kubectl apply -f /home/vagrant/ingresses/lh-ingress.yaml
         - kubectl apply -f /home/vagrant/ingresses/s3gw-secret.yaml
         - kubectl apply -f /home/vagrant/ingresses/s3gw-ingress.yaml
+        - kubectl apply -f /home/vagrant/ingresses/s3gw-ingress-no-tls.yaml
 
     - name: Create a Service for the Ingress Controller Pods
       command: kubectl apply -f /home/vagrant/ingresses/nginx-nodeport.yaml
