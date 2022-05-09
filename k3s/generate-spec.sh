@@ -14,7 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-tgtfile=${1:-"s3gw.yaml"}
+tgtfile="s3gw.yaml"
+is_dev_env=false
+
+s3gw_pod_yaml="s3gw-pod"
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --output|-o)
+      tgtfile="${2}"
+      shift 1
+      ;;
+    --dev)
+      s3gw_pod_yaml="s3gw-pod-dev"
+      ;;
+  esac
+  shift 1
+done
+
+[[ -z "${tgtfile}" ]] && \
+  echo "error: missing output file" >&2 && \
+  exit 1
 
 specs=(
   "longhorn-ingress"
@@ -22,7 +42,7 @@ specs=(
   "longhorn-storageclass"
   "s3gw-namespace"
   "s3gw-pvc"
-  "s3gw-pod"
+  ${s3gw_pod_yaml}
   "s3gw-service"
   "s3gw-ingress"
 )

@@ -8,7 +8,8 @@ metadata:
 spec:
   containers:
     - name: s3gw
-      image: ghcr.io/aquarist-labs/s3gw:latest
+      image: localhost/s3gw:latest
+      imagePullPolicy: Never
       volumeMounts:
       - name: s3gw-lh-store
         mountPath: /data
