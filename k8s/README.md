@@ -1,10 +1,9 @@
 # s3gw environment
 
-You can quickly run the `s3gw` container alongside with a Longhorn installation
-by following this guide.  
-You will get a fully functional Kubernetes cluster installed on top of a set of virtual
-machines.  
-If you are looking for a more lightweight environment, please refer to our [K3s section](../k3s/README.md).
+Follow this guide if you wish to run an `s3gw` image on the latest stable Kubernetes release.  
+You will be able to quickly build a cluster installed on a set of virtual machines.  
+You will have a certain degree of choice in terms of customization options.  
+If you are looking for a more lightweight environment, please refer to our [K3s section](../k3s).
 
 ## Table of Contents
 
@@ -71,6 +70,9 @@ WORKER_CPU                  : The CPU amount used by a worker node (Vagrant form
 WORKER_DISK                 : yes/no, when yes a disk will be allocated for the worker node
 WORKER_DISK_SIZE            : The disk size allocated for a worker node (Vagrant format)
 CONTAINER_ENGINE            : The host's local container engine used to build the s3gw container (podman/docker)
+STOP_AFTER_BOOTSTRAP        : yes/no, when yes stop the provisioning just after the bootstrapping phase
+START_LOCAL_REGISTRY        : yes/no, when yes start a local insecure image registry at admin.local:5000
+S3GW_IMAGE                  : The s3gw's container image used when deploying the application on k8s
 ```
 
 So, you could start a more specialized build with:
@@ -141,22 +143,23 @@ When connecting to a worker node be sure to match the `WORKER_COUNT` value with 
 There are currently 2 services exposed with a Kubernetes ingress, each one is allocated on a separate host domain:
 
 * Longhorn dashboard, on domain: `longhorn.local`
-* s3gw, on domain: `s3gw.local`
+* s3gw, on domain: `s3gw.local` and `s3gw-no-tls.local`
 
-Host domains are exposed with a `nodePort` service listening on port `30443`.  
+Host domains are exposed with a `nodePort` service listening on ports `30443` (https) and `30080` (http).  
 You are required to resolve these domains with the external `ip` of one of the nodes of the cluster.  
 
 For example, you can patch host's `/etc/hosts` file with:  
 
 ```text
-10.46.201.101   longhorn.local s3gw.local 
+10.46.201.101   longhorn.local s3gw.local s3gw-no-tls.local
 ```
 
-This will make domains `longhorn.local` and `s3gw.local` pointing to the `admin` node.  
+This will make domains `longhorn.local`, `s3gw.local` and `s3gw-no-tls.local` pointing to the `admin` node.  
 
 Services can now be accessed to:
 
 ```text
 https://longhorn.local:30443
 https://s3gw.local:30443
+http://s3gw-no-tls.local:30080
 ```

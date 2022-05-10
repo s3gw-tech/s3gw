@@ -1,4 +1,4 @@
-- name: longhorn-1
+- name: Deploy Longhorn
   hosts: admins
   tasks:
   

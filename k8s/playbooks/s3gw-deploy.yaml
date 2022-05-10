@@ -5,6 +5,12 @@
     - name: Copy s3gw cfg to local dir
       copy: src=../s3gw dest=/home/vagrant mode=0777
 
+    - name: Set S3GW_IMAGE in s3gw-deployment.yaml
+      replace:
+        path: /home/vagrant/s3gw/s3gw-deployment.yaml
+        regexp: '##S3GW_IMAGE##'
+        replace: "{{ s3gw_image }}"
+
     - name: Deploy s3gw
       command: "{{ item }}"
       with_items:

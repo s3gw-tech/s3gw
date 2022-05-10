@@ -16,6 +16,9 @@ export WORKER_CPU=${WORKER_CPU:-"2"}
 export WORKER_DISK=${WORKER_DISK:-"no"}
 export WORKER_DISK_SIZE=${WORKER_DISK_SIZE:-"8G"}
 export CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
+export STOP_AFTER_BOOTSTRAP=${STOP_AFTER_BOOTSTRAP:-"no"}
+export START_LOCAL_REGISTRY=${START_LOCAL_REGISTRY:-"no"}
+export S3GW_IMAGE=${S3GW_IMAGE:-"ghcr.io/aquarist-labs/s3gw:latest"}
 
 start_env() {
   echo "Starting environment ..."
@@ -36,26 +39,31 @@ build_env() {
   echo "ADMIN_DISK_SIZE=${ADMIN_DISK_SIZE}"
   echo "WORKER_MEM=${WORKER_MEM}"
   echo "WORKER_CPU=${WORKER_CPU}"
-  echo "WORKER_DISK=${WORKER_DISK}" 
-  echo "WORKER_DISK_SIZE=${WORKER_DISK_SIZE}" 
-  echo "CONTAINER_ENGINE=${CONTAINER_ENGINE}" 
+  echo "WORKER_DISK=${WORKER_DISK}"
+  echo "WORKER_DISK_SIZE=${WORKER_DISK_SIZE}"
+  echo "CONTAINER_ENGINE=${CONTAINER_ENGINE}"
+  echo "STOP_AFTER_BOOTSTRAP=${STOP_AFTER_BOOTSTRAP}"
+  echo "START_LOCAL_REGISTRY=${START_LOCAL_REGISTRY}"
+  echo "S3GW_IMAGE=${S3GW_IMAGE}"
 
-  echo "Saving s3gw container image locally ..."
-  rm -rf ./s3gw.tar
-  if [ $CONTAINER_ENGINE = "podman" ]; then
-    podman save -o ./s3gw.tar s3gw:latest
-  elif [ $CONTAINER_ENGINE = "docker" ]; then
-    docker save --output ./s3gw.tar localhost/s3gw:latest
+  if [ $START_LOCAL_REGISTRY = "yes" ]; then
+    echo "Saving s3gw container image locally ..."
+    rm -rf ./s3gw.tar
+    if [ $CONTAINER_ENGINE = "podman" ]; then
+      podman save -o ./s3gw.tar s3gw:latest
+    elif [ $CONTAINER_ENGINE = "docker" ]; then
+      docker save --output ./s3gw.tar localhost/s3gw:latest
+    fi
+    echo "Saved"
   fi
-  echo "Saved"
 
   echo "Building environment ..."
   vagrant up
   echo "Built"
 
-  echo "Removing previously saved s3gw container image ..."
+  echo "Cleaning ..."
   rm -rf ./s3gw.tar
-  echo "Removed"
+  echo "Cleaned"
 }
 
 destroy_env() {
