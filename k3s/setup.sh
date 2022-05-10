@@ -37,35 +37,53 @@ function apply() {
   )
 }
 
+dev_env=false
 use_local_image=0
+has_image=false
 s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
 
-while [ $# -ge 1 ]; do
+while [[ $# -gt 0 ]]; do
   case $1 in
+    --dev)
+      dev_env=true
+      echo "======================================"
+      echo "  INSTALLING DEVELOPMENT ENVIRONMENT  "
+      echo "======================================"
+      echo
+      ;;
     --s3gw-image)
       s3gw_image=$2
+      has_image=true
+      shift 1
       ;;
   esac
   shift
 done
 
-if [[ ! -e "./s3gw.ctr.tar" ]]; then
-  echo "Checking for s3gw image locally..."
-  img=$(podman images --format '{{.Repository}}:{{.Tag}}' | \
-    grep 's3gw:latest')
+if [[ -z "${s3gw_image}" ]]; then
+  error "s3gw image not provided"
+  exit 1
+fi
 
-  if [[ -z "${img}" ]]; then
-    error "Unable to find s3gw image locally; abort."
-    exit 1
+if $dev_env ; then
+  if [[ ! -e "./s3gw.ctr.tar" ]]; then
+    echo "Checking for s3gw image locally..."
+    img=$(podman images --format '{{.Repository}}:{{.Tag}}' | \
+      grep 's3gw:latest')
+
+    if [[ -z "${img}" ]]; then
+      error "Unable to find s3gw image locally; abort."
+      exit 1
+    fi
+
+    podman image save ${img} -o ./s3gw.ctr.tar || (
+      error "Failed to export s3gw image."
+      exit 1
+    )
   fi
-
-  podman image save ${img} -o ./s3gw.ctr.tar || (
-    error "Failed to export s3gw image."
-    exit 1
-  )
-
   use_local_image=1
-  echo "Using local s3gw image."
+  ! $has_image && s3gw_image="localhost/s3gw:latest"
+  echo "Using local s3gw image '${s3gw_image}'."
 fi
 
 if k3s --version >&/dev/null ; then
@@ -118,14 +136,25 @@ while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..statu
 done
 echo
 
-apply "longhorn storage class" longhorn-storageclass.yaml
-apply "Longhorn ingress" longhorn-ingress.yaml
-apply "Longhorn s3gw secret" longhorn-s3gw-secret.yaml
-apply "s3gw namespace" s3gw-namespace.yaml
-apply "s3gw persistent volume claim" s3gw-pvc.yaml
-apply "s3gw pod" s3gw-pod.yaml
-apply "s3gw service" s3gw-service.yaml
-apply "s3gw ingress" s3gw-ingress.yaml
+s3gw_yaml="s3gw.yaml"
+$dev_env && s3gw_yaml="s3gw-dev.yaml"
+
+if [[ -e ${s3gw_yaml} ]]; then
+  apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
+elif [[ -e "generate-spec.sh" ]]; then
+  extra=""
+  $dev_env && extra="--dev"
+  echo "Generating s3gw spec file at '${s3gw_yaml}'..."
+  ./generate-spec.sh --output ${s3gw_yaml} ${extra}
+  apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
+else
+  echo "Installing s3gw..."
+  k3s kubectl apply \
+    -f ${ghraw}/aquarist-labs/s3gw-core/main/k3s/s3gw.yaml || (
+    error "Failed to install s3gw."
+    exit 1
+  )
+fi
 
 echo -n "Waiting for cluster to become ready..."
 ip=""
