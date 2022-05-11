@@ -1,9 +1,10 @@
-# s3gw environment
+# K8s
 
 Follow this guide if you wish to run an `s3gw` image on the latest stable Kubernetes release.  
 You will be able to quickly build a cluster installed on a set of virtual machines.  
 You will have a certain degree of choice in terms of customization options.  
-If you are looking for a more lightweight environment, please refer to our [K3s section](../k3s).
+If you are looking for a more lightweight environment running directly on your host,
+refer to our [K3s section](./README.k3s.md).
 
 ## Table of Contents
 
@@ -43,11 +44,11 @@ Make sure you have installed the following applications on your system:
 
 ## Building the environment
 
-You can build the environment with the `s3gwctl` script.  
+You can build the environment with the `setup_k8s.sh` script.  
 The simplest form you can use is:  
 
 ```bash
-$ ./s3gwctl build
+$ ./setup_k8s.sh build
 Building environment ...
 ```
 
@@ -78,14 +79,14 @@ S3GW_IMAGE                  : The s3gw's container image used when deploying the
 So, you could start a more specialized build with:
 
 ```bash
-$ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./s3gwctl build
+$ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./setup_k8s.sh build
 Building environment ...
 ```
 
 You create a mono virtual machine cluster with the lone `admin` node with:
 
 ```bash
-$ WORKER_COUNT=0 ./s3gwctl build
+$ WORKER_COUNT=0 ./setup_k8s.sh build
 Building environment ...
 ```
 
@@ -96,7 +97,7 @@ In this case, the node will be able to schedule pods as a `worker` node.
 You can destroy a previously built environment with:
 
 ```bash
-$ ./s3gwctl destroy
+$ ./setup_k8s.sh destroy
 Destroying environment ...
 ```
 
@@ -109,7 +110,7 @@ to be released by Vagrant.
 You can start a previously built environment with:
 
 ```bash
-$ ./s3gwctl start
+$ ./setup_k8s.sh start
 Starting environment ...
 ```
 
@@ -125,14 +126,14 @@ You can connect through `ssh` to all nodes in the cluster.
 To connect to the `admin` node run:
 
 ```bash
-$ ./s3gwctl ssh admin
+$ ./setup_k8s.sh ssh admin
 Connecting to admin ...
 ```
 
 To connect to a `worker` node run:
 
 ```bash
-$ ./s3gwctl ssh worker-2
+$ ./setup_k8s.sh ssh worker-2
 Connecting to worker-2 ...
 ```
 

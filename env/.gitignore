@@ -1,0 +1,5 @@
+/s3gw.ctr.tar
+playbooks/join-command
+playbooks/admin.conf
+test.yaml
+s3gw.tar

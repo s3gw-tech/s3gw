@@ -2,7 +2,7 @@
 
 set -e
 
-export IMAGE_NAME=${IMAGE_NAME:-"generic/ubuntu2004"}
+export IMAGE_NAME=${IMAGE_NAME:-"generic/ubuntu1604"}
 export VM_NET=${VM_NET:-"10.46.201.0"}
 export VM_NET_LAST_OCTET_START=${CLUSTER_NET_LAST_OCTET_START:-"101"}
 export CIDR_NET=${CIDR_NET:-"172.22.0.0"}
