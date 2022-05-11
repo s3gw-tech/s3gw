@@ -16,6 +16,13 @@ build_radosgw_binary() {
   echo "CEPH_DIR=${CEPH_DIR}"
   echo "NPROC=${NPROC}"
 
+  export CCACHE_DIR="${CEPH_DIR}/build.ccache"
+  if [ ! -d "${CCACHE_DIR}" ]; then
+    mkdir "${CCACHE_DIR}"
+    echo "Created by aquarist-labs/s3gw-core build-radosgw container" > \
+      "${CCACHE_DIR}/README"
+  fi
+
   cd ${CEPH_DIR}
 
   ./install-deps.sh || true
