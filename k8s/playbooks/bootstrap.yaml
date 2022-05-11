@@ -1,4 +1,4 @@
-- name: bootstrap-1
+- name: Install Packages
   hosts: all
   become: true
   tasks:
@@ -16,7 +16,7 @@
             - gnupg-agent
             - software-properties-common            
 
-- name: bootstrap-2
+- name: Container Runtime
   hosts: all
   become: true
   tasks:
@@ -31,19 +31,18 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
         state: present
 
-    - name: Install Docker
+    - name: Install container runtime
       apt: 
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
+            - containerd.io
             - docker-ce 
             - docker-ce-cli 
-            - docker-compose
-            - containerd.io
 
-    - name: Patching daemon.json
+    - name: Patching docker/daemon.json
       copy:
         dest: "/etc/docker/daemon.json"
         content: |
@@ -51,10 +50,64 @@
             "exec-opts": ["native.cgroupdriver=systemd"],
             "insecure-registries" : ["admin:5000"]
             }
+
+    - name: Patching /etc/modules-load.d/containerd.conf
+      copy:
+        dest: "/etc/modules-load.d/containerd.conf"
+        content: |
+            overlay
+            br_netfilter
+
+    - name: Add the overlay module
+      modprobe:
+        name: overlay
+        state: present
+
+    - name: Add the br_netfilter module
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: Patching /etc/sysctl.d/99-kubernetes-cri.conf
+      copy:
+        dest: "/etc/sysctl.d/99-kubernetes-cri.conf"
+        content: |
+            net.bridge.bridge-nf-call-iptables  = 1
+            net.ipv4.ip_forward                 = 1
+            net.bridge.bridge-nf-call-ip6tables = 1
+
+    - name: Apply sysctl params without reboot
+      command: sysctl --system
+
+    - name: Patching /etc/containerd/config.toml
+      copy:
+        dest: "/etc/containerd/config.toml"
+        content: |
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+              SystemdCgroup = true
             
-    - name: Restart Docker
+            version = 2
+
+            [plugins."io.containerd.grpc.v1.cri".registry]
+              config_path = "/etc/containerd/certs.d"
+
+    - name: Create /etc/containerd/certs.d/admin.local directory
+      file:
+        path: /etc/containerd/certs.d/admin.local
+        state: directory
+
+    - name: Patching /etc/containerd/certs.d/admin.local/hosts.toml
+      copy:
+        dest: "/etc/containerd/certs.d/admin.local/hosts.toml"
+        content: |
+            [host."http://admin.local:5000"]
+              capabilities = ["pull", "resolve", "push"]
+              skip_verify = true
+
+    - name: Restart containerd
       service:
-        name: docker
+        name: containerd
         state: restarted
         daemon_reload: yes
 
@@ -62,6 +115,12 @@
       user:
         name: vagrant
         group: docker
+
+    - name: Restart Docker
+      service:
+        name: docker
+        state: restarted
+        daemon_reload: yes
 
     - name: Remove swapfile from /etc/fstab
       mount:
@@ -75,8 +134,8 @@
     - name: Disable swap
       command: swapoff -a
 
-- name: bootstrap-3
-  hosts: admins
+- name: Start Local Registry [optional]
+  hosts: registries
   become: yes
   tasks:
 
@@ -96,7 +155,7 @@
         - docker image rm admin:5000/s3gw
         - rm -rf s3gw.tar
 
-- name: bootstrap-4
+- name: Local DNS
   hosts: all
   gather_facts: yes
   tasks:

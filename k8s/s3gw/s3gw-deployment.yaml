@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: s3gw
-          image: admin:5000/s3gw:latest
+          image: ##S3GW_IMAGE##
           args: ["--rgw-backend-store", $(RGW_BACKEND_STORE), "--debug-rgw", $(DEBUG_RGW)]
           envFrom:
             - configMapRef:

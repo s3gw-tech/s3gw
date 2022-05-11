@@ -1,4 +1,4 @@
-- name: k8s-1
+- name: Install k8s Packages
   hosts: all
   become: true
   tasks:
@@ -47,12 +47,12 @@
           - /bin/bash -c "sudo echo 'alias k=kubectl' >> /home/vagrant/.bashrc"
           - /bin/bash -c "sudo echo 'complete -F __start_kubectl k' >> /home/vagrant/.bashrc"      
   
-- name: k8s-2
+- name: Kubeadm
   hosts: admins
   become: true
   tasks:
     - name: Initialize Kubernetes cluster using kubeadm
-      command: kubeadm init --apiserver-advertise-address="{{ ansible_facts['eth1']['ipv4']['address'] }}" --apiserver-cert-extra-sans="{{ ansible_facts['eth1']['ipv4']['address'] }}" --node-name master --pod-network-cidr={{ cidr_net }}/16 --ignore-preflight-errors=Swap
+      command: kubeadm init --apiserver-advertise-address="{{ ansible_facts['eth1']['ipv4']['address'] }}" --apiserver-cert-extra-sans="{{ ansible_facts['eth1']['ipv4']['address'] }}" --node-name admin --pod-network-cidr={{ cidr_net }}/16 --ignore-preflight-errors=Swap
 
     - name: Setup kubeconfig for vagrant user
       command: "{{ item }}"
@@ -90,7 +90,7 @@
     - name: Copy join command to local file
       local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
 
-- name: k8s-3
+- name: Join
   hosts: workers
   become: true
   tasks:
@@ -108,18 +108,21 @@
     - name: Copy kubeconfig to local file
       copy: src=./admin.conf dest=/home/vagrant/.kube/config mode=0777
 
-- name: k8s-4
+- name: Probe admin
   hosts: admins
   tasks:
     - name: Wait for admin to be ready 
-      command: kubectl get nodes master
+      command: kubectl get nodes admin
       register: result
       until: result.stdout.find("NotReady") == -1
       retries: 25
       delay: 5
 
-- name: k8s-5
+- name: Untaint admin
   hosts: solo_admins
   tasks:
     - name: Untaint admin for pod scheduling
-      command: kubectl taint nodes --all node-role.kubernetes.io/master-
+      command: "{{ item }}"
+      with_items:
+          - kubectl taint node --all node-role.kubernetes.io/master-
+          - kubectl taint node --all node-role.kubernetes.io/control-plane-

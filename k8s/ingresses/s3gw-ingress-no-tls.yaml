@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: s3gw-ingress
+  name: s3gw-no-tls-ingress
   namespace: s3gw-system
   annotations:
 
@@ -36,12 +36,8 @@ metadata:
         }
 spec:
   ingressClassName: nginx
-  tls:
-  - hosts:
-    - s3gw.local
-    secretName: s3gw-secret
   rules: 
-  - host: s3gw.local
+  - host: s3gw-no-tls.local
     http:
       paths:
         # We need to add a /foo location because we need to define a backend.
