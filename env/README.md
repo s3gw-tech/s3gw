@@ -9,7 +9,7 @@ K3s version can install directly on your host or on a virtual machine.
 K8s version will install on an arbitrary number of virtual machines depending on the
 size of the cluster.
 
-Refer to the appropriate sections to proceed with the setup of the environment:  
+Refer to the appropriate section to proceed with the setup of the environment:  
 
 * [K3s Setup](./README.k3s.md)
 * [K8s Setup](./README.k8s.md)

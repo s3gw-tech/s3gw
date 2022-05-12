@@ -17,7 +17,7 @@
 tgtfile="s3gw.yaml"
 is_dev_env=false
 
-s3gw_pod_yaml="s3gw-pod"
+s3gw_image="ghcr.io\/aquarist-labs\/s3gw:latest"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -26,11 +26,13 @@ while [[ $# -gt 0 ]]; do
       shift 1
       ;;
     --dev)
-      s3gw_pod_yaml="s3gw-pod-dev"
+      s3gw_image="localhost\/s3gw:latest"
       ;;
   esac
   shift 1
 done
+
+sed "s/##S3GW_IMAGE##/"${s3gw_image}"/" s3gw/s3gw-deployment.yaml > s3gw/s3gw-deployment.tmp.yaml
 
 [[ -z "${tgtfile}" ]] && \
   echo "error: missing output file" >&2 && \
@@ -42,7 +44,8 @@ specs=(
   "s3gw/longhorn-storageclass"
   "s3gw/s3gw-namespace"
   "s3gw/s3gw-pvc"
-  "s3gw/"${s3gw_pod_yaml}
+  "s3gw/s3gw-config"
+  "s3gw/s3gw-deployment.tmp"
   "s3gw/s3gw-service"
   "ingress-traefik/s3gw-ingress"
 )

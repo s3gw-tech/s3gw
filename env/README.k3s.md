@@ -62,6 +62,14 @@ Backup Target Credential Secret: `s3gw-secret`
 
 # Install K3s on a virtual machine
 
+## Requirements
+
+Make sure you have installed the following applications on your system:
+
+* Vagrant
+* libvirt
+* Ansible
+
 In order to install k3s on a virtual machine rather than on your host, execute:
 
 ```
