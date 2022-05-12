@@ -37,14 +37,14 @@ done
   exit 1
 
 specs=(
-  "longhorn-ingress"
-  "longhorn-s3gw-secret"
-  "longhorn-storageclass"
-  "s3gw-namespace"
-  "s3gw-pvc"
-  ${s3gw_pod_yaml}
-  "s3gw-service"
-  "s3gw-ingress"
+  "ingress-traefik/longhorn-ingress"
+  "s3gw/longhorn-s3gw-secret"
+  "s3gw/longhorn-storageclass"
+  "s3gw/s3gw-namespace"
+  "s3gw/s3gw-pvc"
+  "s3gw/"${s3gw_pod_yaml}
+  "s3gw/s3gw-service"
+  "ingress-traefik/s3gw-ingress"
 )
 
 d="$(date +'%Y/%M/%d %H:%m:%S %Z')"
@@ -72,6 +72,7 @@ EOF
 
 has_prior=false
 for spec in ${specs[@]}; do
+  echo inflating ${spec}.yaml
   ${has_prior} && echo "---" >> ${tgtfile}
   has_prior=true
   cat ${spec}.yaml >> ${tgtfile}

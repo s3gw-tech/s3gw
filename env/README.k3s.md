@@ -2,7 +2,8 @@
 
 This README will guide you through the setup of a K3s cluster on your system.  
 If you are looking for a vanilla K8s cluster running on virtual machines,
-refer to our [K8s section](./README.k8s.md).
+refer to our [K8s section](./README.k8s.md).  
+To install K3s on a virtual machine, see [here](#Install-K3s-on-a-virtual-machine).
 # Setup
 
 ## Note Before
@@ -58,3 +59,14 @@ backup target.
 
 Backup Target: `s3://<BUCKET_NAME>@us/`
 Backup Target Credential Secret: `s3gw-secret`
+
+# Install K3s on a virtual machine
+
+In order to install k3s on a virtual machine rather than on your host, execute:
+
+```
+$ cd ~/git/s3gw-core/env
+$ ./setup_k3s.sh --vm
+```
+
+Refer to [K8s section](./README.k8s.md) for more configuration options.

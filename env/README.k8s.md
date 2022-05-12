@@ -74,6 +74,7 @@ CONTAINER_ENGINE            : The host's local container engine used to build th
 STOP_AFTER_BOOTSTRAP        : yes/no, when yes stop the provisioning just after the bootstrapping phase
 START_LOCAL_REGISTRY        : yes/no, when yes start a local insecure image registry at admin.local:5000
 S3GW_IMAGE                  : The s3gw's container image used when deploying the application on k8s
+K8S_DISTRO                  : The Kubernetes distribution to install; specify k3s or k8s (k8s default)
 ```
 
 So, you could start a more specialized build with:
