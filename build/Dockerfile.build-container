@@ -8,8 +8,6 @@ RUN zypper -n install libblkid1 \
   libexpat1 \
   libtcmalloc4 \
   libfmt8 \
-  libibverbs1 \
-  librdmacm1 \
   liboath0 \
   libicu71
 
