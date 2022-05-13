@@ -37,6 +37,26 @@ function apply() {
   )
 }
 
+function show_ingresses() {
+  ip=""
+  until [ -n "${ip}" ]
+  do
+    echo -n "." && sleep 1;
+    ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
+  done
+  echo -e "\n"
+  echo "Longhorn UI available at http://${ip}:80/longhorn/"
+  echo "s3gw available at http://${ip}:80/s3gw/"
+  echo -e "\n"
+}
+
+function install_on_vm() {
+  echo "Proceding to install on a virtual machine"
+  WORKER_COUNT=0 
+  K8S_DISTRO=k3s
+  source ./setup_k8s.sh build
+}
+
 dev_env=false
 use_local_image=0
 has_image=false
@@ -55,6 +75,14 @@ while [[ $# -gt 0 ]]; do
       s3gw_image=$2
       has_image=true
       shift 1
+      ;;
+    --show-ingresses)
+      show_ingresses
+      exit 0
+      ;;
+    --vm)
+      install_on_vm
+      exit 0
       ;;
   esac
   shift
@@ -157,13 +185,4 @@ else
 fi
 
 echo -n "Waiting for cluster to become ready..."
-ip=""
-until [ -n "${ip}" ]
-do
-  echo -n "." && sleep 1;
-  ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
-done
-echo -e "\n"
-echo "Longhorn UI available at http://${ip}:80/longhorn/"
-echo "s3gw available at http://${ip}:80/s3gw/"
-echo -e "\n"
+show_ingresses

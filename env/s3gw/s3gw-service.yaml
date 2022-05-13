@@ -7,7 +7,6 @@ spec:
   selector:
     app.aquarist-labs.io/name: s3gw
   ports:
-    - name: s3gw-service-http
-      protocol: TCP
+    - protocol: TCP
       port: 80
-      targetPort: s3gw-http
+      targetPort: 7480

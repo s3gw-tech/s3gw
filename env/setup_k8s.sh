@@ -2,7 +2,7 @@
 
 set -e
 
-export IMAGE_NAME=${IMAGE_NAME:-"generic/ubuntu2004"}
+export IMAGE_NAME=${IMAGE_NAME:-"generic/ubuntu1604"}
 export VM_NET=${VM_NET:-"10.46.201.0"}
 export VM_NET_LAST_OCTET_START=${CLUSTER_NET_LAST_OCTET_START:-"101"}
 export CIDR_NET=${CIDR_NET:-"172.22.0.0"}
@@ -19,6 +19,7 @@ export CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
 export STOP_AFTER_BOOTSTRAP=${STOP_AFTER_BOOTSTRAP:-"no"}
 export START_LOCAL_REGISTRY=${START_LOCAL_REGISTRY:-"no"}
 export S3GW_IMAGE=${S3GW_IMAGE:-"ghcr.io/aquarist-labs/s3gw:latest"}
+export K8S_DISTRO=${K8S_DISTRO:-"k8s"}
 
 start_env() {
   echo "Starting environment ..."
@@ -45,6 +46,7 @@ build_env() {
   echo "STOP_AFTER_BOOTSTRAP=${STOP_AFTER_BOOTSTRAP}"
   echo "START_LOCAL_REGISTRY=${START_LOCAL_REGISTRY}"
   echo "S3GW_IMAGE=${S3GW_IMAGE}"
+  echo "K8S_DISTRO=${K8S_DISTRO}"
 
   if [ $START_LOCAL_REGISTRY = "yes" ]; then
     echo "Saving s3gw container image locally ..."
@@ -64,6 +66,9 @@ build_env() {
   echo "Cleaning ..."
   rm -rf ./s3gw.tar
   echo "Cleaned"
+  echo
+  echo "Connect to admin node with:"
+  echo "vagrant ssh admin"
 }
 
 destroy_env() {
@@ -86,22 +91,18 @@ elif [ $# -eq 1 ]; then
   case $1 in
     start)
       start_env
-      break
       ;;  
     build)
       build_env
-      break
       ;;
     destroy)
       destroy_env
-      break
       ;;
   esac
 else
   case $1 in
     ssh)
       ssh_vm $2
-      break
       ;;
   esac
 fi

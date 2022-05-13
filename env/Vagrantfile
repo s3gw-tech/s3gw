@@ -1,4 +1,4 @@
-IMAGE_NAME = ENV["IMAGE_NAME"] || "generic/ubuntu2004"
+IMAGE_NAME = ENV["IMAGE_NAME"] || "generic/ubuntu1604"
 VM_NET = (ENV["VM_NET"] || "10.46.201.0").split(".0")[0]
 VM_NET_LAST_OCTET_START = Integer(ENV["VM_NET_LAST_OCTET_START"] || "101")
 CIDR_NET = ENV["CIDR_NET"] || "172.22.0.0"
@@ -14,6 +14,7 @@ WORKER_DISK_SIZE = ENV["WORKER_DISK_SIZE"] || "8G"
 STOP_AFTER_BOOTSTRAP = ENV["STOP_AFTER_BOOTSTRAP"] || "no"
 START_LOCAL_REGISTRY = ENV["START_LOCAL_REGISTRY"] || "no"
 S3GW_IMAGE = ENV["S3GW_IMAGE"] || "ghcr.io/aquarist-labs/s3gw:latest"
+K8S_DISTRO = ENV["K8S_DISTRO"] || "k8s"
 
 ansible_groups = {
   "admins" => [
@@ -55,15 +56,18 @@ Vagrant.configure("2") do |config|
 			ansible_groups["registries"] << "admin"
 		end
 
-		if WORKER_COUNT == 0
+		# k8s-vanilla provisioning [WORKER_COUNT == 0]
+		#
+		if K8S_DISTRO == "k8s" && WORKER_COUNT == 0
 			ansible_groups["solo_admins"] << "admin"
 			admin.vm.provision :ansible do |ansible|
 				ansible.limit = "all"
-				ansible.playbook = "playbooks/bootstrap.yaml"
+				ansible.playbook = "playbooks/k8s-bootstrap.yaml"
 				ansible.groups = ansible_groups
 				ansible.extra_vars = {
 					worker_count: 0,
-					cidr_net: CIDR_NET
+					cidr_net: CIDR_NET,
+					s3gw_image: S3GW_IMAGE
 				}
 			end
 			if(STOP_AFTER_BOOTSTRAP == "no")
@@ -73,21 +77,13 @@ Vagrant.configure("2") do |config|
 					ansible.groups = ansible_groups
 					ansible.extra_vars = {
 						worker_count: 0,
-						cidr_net: CIDR_NET
+						cidr_net: CIDR_NET,
+						s3gw_image: S3GW_IMAGE
 					}
 				end
 				admin.vm.provision :ansible do |ansible|
 					ansible.limit = "all"
-					ansible.playbook = "playbooks/lh-deploy.yaml"
-					ansible.groups = ansible_groups
-					ansible.extra_vars = {
-						worker_count: 0,
-						cidr_net: CIDR_NET
-					}
-				end
-				admin.vm.provision :ansible do |ansible|
-					ansible.limit = "all"
-					ansible.playbook = "playbooks/s3gw-deploy.yaml"
+					ansible.playbook = "playbooks/k8s-longhorn-deploy.yaml"
 					ansible.groups = ansible_groups
 					ansible.extra_vars = {
 						worker_count: 0,
@@ -97,18 +93,47 @@ Vagrant.configure("2") do |config|
 				end
 				admin.vm.provision :ansible do |ansible|
 					ansible.limit = "all"
-					ansible.playbook = "playbooks/ingress-deploy.yaml"
+					ansible.playbook = "playbooks/k8s-s3gw-deploy.yaml"
 					ansible.groups = ansible_groups
 					ansible.extra_vars = {
 						worker_count: 0,
-						cidr_net: CIDR_NET
+						cidr_net: CIDR_NET,
+						s3gw_image: S3GW_IMAGE
+					}
+				end
+				admin.vm.provision :ansible do |ansible|
+					ansible.limit = "all"
+					ansible.playbook = "playbooks/k8s-ingress-deploy.yaml"
+					ansible.groups = ansible_groups
+					ansible.extra_vars = {
+						worker_count: 0,
+						cidr_net: CIDR_NET,
+						s3gw_image: S3GW_IMAGE
 					}
 				end
 			end
 		end
+
+		# k3s provisioning
+		# 
+		#
+		if K8S_DISTRO == "k3s"
+			admin.vm.provision :ansible do |ansible|
+				ansible.limit = "all"
+				ansible.playbook = "playbooks/k3s-bootstrap.yaml"
+				ansible.groups = ansible_groups
+				ansible.extra_vars = {
+					worker_count: 0,
+					cidr_net: CIDR_NET,
+					s3gw_image: S3GW_IMAGE
+				}
+			end
+		end
     end
 
-	if WORKER_COUNT > 0
+	# k8s-vanilla provisioning [WORKER_COUNT > 0]
+	#
+	if K8S_DISTRO == "k8s" && WORKER_COUNT > 0
 		#worker nodes
 		(1..WORKER_COUNT).each do |i|
 			config.vm.define "worker-#{i}" do |worker|
@@ -129,11 +154,12 @@ Vagrant.configure("2") do |config|
 				if i == WORKER_COUNT
 					worker.vm.provision :ansible do |ansible|
 						ansible.limit = "all"
-						ansible.playbook = "playbooks/bootstrap.yaml"
+						ansible.playbook = "playbooks/k8s-bootstrap.yaml"
 						ansible.groups = ansible_groups
 						ansible.extra_vars = {
 							worker_count: WORKER_COUNT,
-							cidr_net: CIDR_NET
+							cidr_net: CIDR_NET,
+							s3gw_image: S3GW_IMAGE
 						}
 					end
 					if(STOP_AFTER_BOOTSTRAP == "no")
@@ -143,21 +169,13 @@ Vagrant.configure("2") do |config|
 							ansible.groups = ansible_groups
 							ansible.extra_vars = {
 								worker_count: WORKER_COUNT,
-								cidr_net: CIDR_NET
+								cidr_net: CIDR_NET,
+								s3gw_image: S3GW_IMAGE
 							}
 						end
 						worker.vm.provision :ansible do |ansible|
 							ansible.limit = "all"
-							ansible.playbook = "playbooks/lh-deploy.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = {
-								worker_count: WORKER_COUNT,
-								cidr_net: CIDR_NET
-							}
-						end
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/s3gw-deploy.yaml"
+							ansible.playbook = "playbooks/k8s-longhorn-deploy.yaml"
 							ansible.groups = ansible_groups
 							ansible.extra_vars = {
 								worker_count: WORKER_COUNT,
@@ -167,11 +185,22 @@ Vagrant.configure("2") do |config|
 						end
 						worker.vm.provision :ansible do |ansible|
 							ansible.limit = "all"
-							ansible.playbook = "playbooks/ingress-deploy.yaml"
+							ansible.playbook = "playbooks/k8s-s3gw-deploy.yaml"
 							ansible.groups = ansible_groups
 							ansible.extra_vars = {
 								worker_count: WORKER_COUNT,
-								cidr_net: CIDR_NET
+								cidr_net: CIDR_NET,
+								s3gw_image: S3GW_IMAGE
+							}
+						end
+						worker.vm.provision :ansible do |ansible|
+							ansible.limit = "all"
+							ansible.playbook = "playbooks/k8s-ingress-deploy.yaml"
+							ansible.groups = ansible_groups
+							ansible.extra_vars = {
+								worker_count: WORKER_COUNT,
+								cidr_net: CIDR_NET,
+								s3gw_image: S3GW_IMAGE
 							}
 						end
 					end

@@ -43,16 +43,16 @@
   hosts: admins
   tasks:
     - name: Copy ingresses cfg to local dir
-      copy: src=../ingresses dest=/home/vagrant mode=0777
+      copy: src=../ingress-nginx dest=/home/vagrant mode=0777
 
     - name: Apply ingresses cfg
       command: "{{ item }}"
       with_items:
-        - kubectl apply -f /home/vagrant/ingresses/lh-secret.yaml
-        - kubectl apply -f /home/vagrant/ingresses/lh-ingress.yaml
-        - kubectl apply -f /home/vagrant/ingresses/s3gw-secret.yaml
-        - kubectl apply -f /home/vagrant/ingresses/s3gw-ingress.yaml
-        - kubectl apply -f /home/vagrant/ingresses/s3gw-ingress-no-tls.yaml
+        - kubectl apply -f /home/vagrant/ingress-nginx/longhorn-secret.yaml
+        - kubectl apply -f /home/vagrant/ingress-nginx/longhorn-ingress.yaml
+        - kubectl apply -f /home/vagrant/ingress-nginx/s3gw-secret.yaml
+        - kubectl apply -f /home/vagrant/ingress-nginx/s3gw-ingress.yaml
+        - kubectl apply -f /home/vagrant/ingress-nginx/s3gw-ingress-no-tls.yaml
 
     - name: Create a Service for the Ingress Controller Pods
-      command: kubectl apply -f /home/vagrant/ingresses/nginx-nodeport.yaml
+      command: kubectl apply -f /home/vagrant/ingress-nginx/nginx-nodeport.yaml

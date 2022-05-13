@@ -1,5 +1,9 @@
-This README will guide you through the setup of a K3s cluster on your system.
+# K3s
 
+This README will guide you through the setup of a K3s cluster on your system.  
+If you are looking for a vanilla K8s cluster running on virtual machines,
+refer to our [K8s section](./README.k8s.md).  
+To install K3s on a virtual machine, see [here](#Install-K3s-on-a-virtual-machine).
 # Setup
 
 ## Note Before
@@ -24,8 +28,8 @@ the following commands. It will install open-iscsi and K3s on your local
 system. Additionally, it will deploy Longhorn and the s3gw in the cluster.
 
 ```
-$ cd ~/git/s3gw-core/k3s
-$ ./setup.sh
+$ cd ~/git/s3gw-core/env
+$ ./setup_k3s.sh
 ```
 
 # Access the Longhorn UI
@@ -55,3 +59,22 @@ backup target.
 
 Backup Target: `s3://<BUCKET_NAME>@us/`
 Backup Target Credential Secret: `s3gw-secret`
+
+# Install K3s on a virtual machine
+
+## Requirements
+
+Make sure you have installed the following applications on your system:
+
+* Vagrant
+* libvirt
+* Ansible
+
+In order to install k3s on a virtual machine rather than on your host, execute:
+
+```
+$ cd ~/git/s3gw-core/env
+$ ./setup_k3s.sh --vm
+```
+
+Refer to [K8s section](./README.k8s.md) for more configuration options.
