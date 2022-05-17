@@ -18,6 +18,7 @@ tgtfile="s3gw.yaml"
 is_dev_env=false
 
 s3gw_image="ghcr.io\/aquarist-labs\/s3gw:latest"
+s3gw_image_pull_policy="Always"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -27,12 +28,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dev)
       s3gw_image="localhost\/s3gw:latest"
+      s3gw_image_pull_policy="Never"
       ;;
   esac
   shift 1
 done
 
 sed "s/##S3GW_IMAGE##/"${s3gw_image}"/" s3gw/s3gw-deployment.yaml > s3gw/s3gw-deployment.tmp.yaml
+sed -i "s/##S3GW_IMAGE_PULL_POLICY##/"${s3gw_image_pull_policy}"/" s3gw/s3gw-deployment.tmp.yaml
 
 [[ -z "${tgtfile}" ]] && \
   echo "error: missing output file" >&2 && \
@@ -80,3 +83,5 @@ for spec in ${specs[@]}; do
   has_prior=true
   cat ${spec}.yaml >> ${tgtfile}
 done
+
+rm -f s3gw/s3gw-deployment.tmp.yaml

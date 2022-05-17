@@ -52,7 +52,7 @@ function show_ingresses() {
 
 function install_on_vm() {
   echo "Proceding to install on a virtual machine"
-  WORKER_COUNT=0 
+  WORKER_COUNT=0
   K8S_DISTRO=k3s
   source ./setup_k8s.sh build
 }
@@ -96,8 +96,8 @@ fi
 if $dev_env ; then
   if [[ ! -e "./s3gw.ctr.tar" ]]; then
     echo "Checking for s3gw image locally..."
-    img=$(podman images --format '{{.Repository}}:{{.Tag}}' | \
-      grep 's3gw:latest')
+    img=$(podman images --noheading --sort created s3gw:latest --format '{{.Repository}}:{{.Tag}}' | \
+      head -n 1)
 
     if [[ -z "${img}" ]]; then
       error "Unable to find s3gw image locally; abort."

@@ -19,6 +19,7 @@ spec:
       containers:
         - name: s3gw
           image: ##S3GW_IMAGE##
+          imagePullPolicy: ##S3GW_IMAGE_PULL_POLICY##
           args: ["--rgw-backend-store", $(RGW_BACKEND_STORE), "--debug-rgw", $(DEBUG_RGW)]
           envFrom:
             - configMapRef:
