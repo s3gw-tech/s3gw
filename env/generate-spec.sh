@@ -37,18 +37,25 @@ done
 sed "s/##S3GW_IMAGE##/"${s3gw_image}"/" s3gw/s3gw-deployment.yaml > s3gw/s3gw-deployment.tmp.yaml
 sed -i "s/##S3GW_IMAGE_PULL_POLICY##/"${s3gw_image_pull_policy}"/" s3gw/s3gw-deployment.tmp.yaml
 
+rgw_default_user_access_key_base64=$(kubectl get -f s3gw/s3gw-secret.yaml -o 'jsonpath={.data.RGW_DEFAULT_USER_ACCESS_KEY}')
+rgw_default_user_secret_key_base64=$(kubectl get -f s3gw/s3gw-secret.yaml -o 'jsonpath={.data.RGW_DEFAULT_USER_SECRET_KEY}')
+
+sed "s/##RGW_DEFAULT_USER_ACCESS_KEY_BASE64##/"${rgw_default_user_access_key_base64}"/" s3gw/longhorn-s3gw-secret.yaml > s3gw/longhorn-s3gw-secret.tmp.yaml
+sed -i "s/##RGW_DEFAULT_USER_SECRET_KEY_BASE64##/"${rgw_default_user_secret_key_base64}"/" s3gw/longhorn-s3gw-secret.tmp.yaml
+
 [[ -z "${tgtfile}" ]] && \
   echo "error: missing output file" >&2 && \
   exit 1
 
 specs=(
   "ingress-traefik/longhorn-ingress"
-  "s3gw/longhorn-s3gw-secret"
+  "s3gw/longhorn-s3gw-secret.tmp"
   "s3gw/longhorn-storageclass"
   "s3gw/s3gw-namespace"
   "s3gw/s3gw-pvc"
   "s3gw/s3gw-config"
   "s3gw/s3gw-deployment.tmp"
+  "s3gw/s3gw-secret"
   "s3gw/s3gw-service"
   "ingress-traefik/s3gw-ingress"
 )
@@ -84,4 +91,4 @@ for spec in ${specs[@]}; do
   cat ${spec}.yaml >> ${tgtfile}
 done
 
-rm -f s3gw/s3gw-deployment.tmp.yaml
+rm -f s3gw/*.tmp.yaml
