@@ -12,14 +12,14 @@ metadata:
     #
     # This ensures that http's header contains the host field as passed by the client.
     # The S3's HMAC signature is computed by the client on a set of fields that include
-    # the host as specified by the client. 
-    # So if the http header's host is in the form: 'host:port' it won't be equal when 
+    # the host as specified by the client.
+    # So if the http header's host is in the form: 'host:port' it won't be equal when
     # received by s3gw (and therefore HMAC will not match).
     # NGINX by default changes the http header's host with $host and that does not include
     # the port.
     nginx.org/server-snippets: |
       location / {
-            set $service "s3gw-service"; 
+            set $service "s3gw-service";
             proxy_http_version 1.1;
             proxy_connect_timeout 60s;
             proxy_read_timeout 60s;
@@ -39,8 +39,8 @@ spec:
   tls:
   - hosts:
     - s3gw.local
-    secretName: s3gw-secret
-  rules: 
+    secretName: s3gw-ingress-secret
+  rules:
   - host: s3gw.local
     http:
       paths:
