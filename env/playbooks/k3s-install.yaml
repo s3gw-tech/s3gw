@@ -1,0 +1,27 @@
+- name: Install K3s
+  hosts: all
+  become: true
+  tasks:
+    - name: K3s download and install
+      shell: |
+        curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+
+    - name: Setting kubectl alias and enabling kubectl bash completion
+      command: "{{ item }}"
+      with_items:
+          - /bin/bash -c "sudo echo 'source <(kubectl completion bash)' >> /home/{{ user }}/.bashrc"
+          - /bin/bash -c "sudo touch /etc/bash_completion.d/kubectl"
+          - /bin/bash -c "sudo chmod 777 /etc/bash_completion.d/kubectl"
+          - /bin/bash -c "kubectl completion bash > /etc/bash_completion.d/kubectl"
+          - /bin/bash -c "sudo echo 'alias k=kubectl' >> /home/{{ user }}/.bashrc"
+          - /bin/bash -c "sudo echo 'complete -F __start_kubectl k' >> /home/{{ user }}/.bashrc"
+
+- name: Probe admin
+  hosts: admins
+  tasks:
+    - name: Wait for admin to become ready
+      command: kubectl get nodes admin
+      register: result
+      until: result.stdout.find("NotReady") == -1
+      retries: 25
+      delay: 5

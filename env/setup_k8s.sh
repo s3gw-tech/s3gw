@@ -19,12 +19,14 @@ export CONTAINER_ENGINE=${CONTAINER_ENGINE:-"podman"}
 export STOP_AFTER_BOOTSTRAP=${STOP_AFTER_BOOTSTRAP:-"no"}
 export START_LOCAL_REGISTRY=${START_LOCAL_REGISTRY:-"no"}
 export S3GW_IMAGE=${S3GW_IMAGE:-"ghcr.io/aquarist-labs/s3gw:latest"}
+export S3GW_IMAGE_PULL_POLICY=${S3GW_IMAGE_PULL_POLICY:-"Always"}
 export K8S_DISTRO=${K8S_DISTRO:-"k8s"}
+export INGRESS=${INGRESS:-"nginx"}
+export PROV_USER=${PROV_USER:-"vagrant"}
 
 start_env() {
   echo "Starting environment ..."
   echo "WORKER_COUNT=${WORKER_COUNT}"
-   
   vagrant up
 }
 
@@ -35,7 +37,7 @@ build_env() {
   echo "CIDR_NET=${CIDR_NET}"
   echo "WORKER_COUNT=${WORKER_COUNT}"
   echo "ADMIN_MEM=${ADMIN_MEM}"
-  echo "ADMIN_CPU=${ADMIN_CPU}" 
+  echo "ADMIN_CPU=${ADMIN_CPU}"
   echo "ADMIN_DISK=${ADMIN_DISK}"
   echo "ADMIN_DISK_SIZE=${ADMIN_DISK_SIZE}"
   echo "WORKER_MEM=${WORKER_MEM}"
@@ -46,7 +48,10 @@ build_env() {
   echo "STOP_AFTER_BOOTSTRAP=${STOP_AFTER_BOOTSTRAP}"
   echo "START_LOCAL_REGISTRY=${START_LOCAL_REGISTRY}"
   echo "S3GW_IMAGE=${S3GW_IMAGE}"
+  echo "S3GW_IMAGE_PULL_POLICY=${S3GW_IMAGE_PULL_POLICY}"
   echo "K8S_DISTRO=${K8S_DISTRO}"
+  echo "INGRESS=${INGRESS}"
+  echo "PROV_USER=${PROV_USER}"
 
   if [ $START_LOCAL_REGISTRY = "yes" ]; then
     echo "Saving s3gw container image locally ..."
@@ -74,7 +79,6 @@ build_env() {
 destroy_env() {
   echo "Destroying environment ..."
   echo "WORKER_COUNT=${WORKER_COUNT}"
-   
   vagrant destroy -f
 }
 
@@ -91,7 +95,7 @@ elif [ $# -eq 1 ]; then
   case $1 in
     start)
       start_env
-      ;;  
+      ;;
     build)
       build_env
       ;;

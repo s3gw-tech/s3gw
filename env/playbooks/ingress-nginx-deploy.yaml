@@ -1,0 +1,13 @@
+- name: Longhorn/s3gw NGINX ingress deploy
+  hosts: nginx
+  tasks:
+
+    - name: Apply ingresses configuration
+      command: "{{ item }}"
+      with_items:
+        - kubectl apply -f /home/{{ user }}/ingress-nginx/longhorn-secret.yaml
+        - kubectl apply -f /home/{{ user }}/ingress-nginx/longhorn-ingress.yaml
+        - kubectl apply -f /home/{{ user }}/ingress-nginx/s3gw-ingress-secret.yaml
+        - kubectl apply -f /home/{{ user }}/ingress-nginx/s3gw-ingress.yaml
+        - kubectl apply -f /home/{{ user }}/ingress-nginx/s3gw-ingress-no-tls.yaml
+

@@ -1,0 +1,29 @@
+- name: s3gw deploy
+  hosts: admins
+  tasks:
+
+    - name: Copy s3gw cfg to local dir
+      copy: src=../s3gw dest=/home/{{ user }} mode=0777
+
+    - name: Set S3GW_IMAGE in s3gw-deployment.yaml
+      replace:
+        path: /home/{{ user }}/s3gw/s3gw-deployment.yaml
+        regexp: '##S3GW_IMAGE##'
+        replace: "{{ s3gw_image }}"
+
+    - name: Set S3GW_IMAGE_PULL_POLICY in s3gw-deployment.yaml
+      replace:
+        path: /home/{{ user }}/s3gw/s3gw-deployment.yaml
+        regexp: '##S3GW_IMAGE_PULL_POLICY##'
+        replace: "{{ s3gw_image_pull_policy }}"
+
+    - name: Deploy s3gw
+      command: "{{ item }}"
+      with_items:
+        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-namespace.yaml
+        - kubectl apply -f /home/{{ user }}/s3gw/longhorn-storageclass.yaml
+        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-pvc.yaml
+        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-config.yaml
+        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-secret.yaml
+        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-deployment.yaml
+        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-service.yaml

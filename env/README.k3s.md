@@ -29,7 +29,7 @@ system. Additionally, it will deploy Longhorn and the s3gw in the cluster.
 
 ```
 $ cd ~/git/s3gw-core/env
-$ ./setup_k3s.sh
+$ ./setup-k3s.sh
 ```
 
 # Access the Longhorn UI
@@ -70,11 +70,11 @@ Make sure you have installed the following applications on your system:
 * libvirt
 * Ansible
 
-In order to install k3s on a virtual machine rather than on your host, execute:
+In order to install k3s on a virtual machine rather than on bare metal, execute:
 
 ```
 $ cd ~/git/s3gw-core/env
-$ ./setup_k3s.sh --vm
+$ ./setup-k3s.sh --vm
 ```
 
 Refer to [K8s section](./README.k8s.md) for more configuration options.

@@ -17,6 +17,11 @@
 set -e
 
 ghraw="https://raw.githubusercontent.com"
+dev_env=false
+use_local_image=0
+has_image=false
+s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
+ingress="nginx"
 
 function error() {
   echo "[ERROR] ${@}" >&2
@@ -45,8 +50,15 @@ function show_ingresses() {
     ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
   done
   echo -e "\n"
-  echo "Longhorn UI available at http://${ip}:80/longhorn/"
-  echo "s3gw available at http://${ip}:80/s3gw/"
+  if [ $ingress = "nginx" ]; then
+    echo "Longhorn UI available at: https://longhorn.local:30443"
+    echo "s3gw available at:        https://s3gw.local:30443"
+    echo "s3gw available at:        http://s3gw-no-tls.local:30080"
+  fi
+  if [ $ingress = "traefik" ]; then
+    echo "Longhorn UI available at: http://${ip}:80/longhorn/"
+    echo "s3gw available at:        http://${ip}:80/s3gw/"
+  fi
   echo -e "\n"
 }
 
@@ -54,13 +66,8 @@ function install_on_vm() {
   echo "Proceding to install on a virtual machine"
   WORKER_COUNT=0
   K8S_DISTRO=k3s
-  source ./setup_k8s.sh build
+  source ./setup-k8s.sh build
 }
-
-dev_env=false
-use_local_image=0
-has_image=false
-s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -83,6 +90,12 @@ while [[ $# -gt 0 ]]; do
     --vm)
       install_on_vm
       exit 0
+      ;;
+    --traefik)
+      ingress="traefik"
+      ;;
+    --nginx)
+      ingress="nginx"
       ;;
   esac
   shift
@@ -154,15 +167,23 @@ else
   )
 fi
 
-# Workaround a K8s behaviour that CustomResourceDefinition must be
-# established before they can be used by a resource.
-# https://github.com/kubernetes/kubectl/issues/1117
-# k3s kubectl wait --for=condition=established --timeout=60s crd middlewares.traefik.containo.us
-echo -n "Waiting for CRD to be established..."
-while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..status.conditions[?(@.type=="Established")].status}' 2>/dev/null) != "True" ]]; do
-   echo -n "." && sleep 1;
-done
-echo
+if [ $ingress = "nginx" ]; then
+  echo Installing nginx-controller ...
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
+  echo Waiting for nginx-controller to become ready, this could take a while ...
+  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
+fi
+if [ $ingress = "traefik" ]; then
+  # Workaround a K8s behaviour that CustomResourceDefinition must be
+  # established before they can be used by a resource.
+  # https://github.com/kubernetes/kubectl/issues/1117
+  # k3s kubectl wait --for=condition=established --timeout=60s crd middlewares.traefik.containo.us
+  echo -n "Waiting for CRD to be established..."
+  while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..status.conditions[?(@.type=="Established")].status}' 2>/dev/null) != "True" ]]; do
+    echo -n "." && sleep 1;
+  done
+  echo
+fi
 
 s3gw_yaml="s3gw.yaml"
 $dev_env && s3gw_yaml="s3gw-dev.yaml"
@@ -173,7 +194,7 @@ elif [[ -e "generate-spec.sh" ]]; then
   extra=""
   $dev_env && extra="--dev"
   echo "Generating s3gw spec file at '${s3gw_yaml}'..."
-  ./generate-spec.sh --output ${s3gw_yaml} ${extra}
+  ./generate-spec.sh --output ${s3gw_yaml} ${extra} --ingress ${ingress}
   apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
 else
   echo "Installing s3gw..."

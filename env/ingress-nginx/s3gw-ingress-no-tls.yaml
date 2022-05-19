@@ -4,44 +4,13 @@ metadata:
   name: s3gw-no-tls-ingress
   namespace: s3gw-system
   annotations:
-
-    # We need to configure the location '/' with he following snippet.
-    # The real need is to provide this directive:
-    #
-    #   proxy_set_header Host $http_host;
-    #
-    # This ensures that http's header contains the host field as passed by the client.
-    # The S3's HMAC signature is computed by the client on a set of fields that include
-    # the host as specified by the client. 
-    # So if the http header's host is in the form: 'host:port' it won't be equal when 
-    # received by s3gw (and therefore HMAC will not match).
-    # NGINX by default changes the http header's host with $host and that does not include
-    # the port.
-    nginx.org/server-snippets: |
-      location / {
-            set $service "s3gw-service"; 
-            proxy_http_version 1.1;
-            proxy_connect_timeout 60s;
-            proxy_read_timeout 60s;
-            proxy_send_timeout 60s;
-            client_max_body_size 0;
-            proxy_set_header Host $http_host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Host $host;
-            proxy_set_header X-Forwarded-Port $server_port;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_buffering on;
-            proxy_pass http://s3gw-system-s3gw-ingress-s3gw.local-s3gw-service-80;
-        }
 spec:
   ingressClassName: nginx
-  rules: 
+  rules:
   - host: s3gw-no-tls.local
     http:
       paths:
-        # We need to add a /foo location because we need to define a backend.
-      - path: /foo
+      - path: /
         pathType: Prefix
         backend:
           service:
