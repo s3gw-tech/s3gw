@@ -12,8 +12,8 @@ CEPH_CMAKE_ARGS="-DWITH_MANPAGE=OFF -DWITH_OPENLDAP=OFF -DWITH_LTTNG=OFF ${CEPH_
 CEPH_CMAKE_ARGS="-DWITH_RDMA=OFF ${CEPH_CMAKE_ARGS}"
 NPROC=${NPROC:-$(nproc --ignore=2)}
 
-build_radosgw_binary() {
-  echo "Building radosgw binary ..."
+build_radosgw() {
+  echo "Building radosgw ..."
   echo "CEPH_DIR=${CEPH_DIR}"
   echo "NPROC=${NPROC}"
 
@@ -39,6 +39,15 @@ build_radosgw_binary() {
   ninja -j${NPROC} bin/radosgw
 }
 
-build_radosgw_binary
+strip_radosgw() {
+  echo "Stripping files ..."
+  strip --strip-debug --strip-unneeded \
+    --remove-section=.comment --remove-section=.note \
+    ${CEPH_DIR}/build/bin/radosgw \
+    ${CEPH_DIR}/build/lib/*.so
+}
+
+build_radosgw
+strip_radosgw
 
 exit 0

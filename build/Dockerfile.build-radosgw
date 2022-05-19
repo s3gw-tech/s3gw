@@ -1,6 +1,6 @@
 FROM opensuse/tumbleweed
 
-RUN zypper -n install bash make git ccache cmake ninja jq
+RUN zypper -n install bash make git ccache cmake ninja jq binutils
 # hard-coded in ceph's `install-deps.sh`
 RUN zypper -n install --no-recommends systemd-rpm-macros rpm-build
 # obtained by running `install-deps.sh` 2022-05-04
