@@ -166,6 +166,15 @@ file system is correct, e.g. `../../ceph`, `~/git/ceph`, ...
 $ podman run --replace --name build-radosgw -v ../../ceph/:/srv/ceph/ localhost/build-radosgw
 ```
 
+By default, the `radosgw` binary file will be build in `Debug` mode. For production
+builds set the environment variable `CMAKE_BUILD_TYPE` to `Release`, `RelWithDebInfo`
+or `MinSizeRel`. Check the [CMAKE_BUILD_TYPE documentation](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html)
+for more information.
+
+```
+$ podman run --replace --name build-radosgw -e CMAKE_BUILD_TYPE="MinSizeRel" -v ../../ceph/:/srv/ceph/ localhost/build-radosgw
+```
+
 ### Build the s3gw container image
 If the Ceph `radosgw` binary is compiled, the container image can be build
 with the following commands:
@@ -210,7 +219,7 @@ By default, the container will run with the following arguments:
 ```
 
 You can override them passing different values when starting the container.
-For example if want to increase `radosgw` logging verbosity, you could run:
+For example if you want to increase `radosgw` logging verbosity, you could run:
 
 ```shell
 $ podman run -p 7480:7480 localhost/s3gw --rgw-backend-store dbstore --debug-rgw 15

@@ -30,7 +30,7 @@ function apply() {
     error "Missing parameters to function apply." && \
     exit 1
 
-  echo "Creating ${desc}..."
+  echo "${desc}"
   k3s kubectl apply -f ./${yaml} || (
     error "Failed to create ${desc}."
     exit 1
@@ -51,7 +51,7 @@ function show_ingresses() {
 }
 
 function install_on_vm() {
-  echo "Proceding to install on a virtual machine"
+  echo "Proceeding to install on a virtual machine"
   WORKER_COUNT=0
   K8S_DISTRO=k3s
   source ./setup_k8s.sh build
