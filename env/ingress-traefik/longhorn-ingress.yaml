@@ -1,30 +1,21 @@
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: stripprefix
-  namespace: longhorn-system
-spec:
-  stripPrefix:
-    prefixes:
-      - /longhorn
-    forceSlash: false
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: longhorn-ingress
   namespace: longhorn-system
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/router.middlewares: longhorn-system-stripprefix@kubernetescrd
 spec:
+  tls:
+    - hosts:
+        - longhorn.local
+      secretName: longhorn-ingress-secret
   rules:
-  - http:
-      paths:
-      - pathType: Prefix
-        path: /longhorn
-        backend:
-          service:
-            name: longhorn-frontend
-            port:
-              number: 80
+    - host: longhorn.local
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: longhorn-frontend
+                port:
+                  number: 80

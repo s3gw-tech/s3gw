@@ -20,7 +20,7 @@ is_dev_env=false
 s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
 s3gw_image_pull_policy="Always"
 
-ingress="nginx"
+ingress="traefik"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -54,30 +54,29 @@ rgw_default_user_secret_key_base64=$(cat s3gw/s3gw-secret.yaml | grep RGW_DEFAUL
 rgw_default_user_secret_key_base64=$(echo -n $rgw_default_user_secret_key_base64 | base64)
 rgw_default_user_secret_key_base64=$(printf '%s\n' "$rgw_default_user_secret_key_base64" | sed -e 's/[]\/$*.^[]/\\&/g')
 
-sed "s/##RGW_DEFAULT_USER_ACCESS_KEY_BASE64##/"\"${rgw_default_user_access_key_base64}\""/" s3gw/longhorn-s3gw-secret.yaml > s3gw/longhorn-s3gw-secret.tmp.yaml
-sed -i "s/##RGW_DEFAULT_USER_SECRET_KEY_BASE64##/\""${rgw_default_user_secret_key_base64}\""/" s3gw/longhorn-s3gw-secret.tmp.yaml
+sed "s/##RGW_DEFAULT_USER_ACCESS_KEY_BASE64##/"\"${rgw_default_user_access_key_base64}\""/" longhorn/longhorn-s3gw-secret.yaml > longhorn/longhorn-s3gw-secret.tmp.yaml
+sed -i "s/##RGW_DEFAULT_USER_SECRET_KEY_BASE64##/\""${rgw_default_user_secret_key_base64}\""/" longhorn/longhorn-s3gw-secret.tmp.yaml
 
 [[ -z "${tgtfile}" ]] && \
   echo "error: missing output file" >&2 && \
   exit 1
 
 specs=(
-  "s3gw/longhorn-s3gw-secret.tmp"
-  "s3gw/longhorn-storageclass"
+  "longhorn/longhorn-s3gw-secret.tmp"
+  "longhorn/longhorn-ingress-secret"
+  "longhorn/longhorn-storageclass"
   "s3gw/s3gw-namespace"
   "s3gw/s3gw-pvc"
   "s3gw/s3gw-config"
   "s3gw/s3gw-deployment.tmp"
   "s3gw/s3gw-secret"
+  "s3gw/s3gw-ingress-secret"
   "s3gw/s3gw-service"
 )
 
 nginx_specs=(
   "ingress-nginx/nginx-nodeport"
   "ingress-nginx/longhorn-ingress"
-  "ingress-nginx/longhorn-secret"
-  "ingress-nginx/s3gw-ingress-no-tls"
-  "ingress-nginx/s3gw-ingress-secret"
   "ingress-nginx/s3gw-ingress"
 )
 
@@ -131,4 +130,4 @@ elif [ $ingress = "traefik" ]; then
   done
 fi
 
-rm -f s3gw/*.tmp.yaml
+find . -name "*.tmp.yaml" -type f -delete
