@@ -2,7 +2,7 @@
   hosts: all
   become: true
   tasks:
-  
+
     - name: Install utility packages
       apt:
         name: "{{ packages }}"
@@ -10,11 +10,11 @@
       vars:
         packages:
             - apt-transport-https
-            - ca-certificates        
+            - ca-certificates
             - curl
             - wget
             - gnupg-agent
-            - software-properties-common            
+            - software-properties-common
 
 - name: Container Runtime
   hosts: all
@@ -32,15 +32,15 @@
         state: present
 
     - name: Install container runtime
-      apt: 
+      apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
             - containerd.io
-            - docker-ce 
-            - docker-ce-cli 
+            - docker-ce
+            - docker-ce-cli
 
     - name: Patching docker/daemon.json
       copy:
@@ -86,7 +86,7 @@
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
               SystemdCgroup = true
-            
+
             version = 2
 
             [plugins."io.containerd.grpc.v1.cri".registry]
@@ -111,9 +111,9 @@
         state: restarted
         daemon_reload: yes
 
-    - name: Add vagrant user to Docker group
+    - name: Add user to Docker group
       user:
-        name: vagrant
+        name: "{{ user }}"
         group: docker
 
     - name: Restart Docker
@@ -130,7 +130,7 @@
       with_items:
         - swap
         - none
-    
+
     - name: Disable swap
       command: swapoff -a
 
@@ -143,7 +143,7 @@
       command: docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
     - name: Copy host's s3gw container image to local dir
-      copy: src=../s3gw.tar dest=/home/vagrant mode=0777
+      copy: src=../s3gw.tar dest=/home/{{ user }} mode=0777
 
     - name: Import s3gw container into local registry
       command: "{{ item }}"
@@ -173,8 +173,18 @@
       register: etchostsupdate
       when: ansible_hostname != "{{ item }}" or ansible_hostname == "{{ item }}"
       with_items: "{{groups['all']}}"
-    
-    - name: Patch /etc/hosts 
+
+    - name: Patch /etc/hosts
       become: true
-      shell: | 
+      shell: |
         sed -i s/"127.0.2.1 {{ ansible_facts['fqdn']}} {{ ansible_facts['hostname']}}"/""/ /etc/hosts
+
+- name: Copy ingress resources
+  hosts: all
+  tasks:
+
+    - name: Copy nginx ingresses cfg to local dir
+      copy: src=../ingress-nginx dest=/home/{{ user }} mode=0777
+
+    - name: Copy traefik ingresses cfg to local dir
+      copy: src=../ingress-traefik dest=/home/{{ user }} mode=0777

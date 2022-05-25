@@ -3,7 +3,7 @@
 Follow this guide if you wish to run an `s3gw` image on the latest stable Kubernetes release.  
 You will be able to quickly build a cluster installed on a set of virtual machines.  
 You will have a certain degree of choice in terms of customization options.  
-If you are looking for a more lightweight environment running directly on your host,
+If you are looking for a more lightweight environment running directly on bare metal,
 refer to our [K3s section](./README.k3s.md).
 
 ## Table of Contents
@@ -14,7 +14,6 @@ refer to our [K3s section](./README.k3s.md).
 * [Destroying the environment](#destroying-the-environment)
 * [Accessing the environment](#accessing-the-environment)
   * [ssh](#ssh)
-  * [ingress](#ingress)
 
 <!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
@@ -44,11 +43,11 @@ Make sure you have installed the following applications on your system:
 
 ## Building the environment
 
-You can build the environment with the `setup_k8s.sh` script.  
+You can build the environment with the `setup-k8s.sh` script.  
 The simplest form you can use is:  
 
 ```bash
-$ ./setup_k8s.sh build
+$ ./setup-k8s.sh build
 Building environment ...
 ```
 
@@ -75,19 +74,21 @@ STOP_AFTER_BOOTSTRAP        : yes/no, when yes stop the provisioning just after 
 START_LOCAL_REGISTRY        : yes/no, when yes start a local insecure image registry at admin.local:5000
 S3GW_IMAGE                  : The s3gw's container image used when deploying the application on k8s
 K8S_DISTRO                  : The Kubernetes distribution to install; specify k3s or k8s (k8s default)
+INGRESS                     : The ingress implementation to be used; NGINX or Traefik (NGINX default)
+PROV_USER                   : The provisioning user used by Ansible (vagrant default)
 ```
 
 So, you could start a more specialized build with:
 
 ```bash
-$ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./setup_k8s.sh build
+$ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./setup-k8s.sh build
 Building environment ...
 ```
 
 You create a mono virtual machine cluster with the lone `admin` node with:
 
 ```bash
-$ WORKER_COUNT=0 ./setup_k8s.sh build
+$ WORKER_COUNT=0 ./setup-k8s.sh build
 Building environment ...
 ```
 
@@ -98,7 +99,7 @@ In this case, the node will be able to schedule pods as a `worker` node.
 You can destroy a previously built environment with:
 
 ```bash
-$ ./setup_k8s.sh destroy
+$ ./setup-k8s.sh destroy
 Destroying environment ...
 ```
 
@@ -111,7 +112,7 @@ to be released by Vagrant.
 You can start a previously built environment with:
 
 ```bash
-$ ./setup_k8s.sh start
+$ ./setup-k8s.sh start
 Starting environment ...
 ```
 
@@ -127,41 +128,16 @@ You can connect through `ssh` to all nodes in the cluster.
 To connect to the `admin` node run:
 
 ```bash
-$ ./setup_k8s.sh ssh admin
+$ ./setup-k8s.sh ssh admin
 Connecting to admin ...
 ```
 
 To connect to a `worker` node run:
 
 ```bash
-$ ./setup_k8s.sh ssh worker-2
+$ ./setup-k8s.sh ssh worker-2
 Connecting to worker-2 ...
 ```
 
-When connecting to a worker node be sure to match the `WORKER_COUNT` value with the one you used in the build phase.
-
-### ingress
-
-There are currently 2 services exposed with a Kubernetes ingress, each one is allocated on a separate host domain:
-
-* Longhorn dashboard, on domain: `longhorn.local`
-* s3gw, on domain: `s3gw.local` and `s3gw-no-tls.local`
-
-Host domains are exposed with a `nodePort` service listening on ports `30443` (https) and `30080` (http).  
-You are required to resolve these domains with the external `ip` of one of the nodes of the cluster.  
-
-For example, you can patch host's `/etc/hosts` file with:  
-
-```text
-10.46.201.101   longhorn.local s3gw.local s3gw-no-tls.local
-```
-
-This will make domains `longhorn.local`, `s3gw.local` and `s3gw-no-tls.local` pointing to the `admin` node.  
-
-Services can now be accessed to:
-
-```text
-https://longhorn.local:30443
-https://s3gw.local:30443
-http://s3gw-no-tls.local:30080
-```
+When connecting to a worker node be sure to match the `WORKER_COUNT`
+value with the one you used in the build phase.

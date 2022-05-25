@@ -1,0 +1,12 @@
+- name: Deploy NGINX controller
+  hosts: nginx
+  tasks:
+
+    - name: Install NGINX controller
+      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
+
+    - name: Create a Service for the Ingress Controller Pods
+      command: kubectl apply -f /home/{{ user }}/ingress-nginx/nginx-nodeport.yaml
+
+    - name: Wait NGINX controller to become ready, this could take a while ...
+      command: kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s

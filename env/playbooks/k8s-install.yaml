@@ -15,7 +15,7 @@
         filename: kubernetes.list
 
     - name: Install Kubernetes binaries
-      apt: 
+      apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
@@ -40,13 +40,13 @@
     - name: Setting kubectl alias and enabling kubectl bash completion
       command: "{{ item }}"
       with_items:
-          - /bin/bash -c "sudo echo 'source <(kubectl completion bash)' >> /home/vagrant/.bashrc"
+          - /bin/bash -c "sudo echo 'source <(kubectl completion bash)' >> /home/{{ user }}/.bashrc"
           - /bin/bash -c "sudo touch /etc/bash_completion.d/kubectl"
           - /bin/bash -c "sudo chmod 777 /etc/bash_completion.d/kubectl"
           - /bin/bash -c "kubectl completion bash > /etc/bash_completion.d/kubectl"
-          - /bin/bash -c "sudo echo 'alias k=kubectl' >> /home/vagrant/.bashrc"
-          - /bin/bash -c "sudo echo 'complete -F __start_kubectl k' >> /home/vagrant/.bashrc"      
-  
+          - /bin/bash -c "sudo echo 'alias k=kubectl' >> /home/{{ user }}/.bashrc"
+          - /bin/bash -c "sudo echo 'complete -F __start_kubectl k' >> /home/{{ user }}/.bashrc"
+
 - name: Kubeadm
   hosts: admins
   become: true
@@ -54,12 +54,12 @@
     - name: Initialize Kubernetes cluster using kubeadm
       command: kubeadm init --apiserver-advertise-address="{{ ansible_facts['eth1']['ipv4']['address'] }}" --apiserver-cert-extra-sans="{{ ansible_facts['eth1']['ipv4']['address'] }}" --node-name admin --pod-network-cidr={{ cidr_net }}/16 --ignore-preflight-errors=Swap
 
-    - name: Setup kubeconfig for vagrant user
+    - name: Setup kubeconfig for user
       command: "{{ item }}"
       with_items:
-          - mkdir -p /home/vagrant/.kube
-          - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
-          - chown vagrant:docker /home/vagrant/.kube/config
+          - mkdir -p /home/{{ user }}/.kube
+          - cp -i /etc/kubernetes/admin.conf /home/{{ user }}/.kube/config
+          - chown {{ user }}:docker /home/{{ user }}/.kube/config
 
     - name: Copy content of /etc/kubernetes/admin.conf
       command: "cat /etc/kubernetes/admin.conf"
@@ -75,13 +75,13 @@
     - name: Patching Calico custom-resources.yaml
       command: "{{ item }}"
       with_items:
-          - mkdir -p /home/vagrant/calico
-          - wget https://docs.projectcalico.org/manifests/custom-resources.yaml -P /home/vagrant/calico
-          - sed -i s/192.168.0.0/{{ cidr_net }}/g /home/vagrant/calico/custom-resources.yaml
-        
+          - mkdir -p /home/{{ user }}/calico
+          - wget https://docs.projectcalico.org/manifests/custom-resources.yaml -P /home/{{ user }}/calico
+          - sed -i s/192.168.0.0/{{ cidr_net }}/g /home/{{ user }}/calico/custom-resources.yaml
+
     - name: Install Calico pod network
       become: false
-      command: kubectl create -f /home/vagrant/calico/custom-resources.yaml
+      command: kubectl create -f /home/{{ user }}/calico/custom-resources.yaml
 
     - name: Generate join command
       command: kubeadm token create --print-join-command
@@ -100,18 +100,18 @@
     - name: Join node to cluster
       command: sh /tmp/join-command.sh
 
-    - name: Setup kubeconfig for vagrant user
+    - name: Setup kubeconfig for user
       command: "{{ item }}"
       with_items:
-        - mkdir -p /home/vagrant/.kube
+        - mkdir -p /home/{{ user }}/.kube
 
     - name: Copy kubeconfig to local file
-      copy: src=./admin.conf dest=/home/vagrant/.kube/config mode=0777
+      copy: src=./admin.conf dest=/home/{{ user }}/.kube/config mode=0777
 
 - name: Probe admin
   hosts: admins
   tasks:
-    - name: Wait for admin to be ready 
+    - name: Wait for admin to become ready
       command: kubectl get nodes admin
       register: result
       until: result.stdout.find("NotReady") == -1
