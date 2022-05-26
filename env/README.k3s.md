@@ -9,7 +9,11 @@ To install K3s on a virtual machine, see [here](#Install-K3s-on-a-virtual-machin
 ## Note Before
 
 In some host systems, including OpenSUSE Tumbleweed, one will need to disable
-firewalld to ensure proper functioning of k3s and its pods.
+firewalld to ensure proper functioning of k3s and its pods:
+
+```
+$ sudo systemctl stop firewalld.service
+```
 
 This is something we intend figuring out in the near future.
 

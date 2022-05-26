@@ -81,6 +81,7 @@ nginx_specs=(
 )
 
 traefik_specs=(
+  "ingress-traefik/traefik-nodeport"
   "ingress-traefik/longhorn-ingress"
   "ingress-traefik/s3gw-ingress"
 )
