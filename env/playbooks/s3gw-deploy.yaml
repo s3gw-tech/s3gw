@@ -2,6 +2,9 @@
   hosts: admins
   tasks:
 
+    - name: Copy Longhorn cfg to local dir
+      copy: src=../longhorn dest=/home/{{ user }} mode=0777
+
     - name: Copy s3gw cfg to local dir
       copy: src=../s3gw dest=/home/{{ user }} mode=0777
 
@@ -21,7 +24,7 @@
       command: "{{ item }}"
       with_items:
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-namespace.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw/longhorn-storageclass.yaml
+        - kubectl apply -f /home/{{ user }}/longhorn/longhorn-storageclass.yaml
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-pvc.yaml
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-config.yaml
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-secret.yaml

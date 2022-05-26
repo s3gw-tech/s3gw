@@ -71,6 +71,8 @@ function install_on_vm() {
   echo "Proceeding to install on a virtual machine..."
   WORKER_COUNT=0
   K8S_DISTRO=k3s
+  S3GW_IMAGE=$s3gw_image
+  INGRESS=$ingress
   source ./setup-k8s.sh build
 }
 
