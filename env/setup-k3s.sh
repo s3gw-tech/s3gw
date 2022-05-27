@@ -54,16 +54,14 @@ function show_ingresses() {
   echo -e "\n"
   echo "${ip}   longhorn.local s3gw.local s3gw-no-tls.local"
   echo -e "\n"
-  if [ $ingress = "nginx" ]; then
-    echo "Longhorn UI available at: https://longhorn.local:30443"
-    echo "s3gw available at:        https://s3gw.local:30443"
-    echo "s3gw available at:        http://s3gw-no-tls.local:30080"
-  fi
-  if [ $ingress = "traefik" ]; then
-    echo "Longhorn UI available at: https://longhorn.local"
-    echo "s3gw available at:        http://s3gw.local"
-    echo "                          https://s3gw.local"
-  fi
+  echo "Longhorn UI available at: https://longhorn.local"
+  echo "                          https://longhorn.local:30443"
+  echo "s3gw available at:        http://s3gw.local"
+  echo "                          http://s3gw.local:30080"
+  echo "                          https://s3gw.local"
+  echo "                          https://s3gw.local:30443"
+  echo "                          http://s3gw-no-tls.local"
+  echo "                          http://s3gw-no-tls.local:30080"
   echo -e "\n"
 }
 
