@@ -8,7 +8,7 @@ spec:
   tls:
   - hosts:
     - longhorn.local
-    secretName: lh-secret
+    secretName: longhorn-ingress-secret
   rules:
   - host: longhorn.local
     http:

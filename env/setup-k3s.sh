@@ -21,7 +21,7 @@ dev_env=false
 use_local_image=0
 has_image=false
 s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
-ingress="nginx"
+ingress="traefik"
 
 function error() {
   echo "[ERROR] ${@}" >&2
@@ -50,22 +50,27 @@ function show_ingresses() {
     ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
   done
   echo -e "\n"
-  if [ $ingress = "nginx" ]; then
-    echo "Longhorn UI available at: https://longhorn.local:30443"
-    echo "s3gw available at:        https://s3gw.local:30443"
-    echo "s3gw available at:        http://s3gw-no-tls.local:30080"
-  fi
-  if [ $ingress = "traefik" ]; then
-    echo "Longhorn UI available at: http://${ip}:80/longhorn/"
-    echo "s3gw available at:        http://${ip}:80/s3gw/"
-  fi
+  echo "Please add the following line to /etc/hosts to be able to access the Longhorn UI and s3gw:"
+  echo -e "\n"
+  echo "${ip}   longhorn.local s3gw.local s3gw-no-tls.local"
+  echo -e "\n"
+  echo "Longhorn UI available at: https://longhorn.local"
+  echo "                          https://longhorn.local:30443"
+  echo "s3gw available at:        http://s3gw.local"
+  echo "                          http://s3gw.local:30080"
+  echo "                          https://s3gw.local"
+  echo "                          https://s3gw.local:30443"
+  echo "                          http://s3gw-no-tls.local"
+  echo "                          http://s3gw-no-tls.local:30080"
   echo -e "\n"
 }
 
 function install_on_vm() {
-  echo "Proceeding to install on a virtual machine"
+  echo "Proceeding to install on a virtual machine..."
   WORKER_COUNT=0
   K8S_DISTRO=k3s
+  S3GW_IMAGE=$s3gw_image
+  INGRESS=$ingress
   source ./setup-k8s.sh build
 }
 
@@ -171,7 +176,7 @@ if [ $ingress = "nginx" ]; then
   echo Installing nginx-controller ...
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
   echo Waiting for nginx-controller to become ready, this could take a while ...
-  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
+  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=600s
 fi
 if [ $ingress = "traefik" ]; then
   # Workaround a K8s behaviour that CustomResourceDefinition must be

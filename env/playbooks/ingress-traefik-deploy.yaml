@@ -2,8 +2,19 @@
   hosts: traefik
   tasks:
 
+    - name: Wait Traefik controller to become ready, this could take a while ...
+      command: kubectl wait --namespace kube-system --for=condition=ready pod --selector=app.kubernetes.io/name=traefik --timeout=30s
+      register: result
+      until: result.rc == 0
+      retries: 20
+      delay: 5
+
+    - name: Create a Service for the Ingress Controller Pods
+      command: kubectl apply -f /home/{{ user }}/ingress-traefik/traefik-nodeport.yaml
+
     - name: Apply ingresses configuration
       command: "{{ item }}"
       with_items:
-        - kubectl apply -f /home/{{ user }}/ingress-nginx/longhorn-ingress.yaml
-        - kubectl apply -f /home/{{ user }}/ingress-nginx/s3gw-ingress.yaml
+        - kubectl apply -f /home/{{ user }}/ingress-traefik/longhorn-ingress.yaml
+        - kubectl apply -f /home/{{ user }}/ingress-traefik/s3gw-ingress.yaml
+
