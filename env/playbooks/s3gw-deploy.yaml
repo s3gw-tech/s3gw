@@ -30,3 +30,10 @@
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-secret.yaml
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-deployment.yaml
         - kubectl apply -f /home/{{ user }}/s3gw/s3gw-service.yaml
+
+    - name: Wait s3gw application to become ready, this could take a while ...
+      command: kubectl wait --namespace s3gw-system --for=condition=ready pod --selector=app.aquarist-labs.io/name=s3gw --timeout=30s
+      register: result
+      until: result.rc == 0
+      retries: 20
+      delay: 2

@@ -24,6 +24,12 @@ export K8S_DISTRO=${K8S_DISTRO:-"k8s"}
 export INGRESS=${INGRESS:-"nginx"}
 export PROV_USER=${PROV_USER:-"vagrant"}
 
+#these defaults will change
+export S3GW_UI_REPO=${S3GW_UI_REPO:-"https://github.com/giubacc/aws-s3-explorer.git"}
+export S3GW_UI_VERSION=${S3GW_UI_VERSION:-"s3gw-demo"}
+
+export SCENARIO=${SCENARIO:-"default"}
+
 start_env() {
   echo "Starting environment ..."
   echo "WORKER_COUNT=${WORKER_COUNT}"
@@ -52,6 +58,9 @@ build_env() {
   echo "K8S_DISTRO=${K8S_DISTRO}"
   echo "INGRESS=${INGRESS}"
   echo "PROV_USER=${PROV_USER}"
+  echo "S3GW_UI_REPO=${S3GW_UI_REPO}"
+  echo "S3GW_UI_VERSION=${S3GW_UI_VERSION}"
+  echo "SCENARIO=${SCENARIO}"
 
   if [ $START_LOCAL_REGISTRY = "yes" ]; then
     echo "Saving s3gw container image locally ..."
@@ -69,7 +78,7 @@ build_env() {
   echo "Built"
 
   echo "Cleaning ..."
-  rm -rf ./s3gw.tar
+  rm -rf ./*.tar
   echo "Cleaned"
   echo
   echo "Connect to admin node with:"

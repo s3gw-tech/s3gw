@@ -21,6 +21,7 @@ allocated on a separate virtual host:
 
 * **Longhorn dashboard**, on: `longhorn.local`
 * **s3gw**, on: `s3gw.local` and `s3gw-no-tls.local`
+* **s3gw s3 explorer**, on: `s3gw-ui.local`
 
 Host names are exposed with a node port service listening on ports
 30443 (https) and 30080 (http).  
@@ -31,7 +32,7 @@ When you are running the cluster on a virtual machine,
 you can patch host's `/etc/hosts` file as follow:  
 
 ```text
-10.46.201.101   longhorn.local s3gw.local s3gw-no-tls.local
+10.46.201.101   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local
 ```
 
 This makes host names resolving with the admin node.  
@@ -39,7 +40,7 @@ Otherwise, when you are running the cluster on bare metal,
 you can patch host's `/etc/hosts` file as follow:  
 
 ```text
-127.0.0.1   longhorn.local s3gw.local s3gw-no-tls.local
+127.0.0.1   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local
 ```
 
 Services can now be accessed at:
@@ -48,4 +49,5 @@ Services can now be accessed at:
 https://longhorn.local:30443
 https://s3gw.local:30443
 http://s3gw-no-tls.local:30080
+https://s3gw-ui.local:30443
 ```

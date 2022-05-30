@@ -1,0 +1,35 @@
+- name: Install pip & s3cmd
+  hosts: admins
+  become: true
+  tasks:
+
+    - name: Install pip & s3cmd
+      command: "{{ item }}"
+      with_items:
+        - wget "https://bootstrap.pypa.io/pip/3.5/get-pip.py"
+        - python3 get-pip.py
+        - pip install s3cmd
+        - rm -rf get-pip.py
+
+- name: Load scenario
+  hosts: admins
+  tasks:
+
+    - name: Create scenarios dir
+      file:
+        path: /home/{{ user }}/scenarios
+        state: directory
+        mode: '0777'
+
+    - name: Copy s3cmd.cfg
+      copy: src=../s3cmd.cfg dest=/home/{{ user }}/scenarios
+
+    - name: Copy scenario's resources
+      copy: src=../scenarios/{{ scenario }} dest=/home/{{ user }}/scenarios mode=0777
+
+    - name: Run load-scen.sh
+      shell: /home/{{ user }}/scenarios/{{ scenario }}/load-scen.sh
+      register: out
+      args:
+        chdir: /home/{{ user }}/scenarios/{{ scenario }}/
+    - debug: var=out.stdout_lines

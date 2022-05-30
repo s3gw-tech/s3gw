@@ -1,24 +1,24 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: longhorn-ingress
-  namespace: longhorn-system
+  name: s3gw-ui-ingress
+  namespace: s3gw-system
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - longhorn.local
-    secretName: longhorn-ingress-secret
+    - s3gw-ui.local
+    secretName: s3gw-ingress-secret
   rules:
-  - host: longhorn.local
+  - host: s3gw-ui.local
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: longhorn-frontend
+            name: s3gw-ui-service
             port:
               number: 80

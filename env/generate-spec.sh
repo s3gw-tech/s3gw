@@ -72,18 +72,22 @@ specs=(
   "s3gw/s3gw-secret"
   "s3gw/s3gw-ingress-secret"
   "s3gw/s3gw-service"
+  "s3gw-ui/s3gw-ui-deployment"
+  "s3gw-ui/s3gw-ui-service"
 )
 
 nginx_specs=(
   "ingress-nginx/nginx-nodeport"
   "ingress-nginx/longhorn-ingress"
   "ingress-nginx/s3gw-ingress"
+  "ingress-nginx/s3gw-ui-ingress"
 )
 
 traefik_specs=(
   "ingress-traefik/traefik-nodeport"
   "ingress-traefik/longhorn-ingress"
   "ingress-traefik/s3gw-ingress"
+  "ingress-traefik/s3gw-ui-ingress"
 )
 
 d="$(date +'%Y/%M/%d %H:%m:%S %Z')"

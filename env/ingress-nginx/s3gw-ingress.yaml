@@ -4,6 +4,7 @@ metadata:
   name: s3gw-ingress
   namespace: s3gw-system
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   tls:
@@ -28,6 +29,7 @@ metadata:
   name: s3gw-no-tls-ingress
   namespace: s3gw-system
   annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
