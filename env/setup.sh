@@ -27,8 +27,6 @@ use_local_image_s3exp=1
 has_image_s3exp=true
 s3gw_image_s3exp="localhost/s3gw-ui:latest"
 
-ingress="traefik"
-
 function error() {
   echo "[ERROR] ${@}" >&2
 }
@@ -80,10 +78,8 @@ function show_ingresses() {
 function install_on_vm() {
   echo "Proceeding to install on a virtual machine..."
   WORKER_COUNT=0
-  K8S_DISTRO=k3s
   S3GW_IMAGE=$s3gw_image
-  INGRESS=$ingress
-  source ./setup-k8s.sh build
+  source ./setup-vm.sh build
 }
 
 while [[ $# -gt 0 ]]; do
@@ -112,12 +108,6 @@ while [[ $# -gt 0 ]]; do
     --vm)
       install_on_vm
       exit 0
-      ;;
-    --traefik)
-      ingress="traefik"
-      ;;
-    --nginx)
-      ingress="nginx"
       ;;
   esac
   shift
@@ -229,23 +219,15 @@ else
   )
 fi
 
-if [ $ingress = "nginx" ]; then
-  echo Installing nginx-controller ...
-  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/cloud/deploy.yaml
-  echo Waiting for nginx-controller to become ready, this could take a while ...
-  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=600s
-fi
-if [ $ingress = "traefik" ]; then
-  # Workaround a K8s behaviour that CustomResourceDefinition must be
-  # established before they can be used by a resource.
-  # https://github.com/kubernetes/kubectl/issues/1117
-  # k3s kubectl wait --for=condition=established --timeout=60s crd middlewares.traefik.containo.us
-  echo -n "Waiting for CRD to be established..."
-  while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..status.conditions[?(@.type=="Established")].status}' 2>/dev/null) != "True" ]]; do
-    echo -n "." && sleep 1;
-  done
-  echo
-fi
+# Workaround a K8s behaviour that CustomResourceDefinition must be
+# established before they can be used by a resource.
+# https://github.com/kubernetes/kubectl/issues/1117
+# k3s kubectl wait --for=condition=established --timeout=60s crd middlewares.traefik.containo.us
+echo -n "Waiting for CRD to be established..."
+while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..status.conditions[?(@.type=="Established")].status}' 2>/dev/null) != "True" ]]; do
+  echo -n "." && sleep 1;
+done
+echo
 
 s3gw_yaml="s3gw.yaml"
 $dev_env && s3gw_yaml="s3gw-dev.yaml"

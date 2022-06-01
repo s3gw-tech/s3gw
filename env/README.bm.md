@@ -1,9 +1,9 @@
-# K3s
+# K3s on Bare Metal
 
-This README will guide you through the setup of a K3s cluster on your system.  
-If you are looking for a vanilla K8s cluster running on virtual machines,
-refer to our [K8s section](./README.k8s.md).  
-To install K3s on a virtual machine, see [here](#Install-K3s-on-a-virtual-machine).
+This README will guide you through the setup of a K3s cluster on bare metal.  
+If you are looking for K3s cluster running on virtual machines,
+refer to our [K3s on virtual machines](./README.vm.md).
+
 # Setup
 
 ## Note Before
@@ -33,7 +33,7 @@ system. Additionally, it will deploy Longhorn and the s3gw in the cluster.
 
 ```
 $ cd ~/git/s3gw-core/env
-$ ./setup-k3s.sh
+$ ./setup.sh
 ```
 
 # Access the Longhorn UI
@@ -66,19 +66,12 @@ Backup Target Credential Secret: `s3gw-secret`
 
 # Install K3s on a virtual machine
 
-## Requirements
-
-Make sure you have installed the following applications on your system:
-
-* Vagrant
-* libvirt
-* Ansible
-
 In order to install k3s on a virtual machine rather than on bare metal, execute:
 
 ```
 $ cd ~/git/s3gw-core/env
-$ ./setup-k3s.sh --vm
+$ ./setup.sh --vm
 ```
 
-Refer to [K8s section](./README.k8s.md) for more configuration options.
+Refer to [K3s on virtual machines](./README.vm.md) for requirements and for
+more configuration options.

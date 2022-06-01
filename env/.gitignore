@@ -1,4 +1,4 @@
-/s3gw.ctr.tar
+/*.ctr.tar
 s3gw/*.tmp.yaml
 playbooks/join-command
 playbooks/admin.conf

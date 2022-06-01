@@ -19,8 +19,8 @@ is_dev_env=false
 
 s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
 s3gw_image_pull_policy="Always"
-
-ingress="traefik"
+s3gw_ui_image="localhost/s3gw-ui:latest"
+s3gw_ui_image_pull_policy="Never"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -32,12 +32,6 @@ while [[ $# -gt 0 ]]; do
       s3gw_image="localhost/s3gw:latest"
       s3gw_image_pull_policy="Never"
       ;;
-    --traefik)
-      ingress="traefik"
-      ;;
-    --nginx)
-      ingress="nginx"
-      ;;
   esac
   shift 1
 done
@@ -46,6 +40,11 @@ s3gw_image=$(printf '%s\n' "$s3gw_image" | sed -e 's/[]\/$*.^[]/\\&/g')
 
 sed "s/##S3GW_IMAGE##/"${s3gw_image}"/" s3gw/s3gw-deployment.yaml > s3gw/s3gw-deployment.tmp.yaml
 sed -i "s/##S3GW_IMAGE_PULL_POLICY##/"${s3gw_image_pull_policy}"/" s3gw/s3gw-deployment.tmp.yaml
+
+s3gw_ui_image=$(printf '%s\n' "$s3gw_ui_image" | sed -e 's/[]\/$*.^[]/\\&/g')
+
+sed "s/##S3GW_UI_IMAGE##/"${s3gw_ui_image}"/" s3gw-ui/s3gw-ui-deployment.yaml > s3gw-ui/s3gw-ui-deployment.tmp.yaml
+sed -i "s/##S3GW_UI_IMAGE_PULL_POLICY##/"${s3gw_ui_image_pull_policy}"/" s3gw-ui/s3gw-ui-deployment.tmp.yaml
 
 rgw_default_user_access_key_base64=$(cat s3gw/s3gw-secret.yaml | grep RGW_DEFAULT_USER_ACCESS_KEY | cut -d':' -f 2 | sed -e 's/[[:space:],"]//g')
 rgw_default_user_access_key_base64=$(echo -n $rgw_default_user_access_key_base64 | base64)
@@ -72,15 +71,8 @@ specs=(
   "s3gw/s3gw-secret"
   "s3gw/s3gw-ingress-secret"
   "s3gw/s3gw-service"
-  "s3gw-ui/s3gw-ui-deployment"
+  "s3gw-ui/s3gw-ui-deployment.tmp"
   "s3gw-ui/s3gw-ui-service"
-)
-
-nginx_specs=(
-  "ingress-nginx/nginx-nodeport"
-  "ingress-nginx/longhorn-ingress"
-  "ingress-nginx/s3gw-ingress"
-  "ingress-nginx/s3gw-ui-ingress"
 )
 
 traefik_specs=(
@@ -121,18 +113,10 @@ for spec in ${specs[@]}; do
   cat ${spec}.yaml >> ${tgtfile}
 done
 
-if [ $ingress = "nginx" ]; then
-  for spec in ${nginx_specs[@]}; do
-    echo Inflating nginx-spec ${spec}.yaml
-    echo "---" >> ${tgtfile}
-    cat ${spec}.yaml >> ${tgtfile}
-  done
-elif [ $ingress = "traefik" ]; then
-  for spec in ${traefik_specs[@]}; do
-    echo Inflating traefik-spec ${spec}.yaml
-    echo "---" >> ${tgtfile}
-    cat ${spec}.yaml >> ${tgtfile}
-  done
-fi
+for spec in ${traefik_specs[@]}; do
+  echo Inflating traefik-spec ${spec}.yaml
+  echo "---" >> ${tgtfile}
+  cat ${spec}.yaml >> ${tgtfile}
+done
 
 find . -name "*.tmp.yaml" -type f -delete

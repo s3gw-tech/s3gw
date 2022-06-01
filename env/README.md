@@ -1,18 +1,13 @@
-# K3s & K8s environment running s3gw with Longhorn
+# K3s environment running s3gw with Longhorn
 
-This is the entrypoint to setup a Kubernetes cluster on your system.  
-You can either choose to install a lightweight **K3s** cluster or a **vanilla K8s**
-cluster running the latest stable Kubernetes version available.  
-Regardless of the choice, you will get a provisioned cluster set up to work with
-`s3gw` and Longhorn.  
-K3s version can install directly on bare metal or on virtual machine.  
-K8s version will install on an arbitrary number of virtual machines depending on the
-size of the cluster.
+This is the entrypoint to setup a Kubernetes cluster running s3gw with Longhorn.  
+You can choose to install a **K3s** cluster directly on your machine
+or on top of virtual machines.  
 
-Refer to the appropriate section to proceed with the setup of the environment:  
+Refer to the appropriate section to proceed with the setup:  
 
-* [K3s Setup](./README.k3s.md)
-* [K8s Setup](./README.k8s.md)
+* [K3s on bare metal](./README.bm.md)
+* [K3s on virtual machines](./README.vm.md)
 
 ## Ingresses
 

@@ -1,9 +1,9 @@
-- name: Install Packages
-  hosts: all
+- name: Install Packages - [APT]
+  hosts: apt
   become: true
   tasks:
 
-    - name: Install utility packages
+    - name: Install packages
       apt:
         name: "{{ packages }}"
         state: present
@@ -16,11 +16,6 @@
             - gnupg-agent
             - software-properties-common
 
-- name: Container Runtime
-  hosts: all
-  become: true
-  tasks:
-
     - name: Add signing key for Docker's repository
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -31,16 +26,69 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
         state: present
 
-    - name: Install container runtime
+    - name: Install Docker
       apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
-            - containerd.io
             - docker-ce
             - docker-ce-cli
+
+- name: Install Packages - [ZYPPER]
+  hosts: zypper
+  become: true
+  tasks:
+
+    - name: Install packages
+      zypper:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+            - curl
+            - wget
+            - git
+            - docker
+            - python3-docker
+
+- name: Install pip
+  hosts: master
+  become: true
+  tasks:
+
+    - name: Install pip
+      command: "{{ item }}"
+      with_items:
+        - wget "https://bootstrap.pypa.io/pip/3.5/get-pip.py"
+        - python3 get-pip.py
+        - rm -rf get-pip.py
+
+- name: Install pip s3cmd [ALL]
+  hosts: master
+  become: true
+  tasks:
+    - name: Install pip s3cmd
+      command: pip install s3cmd
+
+- name: Install pip kubernetes [ALL]
+  hosts: master
+  tasks:
+    - name: Install pip kubernetes
+      command: pip install kubernetes
+
+- name: Install pip docker [APT]
+  hosts: apt:!node
+  become: true
+  tasks:
+    - name: Install pip docker
+      command: pip install docker
+
+- name: Patch Runtime
+  hosts: all
+  become: true
+  tasks:
 
     - name: Patching docker/daemon.json
       copy:
@@ -48,68 +96,8 @@
         content: |
             {
             "exec-opts": ["native.cgroupdriver=systemd"],
-            "insecure-registries" : ["admin:5000"]
+            "insecure-registries" : ["admin-1:5000"]
             }
-
-    - name: Patching /etc/modules-load.d/containerd.conf
-      copy:
-        dest: "/etc/modules-load.d/containerd.conf"
-        content: |
-            overlay
-            br_netfilter
-
-    - name: Add the overlay module
-      modprobe:
-        name: overlay
-        state: present
-
-    - name: Add the br_netfilter module
-      modprobe:
-        name: br_netfilter
-        state: present
-
-    - name: Patching /etc/sysctl.d/99-kubernetes-cri.conf
-      copy:
-        dest: "/etc/sysctl.d/99-kubernetes-cri.conf"
-        content: |
-            net.bridge.bridge-nf-call-iptables  = 1
-            net.ipv4.ip_forward                 = 1
-            net.bridge.bridge-nf-call-ip6tables = 1
-
-    - name: Apply sysctl params without reboot
-      command: sysctl --system
-
-    - name: Patching /etc/containerd/config.toml
-      copy:
-        dest: "/etc/containerd/config.toml"
-        content: |
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-              SystemdCgroup = true
-
-            version = 2
-
-            [plugins."io.containerd.grpc.v1.cri".registry]
-              config_path = "/etc/containerd/certs.d"
-
-    - name: Create /etc/containerd/certs.d/admin.local directory
-      file:
-        path: /etc/containerd/certs.d/admin.local
-        state: directory
-
-    - name: Patching /etc/containerd/certs.d/admin.local/hosts.toml
-      copy:
-        dest: "/etc/containerd/certs.d/admin.local/hosts.toml"
-        content: |
-            [host."http://admin.local:5000"]
-              capabilities = ["pull", "resolve", "push"]
-              skip_verify = true
-
-    - name: Restart containerd
-      service:
-        name: containerd
-        state: restarted
-        daemon_reload: yes
 
     - name: Add user to Docker group
       user:
@@ -134,36 +122,48 @@
     - name: Disable swap
       command: swapoff -a
 
-- name: Start Local Registry [optional]
-  hosts: registries
-  become: yes
+- name: Start local registry
+  hosts: master
+  become: true
   tasks:
 
     - name: Start a local registry
       command: docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
-    - name: Copy host's s3gw container image to local dir
-      copy: src=../s3gw.tar dest=/home/{{ user }} mode=0777
+- name: Set up nodes to use local registry
+  hosts: all
+  become: true
+  tasks:
 
-    - name: Import s3gw container into local registry
-      command: "{{ item }}"
-      with_items:
-        - docker load --input s3gw.tar
-        - docker tag localhost/s3gw admin:5000/s3gw
-        - docker push admin:5000/s3gw
-        - docker image rm localhost/s3gw
-        - docker image rm admin:5000/s3gw
-        - rm -rf s3gw.tar
+    - name: Ensuring /etc/rancher/k3s
+      ansible.builtin.file:
+        path: /etc/rancher/k3s
+        state: directory
+        mode: '0755'
+
+    - name: Creating /etc/rancher/k3s/registries.yaml
+      copy:
+        content: ""
+        dest: /etc/rancher/k3s/registries.yaml
+        force: no
+
+    - name: Updating /etc/rancher/k3s/registries.yaml
+      blockinfile:
+        path: /etc/rancher/k3s/registries.yaml
+        block: |
+          mirrors:
+            admin-1.local:
+              endpoint:
+                - "http://admin-1:5000"
 
 - name: Local DNS
   hosts: all
+  become: true
   gather_facts: yes
   tasks:
 
     - name: Update /etc/hosts file with node name
       tags: etchostsupdate
-      become: yes
-      become_user: root
       lineinfile:
         path: "/etc/hosts"
         regexp: ".*\t{{ hostvars[item]['ansible_fqdn']}}\t{{ hostvars[item]['ansible_hostname']}}"
@@ -171,16 +171,15 @@
         state: present
         backup: yes
       register: etchostsupdate
-      when: ansible_hostname != "{{ item }}" or ansible_hostname == "{{ item }}"
       with_items: "{{groups['all']}}"
 
     - name: Patch /etc/hosts
-      become: true
-      shell: |
-        sed -i s/"127.0.2.1 {{ ansible_facts['fqdn']}} {{ ansible_facts['hostname']}}"/""/ /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.2\.1.*'
+        state: absent
 
-    - name: Add *local to /etc/hosts
-      become: true
+    - name: Add local names to /etc/hosts
       lineinfile:
         path: /etc/hosts
         line: "127.0.0.1   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local"
