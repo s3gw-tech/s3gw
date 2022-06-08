@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -x
+
 testpath=$(mktemp -d s3gw.XXXX --tmpdir=/tmp)
 s3cfg=${testpath}/s3cfg
 url="${1}"
