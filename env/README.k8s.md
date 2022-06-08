@@ -76,6 +76,9 @@ S3GW_IMAGE                  : The s3gw's container image used when deploying the
 K8S_DISTRO                  : The Kubernetes distribution to install; specify k3s or k8s (k8s default)
 INGRESS                     : The ingress implementation to be used; NGINX or Traefik (NGINX default)
 PROV_USER                   : The provisioning user used by Ansible (vagrant default)
+S3GW_UI_REPO                : A GitHub repository to be used when building the s3gw-ui's image
+S3GW_UI_VERSION             : A S3GW_UI_REPO's branch to be used
+SCENARIO                    : An optional scenario to be loaded in the cluster
 ```
 
 So, you could start a more specialized build with:

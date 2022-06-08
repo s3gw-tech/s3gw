@@ -7,6 +7,25 @@ This project shall provide the required infrastructure to build a container
 able to run on a kubernetes cluster, providing S3-compatible endpoints to
 applications.
 
+Table of Contents
+=================
+
+* [Roadmap](#roadmap)
+* [How To](#how-to)
+  * [Introduction](#introduction)
+  * [Requirements](#requirements)
+  * [Running](#running)
+* [Building the s3gw container image](#building-the-s3gw-container-image)
+  * [Prerequisites](#prerequisites)
+  * [Building the radosgw binary](#building-the-radosgw-binary)
+  * [Build the s3gw container image](#build-the-s3gw-container-image)
+  * [Running the s3gw container](#running-the-s3gw-container)
+* [Building the s3gw-UI image](#building-the-s3gw-ui-image)
+* [Building and running a complete environment](#building-and-running-a-complete-environment)
+* [When things don't work](#when-things-dont-work)
+* [License](#license)
+
+<!-- Created by https://github.com/ekalinin/github-markdown-toc -->
 
 ## Roadmap
 
@@ -224,6 +243,14 @@ For example if you want to increase `radosgw` logging verbosity, you could run:
 ```shell
 $ podman run -p 7480:7480 localhost/s3gw --rgw-backend-store dbstore --debug-rgw 15
 ```
+
+## Building the s3gw-UI image
+
+You can refer to the [build-ui](./build-ui/) section to build the s3gw-UI image.
+
+## Building and running a complete environment
+
+You can refer to the [environment](./env/) section to build a fully provisioned Kubernetes cluster.
 
 ## When things don't work
 

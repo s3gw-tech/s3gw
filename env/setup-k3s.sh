@@ -21,6 +21,12 @@ dev_env=false
 use_local_image=0
 has_image=false
 s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
+
+#this will likely change to have defaults as s3gw_image
+use_local_image_s3exp=1
+has_image_s3exp=true
+s3gw_image_s3exp="localhost/s3gw-ui:latest"
+
 ingress="traefik"
 
 function error() {
@@ -42,13 +48,18 @@ function apply() {
   )
 }
 
-function show_ingresses() {
+function wait_ingresses() {
+  echo -n "Waiting for cluster to become ready..."
   ip=""
   until [ -n "${ip}" ]
   do
     echo -n "." && sleep 1;
     ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
   done
+}
+
+function show_ingresses() {
+  ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
   echo -e "\n"
   echo "Please add the following line to /etc/hosts to be able to access the Longhorn UI and s3gw:"
   echo -e "\n"
@@ -62,6 +73,7 @@ function show_ingresses() {
   echo "                          https://s3gw.local:30443"
   echo "                          http://s3gw-no-tls.local"
   echo "                          http://s3gw-no-tls.local:30080"
+  echo "s3gw-ui available at:     https://s3gw-ui.local:30443"
   echo -e "\n"
 }
 
@@ -86,6 +98,11 @@ while [[ $# -gt 0 ]]; do
     --s3gw-image)
       s3gw_image=$2
       has_image=true
+      shift 1
+      ;;
+    --s3gw-image-s3exp)
+      s3gw_image_s3exp=$2
+      has_image_s3exp=true
       shift 1
       ;;
     --show-ingresses)
@@ -132,6 +149,32 @@ if $dev_env ; then
   echo "Using local s3gw image '${s3gw_image}'."
 fi
 
+if [[ -z "${s3gw_image_s3exp}" ]]; then
+  error "s3gw-ui image not provided"
+  exit 1
+fi
+
+if $has_image_s3exp ; then
+  if [[ ! -e "./s3gw-ui.ctr.tar" ]]; then
+    echo "Checking for s3gw-ui image locally..."
+    img=$(podman images --noheading --sort created s3gw-ui:latest --format '{{.Repository}}:{{.Tag}}' | \
+      head -n 1)
+
+    if [[ -z "${img}" ]]; then
+      error "Unable to find s3gw-ui image locally; abort."
+      exit 1
+    fi
+
+    podman image save ${img} -o ./s3gw-ui.ctr.tar || (
+      error "Failed to export s3gw-ui image."
+      exit 1
+    )
+  fi
+  use_local_image_s3exp=1
+  ! $has_image_s3exp && s3gw_image_s3exp="localhost/s3gw-ui:latest"
+  echo "Using local s3gw-ui image '${s3gw_image_s3exp}'."
+fi
+
 if k3s --version >&/dev/null ; then
   error "K3s already installed, we won't proceed."
   exit 0
@@ -168,6 +211,20 @@ else
   echo "Pulling s3gw container image..."
   sudo k3s ctr images pull ${s3gw_image} || (
     error "Failed to pull s3gw image ${s3gw_image}."
+    exit 1
+  )
+fi
+
+if [ ${use_local_image_s3exp} -eq 1 ]; then
+  echo "Importing local s3gw-ui container image..."
+  sudo k3s ctr images import ./s3gw-ui.ctr.tar || (
+    error "Failed to import local s3gw-ui image."
+    exit 1
+  )
+else
+  echo "Pulling s3gw-ui container image..."
+  sudo k3s ctr images pull ${s3gw_image_s3exp} || (
+    error "Failed to pull s3gw-ui image ${s3gw_image_s3exp}."
     exit 1
   )
 fi
@@ -210,5 +267,5 @@ else
   )
 fi
 
-echo -n "Waiting for cluster to become ready..."
+wait_ingresses
 show_ingresses
