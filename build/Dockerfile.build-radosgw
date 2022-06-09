@@ -18,6 +18,22 @@ RUN zypper -n install --no-recommends \
   python3-PrettyTable python3-PyYAML python3-Sphinx python3-devel \
   python3-setuptools rdma-core-devel re2-devel snappy-devel sqlite-devel \
   sudo systemd-rpm-macros valgrind-devel which xfsprogs-devel xmlstarlet
+# Use prebuilt boost
+RUN zypper -n install --no-recommends \
+      libboost_atomic1_79_0-devel \
+      libboost_context1_79_0-devel \
+      libboost_coroutine1_79_0-devel \
+      libboost_filesystem1_79_0-devel \
+      libboost_iostreams1_79_0-devel \
+      libboost_program_options1_79_0-devel \
+      libboost_python-py3-1_79_0-devel \
+      libboost_random1_79_0-devel \
+      libboost_regex1_79_0-devel \
+      libboost_system1_79_0-devel \
+      libboost_thread1_79_0-devel \
+      librabbitmq-devel \
+      librdkafka-devel \
+ && zypper clean --all
 
 COPY build-radosgw.sh /usr/bin/build-radosgw.sh
 
