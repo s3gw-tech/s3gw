@@ -17,6 +17,7 @@ CEPH_CMAKE_ARGS="-DWITH_RADOSGW_SELECT_PARQUET=OFF -DWITH_RADOSGW_MOTR=OFF ${CEP
 CEPH_CMAKE_ARGS="-DWITH_RADOSGW_DBSTORE=ON -DWITH_RADOSGW_LUA_PACKAGES=OFF ${CEPH_CMAKE_ARGS}"
 CEPH_CMAKE_ARGS="-DWITH_MANPAGE=OFF -DWITH_OPENLDAP=OFF -DWITH_LTTNG=OFF ${CEPH_CMAKE_ARGS}"
 CEPH_CMAKE_ARGS="-DWITH_RDMA=OFF ${CEPH_CMAKE_ARGS}"
+CEPH_CMAKE_ARGS="-DWITH_SYSTEM_BOOST=ON ${CEPH_CMAKE_ARGS}"
 NPROC=${NPROC:-$(nproc --ignore=2)}
 
 build_radosgw() {
@@ -33,6 +34,9 @@ build_radosgw() {
   fi
 
   cd ${CEPH_DIR}
+
+  # This is necessary since git v2.35.2 because of CVE-2022-24765
+  git config --global --add safe.directory "${CEPH_DIR}"
 
   ./install-deps.sh || true
 
