@@ -22,7 +22,7 @@ export S3GW_IMAGE_PULL_POLICY=${S3GW_IMAGE_PULL_POLICY:-"Always"}
 export PROV_USER=${PROV_USER:-"vagrant"}
 
 #these defaults will change
-export S3GW_UI_REPO=${S3GW_UI_REPO:-"https://github.com/giubacc/aws-s3-explorer.git"}
+export S3GW_UI_REPO=${S3GW_UI_REPO:-"https://github.com/aquarist-labs/aws-s3-explorer.git"}
 export S3GW_UI_VERSION=${S3GW_UI_VERSION:-"s3gw-demo"}
 
 export SCENARIO=${SCENARIO:-"default"}
