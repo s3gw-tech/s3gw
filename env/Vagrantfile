@@ -1,6 +1,8 @@
 BOX_NAME                  = ENV["BOX_NAME"] || "opensuse/Leap-15.3.x86_64"
+VM_PROVIDER               = ENV["VM_PROVIDER"] || "libvirt"
 VM_NET                    = (ENV["VM_NET"] || "10.46.201.0").split(".0")[0]
 VM_NET_LAST_OCTET_START   = Integer(ENV["VM_NET_LAST_OCTET_START"] || "101")
+VM_BRIDGE_INET            = ENV["VM_BRIDGE_INET"] || "eth0"
 
 #k3s-ansible seems to work with only 1 admin; this should be investigated.
 #For the time being, we assume this value hardcoded to 1.
@@ -16,6 +18,7 @@ WORKER_CPU                = Integer(ENV["WORKER_CPU"] || "2")
 WORKER_DISK               = ((ENV["WORKER_DISK"] || "no") == "yes")
 WORKER_DISK_SIZE          = ENV["WORKER_DISK_SIZE"] || "8G"
 STOP_AFTER_BOOTSTRAP      = ((ENV["STOP_AFTER_BOOTSTRAP"] || "no") == "yes")
+STOP_AFTER_K3S_INSTALL    = ((ENV["STOP_AFTER_K3S_INSTALL"] || "no") == "yes")
 S3GW_IMAGE                = ENV["S3GW_IMAGE"] || "ghcr.io/aquarist-labs/s3gw:latest"
 S3GW_IMAGE_PULL_POLICY    = ENV["S3GW_IMAGE_PULL_POLICY"] || "Always"
 PROV_USER                 = ENV["PROV_USER"] || "vagrant"
@@ -56,7 +59,13 @@ extra_vars = {
   scenario: SCENARIO,
   k3s_version: K3S_VERSION,
   systemd_dir: "/etc/systemd/system",
-  master_ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START}"
+  master_ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START}",
+
+  # --node-ip is needed when using virtualbox, otherwise it will start k3s on the NAT interface.
+  # This is not sufficient when WORKER_COUNT > 0 because workers need this directive too.
+  # Currently seems that this problem cannot be overcome, so with virtualbox you can only have a
+  # working cluster with WORKER_COUNT == 0
+  extra_server_args: "--node-ip #{VM_NET}.#{VM_NET_LAST_OCTET_START}"
 }
 
 def ansible_provision (context, ansible_groups, extra_vars)
@@ -79,36 +88,38 @@ def ansible_provision (context, ansible_groups, extra_vars)
       ansible.groups = ansible_groups
       ansible.extra_vars = extra_vars
     end
-    context.vm.provision "ansible" do |ansible|
-      ansible.limit = "all"
-      ansible.playbook = "playbooks/longhorn-deploy.yaml"
-      ansible.groups = ansible_groups
-      ansible.extra_vars = extra_vars
-    end
-    context.vm.provision "ansible" do |ansible|
-      ansible.limit = "all"
-      ansible.playbook = "playbooks/s3gw-deploy.yaml"
-      ansible.groups = ansible_groups
-      ansible.extra_vars = extra_vars
-    end
-    context.vm.provision "ansible" do |ansible|
-      ansible.limit = "all"
-      ansible.playbook = "playbooks/s3gw-ui-deploy.yaml"
-      ansible.groups = ansible_groups
-      ansible.extra_vars = extra_vars
-    end
-    context.vm.provision "ansible" do |ansible|
-      ansible.limit = "all"
-      ansible.playbook = "playbooks/ingress-traefik-deploy.yaml"
-      ansible.groups = ansible_groups
-      ansible.extra_vars = extra_vars
-    end
-    if SCENARIO != ""
+    if(!STOP_AFTER_K3S_INSTALL)
       context.vm.provision "ansible" do |ansible|
         ansible.limit = "all"
-        ansible.playbook = "playbooks/load-scen.yaml"
+        ansible.playbook = "playbooks/longhorn-deploy.yaml"
         ansible.groups = ansible_groups
         ansible.extra_vars = extra_vars
+      end
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/s3gw-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/s3gw-ui-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/ingress-traefik-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      if SCENARIO != ""
+        context.vm.provision "ansible" do |ansible|
+          ansible.limit = "all"
+          ansible.playbook = "playbooks/load-scen.yaml"
+          ansible.groups = ansible_groups
+          ansible.extra_vars = extra_vars
+        end
       end
     end
   end
@@ -124,16 +135,25 @@ Vagrant.configure("2") do |config|
     ansible_groups["zypper"] << "worker-[1:#{WORKER_COUNT}]"
   end
 
-  config.vm.provider "libvirt" do |lv|
-    lv.connect_via_ssh = false
-    lv.qemu_use_session = false
-    lv.nic_model_type = "e1000"
-    lv.cpu_mode = 'host-passthrough'
+  if VM_PROVIDER == "libvirt"
+    config.vm.provider "libvirt" do |lv|
+      lv.connect_via_ssh = false
+      lv.qemu_use_session = false
+      lv.nic_model_type = "e1000"
+      lv.cpu_mode = 'host-passthrough'
+    end
+
+    # This allows to have a working cluster with WORKER_COUNT > 0
+    # It removes --node-ip directive.
+    extra_vars[:extra_server_args] = ""
+
+  elsif VM_PROVIDER == "virtualbox"
+    config.vm.synced_folder "~", "/shared"
   end
 
   (1..ADMIN_COUNT).each do |i|
       config.vm.define "admin-#{i}" do |admin|
-        admin.vm.provider "libvirt" do |lv|
+        admin.vm.provider VM_PROVIDER do |lv|
           lv.memory = ADMIN_MEM
           lv.cpus = ADMIN_CPU
           if WORKER_COUNT == 0 && ADMIN_DISK
@@ -143,7 +163,12 @@ Vagrant.configure("2") do |config|
 
         admin.vm.box = BOX_NAME
         admin.vm.hostname = "admin-#{i}"
-        admin.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i-1}"
+
+        if VM_PROVIDER == "libvirt"
+          admin.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i-1}"
+        elsif VM_PROVIDER == "virtualbox"
+          admin.vm.network "public_network", bridge: VM_BRIDGE_INET, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i-1}"
+        end
       end
 
 		if WORKER_COUNT == 0
@@ -154,7 +179,7 @@ Vagrant.configure("2") do |config|
 	if WORKER_COUNT > 0
 		(1..WORKER_COUNT).each do |i|
 			config.vm.define "worker-#{i}" do |worker|
-				worker.vm.provider "libvirt" do |lv|
+				worker.vm.provider VM_PROVIDER do |lv|
 					lv.memory = WORKER_MEM
 					lv.cpus = WORKER_CPU
 					if WORKER_DISK
@@ -164,7 +189,11 @@ Vagrant.configure("2") do |config|
 
 				worker.vm.box = BOX_NAME
 				worker.vm.hostname = "worker-#{i}"
-				worker.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i+(ADMIN_COUNT-1)}"
+        if VM_PROVIDER == "libvirt"
+				  worker.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i+(ADMIN_COUNT-1)}"
+        elsif VM_PROVIDER == "virtualbox"
+          worker.vm.network "public_network", bridge: VM_BRIDGE_INET, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i+(ADMIN_COUNT-1)}"
+        end
 
 				# Only execute once the Ansible provisioner,
 				# when all nodes are up and ready.
