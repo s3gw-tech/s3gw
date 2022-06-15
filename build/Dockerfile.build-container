@@ -9,12 +9,34 @@ RUN zypper -n install libblkid1 \
   libtcmalloc4 \
   libfmt8 \
   liboath0 \
-  libicu71
+  libicu71 \
+  libboost_atomic1_79_0 \
+  libboost_chrono1_79_0 \
+  libboost_context1_79_0 \
+  libboost_coroutine1_79_0 \
+  libboost_date_time1_79_0 \
+  libboost_filesystem1_79_0 \
+  libboost_iostreams1_79_0 \
+  libboost_program_options1_79_0 \
+  libboost_random1_79_0 \
+  libboost_regex1_79_0 \
+  libboost_serialization1_79_0 \
+  libboost_system1_79_0 \
+  libboost_thread1_79_0 \
+ && zypper clean --all
 
 RUN mkdir -p /data
 
 COPY ./bin/radosgw /usr/bin/radosgw
-COPY ./lib/*.so* /usr/lib64/
+COPY [ "./lib/libradosgw.so", \
+       "./lib/libradosgw.so.2", \
+       "./lib/libradosgw.so.2.0.0", \
+       "./lib/librados.so", \
+       "./lib/librados.so.2", \
+       "./lib/librados.so.2.0.0", \
+       "./lib/libceph-common.so", \
+       "./lib/libceph-common.so.2", \
+       "/usr/lib64/" ]
 
 EXPOSE 7480
 
