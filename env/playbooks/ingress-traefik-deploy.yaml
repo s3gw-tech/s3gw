@@ -1,5 +1,5 @@
 - name: Longhorn/s3gw Traefik ingress deploy
-  hosts: traefik
+  hosts: kubectl
   tasks:
 
     - name: Wait Traefik controller to become ready, this could take a while ...
@@ -9,15 +9,25 @@
       retries: 20
       delay: 5
 
-    - name: Copy traefik ingresses cfg to local dir
+    - name: Copy Traefik ingresses cfg to local dir
       copy: src=../ingress-traefik dest=/home/{{ user }} mode=0777
 
-    - name: Create a Service for the Ingress Controller Pods
-      command: kubectl apply -f /home/{{ user }}/ingress-traefik/traefik-nodeport.yaml
+    - name: Apply traefik-nodeport.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/ingress-traefik/traefik-nodeport.yaml
 
-    - name: Apply ingresses configuration
-      command: "{{ item }}"
-      with_items:
-        - kubectl apply -f /home/{{ user }}/ingress-traefik/longhorn-ingress.yaml
-        - kubectl apply -f /home/{{ user }}/ingress-traefik/s3gw-ingress.yaml
-        - kubectl apply -f /home/{{ user }}/ingress-traefik/s3gw-ui-ingress.yaml
+    - name: Apply longhorn-ingress.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/ingress-traefik/longhorn-ingress.yaml
+
+    - name: Apply s3gw-ingress.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/ingress-traefik/s3gw-ingress.yaml
+
+    - name: Apply s3gw-ui-ingress.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/ingress-traefik/s3gw-ui-ingress.yaml

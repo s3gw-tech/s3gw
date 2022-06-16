@@ -1,5 +1,5 @@
 - name: s3gw deploy
-  hosts: admins
+  hosts: kubectl
   tasks:
 
     - name: Copy Longhorn cfg to local dir
@@ -20,16 +20,40 @@
         regexp: '##S3GW_IMAGE_PULL_POLICY##'
         replace: "{{ s3gw_image_pull_policy }}"
 
-    - name: Deploy s3gw
-      command: "{{ item }}"
-      with_items:
-        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-namespace.yaml
-        - kubectl apply -f /home/{{ user }}/longhorn/longhorn-storageclass.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-pvc.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-config.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-secret.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-deployment.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw/s3gw-service.yaml
+    - name: Apply s3gw-namespace.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-namespace.yaml
+
+    - name: Apply longhorn-storageclass.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/longhorn/longhorn-storageclass.yaml
+
+    - name: Apply s3gw-pvc.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-pvc.yaml
+
+    - name: Apply s3gw-config.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-config.yaml
+
+    - name: Apply s3gw-secret.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-secret.yaml
+
+    - name: Apply s3gw-deployment.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-deployment.yaml
+
+    - name: Apply s3gw-service.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-service.yaml
 
     - name: Wait s3gw application to become ready, this could take a while ...
       command: kubectl wait --namespace s3gw-system --for=condition=ready pod --selector=app.aquarist-labs.io/name=s3gw --timeout=30s

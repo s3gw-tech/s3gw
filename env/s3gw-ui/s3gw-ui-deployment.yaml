@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: s3gw-ui
-          image: localhost/s3gw-ui:latest
-          imagePullPolicy: Never
+          image: ##S3GW_UI_IMAGE##
+          imagePullPolicy: ##S3GW_UI_IMAGE_PULL_POLICY##
           envFrom:
             - configMapRef:
                 name: s3gw-config

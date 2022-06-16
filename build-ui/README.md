@@ -26,7 +26,7 @@ Make sure you've installed the following applications:
 
 * Podman or Docker
 
-The build script expect the following directory hierarchy.
+The build script expects the following directory hierarchy.
 
 ```text
 |

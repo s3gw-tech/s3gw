@@ -1,5 +1,5 @@
 - name: Deploy Longhorn
-  hosts: admins
+  hosts: kubectl
   tasks:
 
     - name: Installing iscsi...

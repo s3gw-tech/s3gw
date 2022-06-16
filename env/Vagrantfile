@@ -1,245 +1,204 @@
-IMAGE_NAME = ENV["IMAGE_NAME"] || "generic/ubuntu1604"
-VM_NET = (ENV["VM_NET"] || "10.46.201.0").split(".0")[0]
-VM_NET_LAST_OCTET_START = Integer(ENV["VM_NET_LAST_OCTET_START"] || "101")
-CIDR_NET = ENV["CIDR_NET"] || "172.22.0.0"
-WORKER_COUNT = Integer(ENV["WORKER_COUNT"] || "1")
-ADMIN_MEM = Integer(ENV["ADMIN_MEM"] || "4096")
-ADMIN_CPU = Integer(ENV["ADMIN_CPU"] || "2")
-ADMIN_DISK = ENV["ADMIN_DISK"] || "no"
-ADMIN_DISK_SIZE = ENV["ADMIN_DISK_SIZE"] || "8G"
-WORKER_MEM = Integer(ENV["WORKER_MEM"] || "4096")
-WORKER_CPU = Integer(ENV["WORKER_CPU"] || "2")
-WORKER_DISK = ENV["WORKER_DISK"] || "no"
-WORKER_DISK_SIZE = ENV["WORKER_DISK_SIZE"] || "8G"
-STOP_AFTER_BOOTSTRAP = ENV["STOP_AFTER_BOOTSTRAP"] || "no"
-START_LOCAL_REGISTRY = ENV["START_LOCAL_REGISTRY"] || "no"
-S3GW_IMAGE = ENV["S3GW_IMAGE"] || "ghcr.io/aquarist-labs/s3gw:latest"
-S3GW_IMAGE_PULL_POLICY = ENV["S3GW_IMAGE_PULL_POLICY"] || "Always"
-K8S_DISTRO = ENV["K8S_DISTRO"] || "k8s"
-INGRESS = ENV["INGRESS"] || "nginx"
-PROV_USER = ENV["PROV_USER"] || "vagrant"
-S3GW_UI_REPO = ENV["S3GW_UI_REPO"] || ""
-S3GW_UI_VERSION = ENV["S3GW_UI_VERSION"] || ""
-SCENARIO = ENV["SCENARIO"] || ""
+BOX_NAME                  = ENV["BOX_NAME"] || "opensuse/Leap-15.3.x86_64"
+VM_PROVIDER               = ENV["VM_PROVIDER"] || "libvirt"
+VM_NET                    = (ENV["VM_NET"] || "10.46.201.0").split(".0")[0]
+VM_NET_LAST_OCTET_START   = Integer(ENV["VM_NET_LAST_OCTET_START"] || "101")
+VM_BRIDGE_INET            = ENV["VM_BRIDGE_INET"] || "eth0"
+
+#k3s-ansible seems to work with only 1 admin; this should be investigated.
+#For the time being, we assume this value hardcoded to 1.
+ADMIN_COUNT               = Integer(ENV["ADMIN_COUNT"] || "1")
+
+WORKER_COUNT              = Integer(ENV["WORKER_COUNT"] || "1")
+ADMIN_MEM                 = Integer(ENV["ADMIN_MEM"] || "4096")
+ADMIN_CPU                 = Integer(ENV["ADMIN_CPU"] || "2")
+ADMIN_DISK                = ((ENV["ADMIN_DISK"] || "no") == "yes")
+ADMIN_DISK_SIZE           = ENV["ADMIN_DISK_SIZE"] || "8G"
+WORKER_MEM                = Integer(ENV["WORKER_MEM"] || "4096")
+WORKER_CPU                = Integer(ENV["WORKER_CPU"] || "2")
+WORKER_DISK               = ((ENV["WORKER_DISK"] || "no") == "yes")
+WORKER_DISK_SIZE          = ENV["WORKER_DISK_SIZE"] || "8G"
+STOP_AFTER_BOOTSTRAP      = ((ENV["STOP_AFTER_BOOTSTRAP"] || "no") == "yes")
+STOP_AFTER_K3S_INSTALL    = ((ENV["STOP_AFTER_K3S_INSTALL"] || "no") == "yes")
+S3GW_IMAGE                = ENV["S3GW_IMAGE"] || "ghcr.io/aquarist-labs/s3gw:latest"
+S3GW_IMAGE_PULL_POLICY    = ENV["S3GW_IMAGE_PULL_POLICY"] || "Always"
+PROV_USER                 = ENV["PROV_USER"] || "vagrant"
+S3GW_UI_IMAGE             = "admin-1.local/s3gw-ui:latest"
+S3GW_UI_IMAGE_PULL_POLICY = "Always"
+S3GW_UI_REPO              = ENV["S3GW_UI_REPO"] || ""
+S3GW_UI_VERSION           = ENV["S3GW_UI_VERSION"] || ""
+SCENARIO                  = ENV["SCENARIO"] || ""
+K3S_VERSION               = ENV["K3S_VERSION"] || "v1.23.6+k3s1"
 
 ansible_groups = {
-  "admins" => [
-    "admin"
+  "apt" => [],
+  "zypper" => [],
+  "master" => [
+    "admin-[1:#{ADMIN_COUNT}]"
   ],
-  "workers" => [
+  "node" => [
     "worker-[1:#{WORKER_COUNT}]"
   ],
-  "solo_admins" => [
+  "k3s_cluster" => [
+    "admin-[1:#{ADMIN_COUNT}]",
+    "worker-[1:#{WORKER_COUNT}]"
   ],
-  "registries" => [
-  ],
-  "traefik" => [
-  ],
-  "nginx" => [
+  "kubectl" => [
+    "admin-1"
   ]
 }
 
 extra_vars = {
 	user: PROV_USER,
 	worker_count: WORKER_COUNT,
-	cidr_net: CIDR_NET,
 	s3gw_image: S3GW_IMAGE,
 	s3gw_image_pull_policy: S3GW_IMAGE_PULL_POLICY,
+  s3gw_ui_image: S3GW_UI_IMAGE,
+	s3gw_ui_image_pull_policy: S3GW_UI_IMAGE_PULL_POLICY,
   s3gw_ui_repo: S3GW_UI_REPO,
   s3gw_ui_version: S3GW_UI_VERSION,
-  scenario: SCENARIO
+  scenario: SCENARIO,
+  k3s_version: K3S_VERSION,
+  systemd_dir: "/etc/systemd/system",
+  master_ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START}",
+
+  # --node-ip is needed when using virtualbox, otherwise it will start k3s on the NAT interface.
+  # This is not sufficient when WORKER_COUNT > 0 because workers need this directive too.
+  # Currently seems that this problem cannot be overcome, so with virtualbox you can only have a
+  # working cluster with WORKER_COUNT == 0
+  extra_server_args: "--node-ip #{VM_NET}.#{VM_NET_LAST_OCTET_START}"
 }
 
-Vagrant.configure("2") do |config|
-
-  if START_LOCAL_REGISTRY == "yes"
-    ansible_groups["registries"] << "admin"
+def ansible_provision (context, ansible_groups, extra_vars)
+  context.vm.provision "ansible" do |ansible|
+    ansible.limit = "all"
+    ansible.playbook = "playbooks/bootstrap.yaml"
+    ansible.groups = ansible_groups
+    ansible.extra_vars = extra_vars
   end
-
-  if INGRESS == "traefik"
-    ansible_groups["traefik"] << "admin"
-  end
-
-  if INGRESS == "nginx"
-    ansible_groups["nginx"] << "admin"
-  end
-
-	config.vm.provider "libvirt" do |lv|
-		lv.connect_via_ssh = false
-		lv.qemu_use_session = false
-		lv.nic_model_type = "e1000"
-		lv.cpu_mode = 'host-passthrough'
-	end
-
-	#admin node
-	config.vm.define "admin" do |admin|
-		admin.vm.provider "libvirt" do |lv|
-		  lv.memory = ADMIN_MEM
-		  lv.cpus = ADMIN_CPU
-		  if WORKER_COUNT == 0 && ADMIN_DISK == "yes"
-		  	lv.storage :file, size: ADMIN_DISK_SIZE, type: 'qcow2', serial: "6646200"
-		  end
-		end
-
-    admin.vm.box = IMAGE_NAME
-		admin.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START}"
-    admin.vm.hostname = "admin"
-
-		# [WORKER_COUNT == 0]
-		#
-		if WORKER_COUNT == 0
-			ansible_groups["solo_admins"] << "admin"
-			admin.vm.provision :ansible do |ansible|
-				ansible.limit = "all"
-				ansible.playbook = "playbooks/bootstrap.yaml"
-				ansible.groups = ansible_groups
-				ansible.extra_vars = extra_vars
-			end
-			if(STOP_AFTER_BOOTSTRAP == "no")
-
-				if K8S_DISTRO == "k8s"
-					admin.vm.provision :ansible do |ansible|
-						ansible.limit = "all"
-						ansible.playbook = "playbooks/k8s-install.yaml"
-						ansible.groups = ansible_groups
-						ansible.extra_vars = extra_vars
-					end
-				else
-					admin.vm.provision :ansible do |ansible|
-						ansible.limit = "all"
-						ansible.playbook = "playbooks/k3s-install.yaml"
-						ansible.groups = ansible_groups
-						ansible.extra_vars = extra_vars
-					end
-				end
-
-				admin.vm.provision :ansible do |ansible|
-					ansible.limit = "all"
-					ansible.playbook = "playbooks/longhorn-deploy.yaml"
-					ansible.groups = ansible_groups
-					ansible.extra_vars = extra_vars
-				end
-				admin.vm.provision :ansible do |ansible|
-					ansible.limit = "all"
-					ansible.playbook = "playbooks/s3gw-deploy.yaml"
-					ansible.groups = ansible_groups
-					ansible.extra_vars = extra_vars
-				end
-        admin.vm.provision :ansible do |ansible|
+  if(!STOP_AFTER_BOOTSTRAP)
+    context.vm.provision "ansible" do |ansible|
+      ansible.limit = "all"
+      ansible.playbook = "playbooks/k3s-ansible/site.yml"
+      ansible.groups = ansible_groups
+      ansible.extra_vars = extra_vars
+    end
+    context.vm.provision "ansible" do |ansible|
+      ansible.limit = "all"
+      ansible.playbook = "playbooks/k3s-post-install.yaml"
+      ansible.groups = ansible_groups
+      ansible.extra_vars = extra_vars
+    end
+    if(!STOP_AFTER_K3S_INSTALL)
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/longhorn-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/s3gw-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/s3gw-ui-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      context.vm.provision "ansible" do |ansible|
+        ansible.limit = "all"
+        ansible.playbook = "playbooks/ingress-traefik-deploy.yaml"
+        ansible.groups = ansible_groups
+        ansible.extra_vars = extra_vars
+      end
+      if SCENARIO != ""
+        context.vm.provision "ansible" do |ansible|
           ansible.limit = "all"
-          ansible.playbook = "playbooks/s3gw-ui-deploy.yaml"
+          ansible.playbook = "playbooks/load-scen.yaml"
           ansible.groups = ansible_groups
           ansible.extra_vars = extra_vars
         end
-				admin.vm.provision :ansible do |ansible|
-					ansible.limit = "all"
-					ansible.playbook = "playbooks/nginx-deploy.yaml"
-					ansible.groups = ansible_groups
-					ansible.extra_vars = extra_vars
-				end
-				admin.vm.provision :ansible do |ansible|
-					ansible.limit = "all"
-					ansible.playbook = "playbooks/ingress-nginx-deploy.yaml"
-					ansible.groups = ansible_groups
-					ansible.extra_vars = extra_vars
-				end
-				admin.vm.provision :ansible do |ansible|
-					ansible.limit = "all"
-					ansible.playbook = "playbooks/ingress-traefik-deploy.yaml"
-					ansible.groups = ansible_groups
-					ansible.extra_vars = extra_vars
-				end
-        if SCENARIO != ""
-          admin.vm.provision :ansible do |ansible|
-            ansible.limit = "all"
-            ansible.playbook = "playbooks/load-scen.yaml"
-            ansible.groups = ansible_groups
-            ansible.extra_vars = extra_vars
+      end
+    end
+  end
+end
+
+Vagrant.configure("2") do |config|
+
+  if BOX_NAME.include? "generic/ubuntu"
+    ansible_groups["apt"] << "admin-[1:#{ADMIN_COUNT}]"
+    ansible_groups["apt"] << "worker-[1:#{WORKER_COUNT}]"
+  elsif BOX_NAME.include? "opensuse/"
+    ansible_groups["zypper"] << "admin-[1:#{ADMIN_COUNT}]"
+    ansible_groups["zypper"] << "worker-[1:#{WORKER_COUNT}]"
+  end
+
+  if VM_PROVIDER == "libvirt"
+    config.vm.provider "libvirt" do |lv|
+      lv.connect_via_ssh = false
+      lv.qemu_use_session = false
+      lv.nic_model_type = "e1000"
+      lv.cpu_mode = 'host-passthrough'
+    end
+
+    # This allows to have a working cluster with WORKER_COUNT > 0
+    # It removes --node-ip directive.
+    extra_vars[:extra_server_args] = ""
+
+  elsif VM_PROVIDER == "virtualbox"
+    config.vm.synced_folder "~", "/shared"
+  end
+
+  (1..ADMIN_COUNT).each do |i|
+      config.vm.define "admin-#{i}" do |admin|
+        admin.vm.provider VM_PROVIDER do |lv|
+          lv.memory = ADMIN_MEM
+          lv.cpus = ADMIN_CPU
+          if WORKER_COUNT == 0 && ADMIN_DISK
+            lv.storage :file, size: ADMIN_DISK_SIZE, type: 'qcow2', serial: "664620#{i}"
           end
         end
-			end
+
+        admin.vm.box = BOX_NAME
+        admin.vm.hostname = "admin-#{i}"
+
+        if VM_PROVIDER == "libvirt"
+          admin.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i-1}"
+        elsif VM_PROVIDER == "virtualbox"
+          admin.vm.network "public_network", bridge: VM_BRIDGE_INET, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i-1}"
+        end
+      end
+
+		if WORKER_COUNT == 0
+      ansible_provision config, ansible_groups, extra_vars
 		end
   end
 
-	# k8s-vanilla provisioning [WORKER_COUNT > 0]
-	#
-	if K8S_DISTRO == "k8s" && WORKER_COUNT > 0
-		#worker nodes
+	if WORKER_COUNT > 0
 		(1..WORKER_COUNT).each do |i|
 			config.vm.define "worker-#{i}" do |worker|
-				worker.vm.provider "libvirt" do |lv|
+				worker.vm.provider VM_PROVIDER do |lv|
 					lv.memory = WORKER_MEM
 					lv.cpus = WORKER_CPU
-					if WORKER_DISK == "yes"
+					if WORKER_DISK
 						lv.storage :file, size: WORKER_DISK_SIZE, type: 'qcow2', serial: "674620#{i}"
 					end
 				end
 
-				worker.vm.box = IMAGE_NAME
+				worker.vm.box = BOX_NAME
 				worker.vm.hostname = "worker-#{i}"
-				worker.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i}"
+        if VM_PROVIDER == "libvirt"
+				  worker.vm.network "private_network", autostart: true, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i+(ADMIN_COUNT-1)}"
+        elsif VM_PROVIDER == "virtualbox"
+          worker.vm.network "public_network", bridge: VM_BRIDGE_INET, ip: "#{VM_NET}.#{VM_NET_LAST_OCTET_START+i+(ADMIN_COUNT-1)}"
+        end
 
 				# Only execute once the Ansible provisioner,
-				# when all the workers are up and ready.
+				# when all nodes are up and ready.
 				if i == WORKER_COUNT
-					worker.vm.provision :ansible do |ansible|
-						ansible.limit = "all"
-						ansible.playbook = "playbooks/bootstrap.yaml"
-						ansible.groups = ansible_groups
-						ansible.extra_vars = extra_vars
-					end
-					if(STOP_AFTER_BOOTSTRAP == "no")
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/k8s-install.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = extra_vars
-						end
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/longhorn-deploy.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = extra_vars
-						end
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/s3gw-deploy.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = extra_vars
-						end
-            worker.vm.provision :ansible do |ansible|
-              ansible.limit = "all"
-              ansible.playbook = "playbooks/s3gw-ui-deploy.yaml"
-              ansible.groups = ansible_groups
-              ansible.extra_vars = extra_vars
-            end
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/nginx-deploy.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = extra_vars
-						end
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/ingress-nginx-deploy.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = extra_vars
-						end
-						worker.vm.provision :ansible do |ansible|
-							ansible.limit = "all"
-							ansible.playbook = "playbooks/ingress-traefik-deploy.yaml"
-							ansible.groups = ansible_groups
-							ansible.extra_vars = extra_vars
-						end
-            if SCENARIO != ""
-              worker.vm.provision :ansible do |ansible|
-                ansible.limit = "all"
-                ansible.playbook = "playbooks/load-scen.yaml"
-                ansible.groups = ansible_groups
-                ansible.extra_vars = extra_vars
-              end
-            end
-					end
+          ansible_provision worker, ansible_groups, extra_vars
 				end
 			end
 		end

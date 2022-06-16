@@ -1,18 +1,5 @@
-- name: Install pip & s3cmd
-  hosts: admins
-  become: true
-  tasks:
-
-    - name: Install pip & s3cmd
-      command: "{{ item }}"
-      with_items:
-        - wget "https://bootstrap.pypa.io/pip/3.5/get-pip.py"
-        - python3 get-pip.py
-        - pip install s3cmd
-        - rm -rf get-pip.py
-
 - name: Load scenario
-  hosts: admins
+  hosts: kubectl
   tasks:
 
     - name: Create scenarios dir

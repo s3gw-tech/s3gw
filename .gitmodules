@@ -1,0 +1,3 @@
+[submodule "k3s-ansible"]
+	path = env/playbooks/k3s-ansible
+	url = https://github.com/k3s-io/k3s-ansible.git

@@ -1,10 +1,22 @@
 - name: s3gw-ui build image
-  hosts: admins
+  hosts: kubectl
   become: true
   tasks:
 
     - name: Copy s3gw-ui directory to local directory
       copy: src=../s3gw-ui dest=/home/{{ user }} mode=0777
+
+    - name: Set S3GW_UI_IMAGE in s3gw-ui-deployment.yaml
+      replace:
+        path: /home/{{ user }}/s3gw-ui/s3gw-ui-deployment.yaml
+        regexp: '##S3GW_UI_IMAGE##'
+        replace: "{{ s3gw_ui_image }}"
+
+    - name: Set S3GW_UI_IMAGE_PULL_POLICY in s3gw-ui-deployment.yaml
+      replace:
+        path: /home/{{ user }}/s3gw-ui/s3gw-ui-deployment.yaml
+        regexp: '##S3GW_UI_IMAGE_PULL_POLICY##'
+        replace: "{{ s3gw_ui_image_pull_policy }}"
 
     - name: Copy Dockerfile.s3gw-ui to local directory
       copy: src=../../build-ui/Dockerfile.s3gw-ui dest=/home/{{ user }}/s3gw-ui mode=0777
@@ -16,53 +28,33 @@
         version: "{{ s3gw_ui_version }}"
 
     - name: Build s3gw-ui image
-      command: docker build -t localhost/s3gw-ui -f /home/{{ user }}/s3gw-ui/Dockerfile.s3gw-ui /home/{{ user }}/s3gw-ui/s3gw-ui
+      community.docker.docker_image:
+       build:
+          path: /home/{{ user }}/s3gw-ui/s3gw-ui
+          dockerfile: /home/{{ user }}/s3gw-ui/Dockerfile.s3gw-ui
+       name: s3gw-ui
+       tag: latest
+       source: build
 
-    - name: Export s3gw-ui image
-      command: docker save --output /home/{{ user }}/s3gw-ui/s3gw-ui.tar localhost/s3gw-ui:latest
-
-    # Docker image manipulation should be done using community.docker.docker_image module.
-    # This is currently failing on OpenSuse Leap 15.3 due to wrong python version being used.
-    # This needs some adjustments/testing before promotion.
-    #
-    # -- Use: ansible-galaxy collection install community.docker
-
-    #- name: Build s3gw-ui image
-    #  community.docker.docker_image:
-    #    build:
-    #      path: /home/{{ user }}/s3gw-ui/s3gw-ui
-    #      dockerfile: /home/{{ user }}/s3gw-ui/Dockerfile.s3gw-ui
-    #    name: localhost/s3gw-ui
-    #    tag: latest
-    #    source: build
-    #
-    #- name: Export s3gw-ui image
-    #  community.docker.docker_image:
-    #    name: localhost/s3gw-ui
-    #    tag: latest
-    #    archive_path: /home/{{ user }}/s3gw-ui/s3gw-ui.tar
-    #    source: local
-
-- name: s3gw-ui import image into Kubernetes
-  hosts: admins
-  become: true
-  tasks:
-
-    - name: Import s3gw-ui image into Kubernetes
-      command: k3s ctr images import /home/{{ user }}/s3gw-ui/s3gw-ui.tar
-
-    # kubectl commands should be done using kubernetes.core.k8s module.
-    # This is currently failing on OpenSuse Leap 15.3 due to wrong python version being used.
-    # This needs some adjustments before try to use it.
-    #
-    # -- Use: ansible-galaxy collection install kubernetes.core
+    - name: Tag and push s3gw-ui to local registry
+      community.docker.docker_image:
+        name: s3gw-ui
+        repository: admin-1:5000/s3gw-ui
+        tag: latest
+        push: yes
+        source: local
 
 - name: s3gw UI deploy
-  hosts: admins
+  hosts: kubectl
   tasks:
 
-    - name: Deploy s3gw-ui
-      command: "{{ item }}"
-      with_items:
-        - kubectl apply -f /home/{{ user }}/s3gw-ui/s3gw-ui-deployment.yaml
-        - kubectl apply -f /home/{{ user }}/s3gw-ui/s3gw-ui-service.yaml
+    - name: Apply s3gw-ui-deployment.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw-ui/s3gw-ui-deployment.yaml
+
+    - name: Apply s3gw-ui-service.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw-ui/s3gw-ui-service.yaml
+
