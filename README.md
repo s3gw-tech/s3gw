@@ -13,16 +13,16 @@ applications.
 
 # Table of Contents
 
-- [s3gw](#-s3gw)
-- [Roadmap](#-roadmap)
-- [Quickstart](#-quickstart)
+- [s3gw](#s3gw)
+- [Roadmap](#roadmap)
+- [Quickstart](#quickstart)
   - [Helm chart](#helm-chart)
   - [Podman](#podman)
   - [Docker](#docker)
 - [License](#license)
-- [Developing the s3gw](#-developing-the-s3gw)
+- [Developing the s3gw](#developing-the-s3gw)
 
-# 🛣 Roadmap
+# Roadmap
 
 ![Roadmap](/assets/images/s3gw-roadmap.jpg)
 
@@ -60,7 +60,7 @@ Based on the user feedback we collect, we develop features that add up towards t
 
 We track our progress in this [Github project](https://github.com/orgs/aquarist-labs/projects/5/views/1) board.
 
-# 🚀 Quickstart
+# Quickstart
 ## Helm chart
 An easy way to deploy the S3 Gateway on your Kubernetes cluster is via a Helm chart.
 We've created a dedicated repository for it, which can be found [here](https://github.com/aquarist-labs/s3gw-charts).
@@ -100,16 +100,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-# 📖 Developing the s3gw
-- [Developing the S3 Gateway](./docs/developing#----developing-the-s3-gateway)
-- [How to build your own containers](./docs/build#---how-to-build-your-own-containers)
-  * [Building the s3gw container image](./docs/build#building-the-s3gw-container-image)
-  * [Building the s3gw-UI image](./docs/build#building-the-s3gw-ui-image)
-- [Building a K3s & K8s environment running s3gw with Longhorn](./docs/env.md#building-a-k3s---k8s-environment-running-s3gw-with-longhorn)
+# Developing the s3gw
+- [Developing the S3 Gateway](./docs/developing.md#developing-the-s3-gateway)
+- [How to build your own containers](./docs/build.md#how-to-build-your-own-containers)
+  * [Building the s3gw container image](./docs/build.md)
+  * [Building the s3gw-UI image](./docs/build-ui.md)
+- [Building a K3s & K8s environment running s3gw with Longhorn]()
   * [K3s Setup](./docs/env-k3s.md)
+    * [K3s on Bare Metal](./docs/env-k3s.md#k3s-on-bare-metal)
+    * [K3s on Virtual Machines](./docs/env-k3s.md#k3s-on-virtual-machines)
   * [K8s Setup](./docs/env-k8s.md)
-- [S3 API compatibility table](./docs/s3-compatibility-table)
-- [S3GW Repositories](#s3gw-repositories)
+- [Testing the s3gw](./docs/testing.md)
+- [S3 API compatibility table](./docs/s3-compatibility-table.md)
+- [S3GW Repositories](./docs/s3gw-repos.md)
 - [Contributing](./docs/contributing.md#contributing)
   * [Reporting an issue](./docs/contributing.md#reporting-an-issue)
   * [Discussion](./docs/contributing.md#discussion)
