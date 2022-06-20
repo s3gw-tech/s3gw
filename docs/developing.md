@@ -1,4 +1,4 @@
-# 🖥️ Developing the S3 Gateway
+# Developing the S3 Gateway
 You can refer to the [development](./docs/development.md) section to understand how to build the `s3gw` container image.
 
 ## Introduction

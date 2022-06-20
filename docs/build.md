@@ -1,4 +1,4 @@
-# 📦 How to build your own containers
+# How to build your own containers
 
 ## Building the s3gw container image
 
