@@ -33,6 +33,7 @@ options:
   --help|-h         This message
   --user NAME       User generating this report (default: ${USER}).
   --publish         Publish the result to the 's3gw-status' repository.
+  --output|-o       Output file
 
 example:
   $ $0 s3gw-s3test-2022-06-03-205212-1ldv/s3gw-s3tests.log \\
@@ -86,6 +87,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --publish)
       publish=true
+      ;;
+    --output|-o)
+      outfn="${2}"
+      shift 1
       ;;
     *)
       posargs=(${posargs[@]} ${1})
@@ -158,7 +163,7 @@ while IFS= read -r line ; do
 done < "${resfile}"
 
 now=$(date -u +"%FT%TZ")
-outfn="s3gw-s3tests-${now}-${user}.json"
+if [ -z "${outfn}" ]; then outfn="s3gw-s3tests-${now}-${user}.json"; fi
 cat >>${outfn} <<EOF
 {
   "branch": "${branch}",
