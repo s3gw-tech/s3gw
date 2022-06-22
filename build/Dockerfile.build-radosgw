@@ -1,5 +1,10 @@
 FROM opensuse/tumbleweed
 
+# Add OBS repository for libsqliteorm
+RUN zypper ar https://download.opensuse.org/repositories/home:/jluis/openSUSE_Tumbleweed/ sqliteorm
+RUN zypper --gpg-auto-import-keys ref
+RUN zypper -n install libsqliteorm
+
 RUN zypper -n install bash make git ccache cmake ninja jq binutils
 # hard-coded in ceph's `install-deps.sh`
 RUN zypper -n install --no-recommends systemd-rpm-macros rpm-build
