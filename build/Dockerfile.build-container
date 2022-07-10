@@ -47,6 +47,7 @@ ENTRYPOINT ["/usr/bin/radosgw", "-d", \
   "--no-mon-config", \
   "--id", "${ID}", \
   "--rgw-data", "/data/", \
-  "--run-dir", "/run/"]
-CMD ["--rgw-backend-store", "dbstore", \
+  "--run-dir", "/run/", \
+  "--rgw-sfs-data-path", "/data"]
+CMD ["--rgw-backend-store", "sfs", \
   "--debug-rgw", "1"]
