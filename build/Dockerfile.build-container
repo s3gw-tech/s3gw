@@ -4,12 +4,14 @@ LABEL Name=s3gw
 ARG ID=s3gw
 ENV ID=${ID}
 
-RUN zypper -n install libblkid1 \
+RUN zypper -n install \
+  libblkid1 \
   libexpat1 \
   libtcmalloc4 \
   libfmt8 \
   liboath0 \
   libicu71 \
+  libthrift-0_16_0 \
   libboost_atomic1_79_0 \
   libboost_chrono1_79_0 \
   libboost_context1_79_0 \
@@ -45,6 +47,7 @@ ENTRYPOINT ["/usr/bin/radosgw", "-d", \
   "--no-mon-config", \
   "--id", "${ID}", \
   "--rgw-data", "/data/", \
-  "--run-dir", "/run/"]
-CMD ["--rgw-backend-store", "dbstore", \
+  "--run-dir", "/run/", \
+  "--rgw-sfs-data-path", "/data"]
+CMD ["--rgw-backend-store", "sfs", \
   "--debug-rgw", "1"]
