@@ -67,7 +67,7 @@ We've created a dedicated repository for it, which can be found [here](https://g
 
 ## Podman
 ```
-$ podman run --replace --name=s3gw -it -p 7480:7480 localhost/s3gw
+$ podman run --replace --name=s3gw -it -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
 ```
 
 ## Docker
