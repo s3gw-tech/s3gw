@@ -9,7 +9,6 @@ existing gateway running somewhere accessible by the tests. This may be an
 matter whether these running on the local machine or on a remote host, as long
 as they are accessible to the tests.
 
-
 ## smoke tests
 
 Basic test battery to smoke out errors and potential regressions.
@@ -79,12 +78,12 @@ For more information, please check `warp`'s help.
 For the purpose of stress testing `s3gw`, you can rely on
 [fio](https://github.com/axboe/fio).
 The tool is equipped with an http client that can also act as an
-`S3` client.  
+`S3` client.
 You can therefore use the tool to issue concurrent and/or serial operations against
 `s3gw`.
 For a basic stress testing activity you should normally want to shot a series
-of `PUT`(s), `GET`(s) and `DELETE`(s).  
-Such workload can be modeled with a fio *jobfile*.  
+of `PUT`(s), `GET`(s) and `DELETE`(s).
+Such workload can be modeled with a fio *jobfile*.
 For example, you can customize the following *jobfile* and tuning it to realize
 the test you wish to perform.
 
@@ -119,7 +118,8 @@ size=16m
 bs=16m
 ```
 
-Once you have created your *jobfile*: `s3gw.fio` you can simply launch the workload with:
+Once you have created your *jobfile*: `s3gw.fio` you can simply launch
+the workload with:
 
 ```shell
 $ fio s3gw.fio
@@ -130,16 +130,16 @@ Starting 9 processes
 
 This *jobfile* connects to an S3 gateway listening on `localhost:7480`
 and operates on a object `obj`
-which resides inside an existing `foo` bucket.  
+which resides inside an existing `foo` bucket.
 This example launches 3 types of jobs: `s3-write` (PUT), `s3-read`
 (GET) and `s3-trim` (DELETE);
-the actual operation verb is defined by `rw` property.  
+the actual operation verb is defined by `rw` property.
 The actual number of processes performing the same operation is controlled by
-`numjobs` property.  
-`global` section is inherited from all defined jobs.  
+`numjobs` property.
+`global` section is inherited from all defined jobs.
 For this specific example the I/O activity is defined by: `size=16m bs=16m`
 meaning that, a 16mb file will be `write`, `read` and `trim` with a single
-16mb weighting I/O operation.  
+16mb weighting I/O operation.
 As result of this, supposing that no `trim` job has been defined, you would
 find in the bucket a 16mb object:
 
@@ -149,7 +149,7 @@ $ s3cmd ls s3://foo
 ```
 
 Modifying the `bs` property to the value of `4m` you are diminishing
-the weight of a single I/O operation over an overall `16m` size.  
+the weight of a single I/O operation over an overall `16m` size.
 As result of this, you would find 4 (16mb/4mb) single objects in the bucket:
 
 ```shell
@@ -160,5 +160,5 @@ $ s3cmd ls s3://foo
 2022-07-19 13:21      4194304  s3://foo/obj_8388608_4194304
 ```
 
-To build more complex`fio` workloads, refer to its 
+To build more complex`fio` workloads, refer to its
 [documentation](https://fio.readthedocs.io/en/latest/index.html).
