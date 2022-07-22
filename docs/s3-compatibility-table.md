@@ -1,8 +1,10 @@
 # S3 API compatibility
-The following table describes the support status for current Amazon S3 functional features:
 
-| Feature                   | Status  |
-|---------------------------|---------|
+The following table describes the support status for current Amazon S3
+functional features:
+
+| Feature                   | Status   |
+|---------------------------|----------|
 | List Buckets              | ✅       |
 | Delete Bucket             | ✅       |
 | Create Bucket             | ✅       |

@@ -1,15 +1,18 @@
 # Building a s3gw-ui application image
 
 This documentation will guide you through the several steps to build a
-`s3gw-ui` application image.  
+`s3gw-ui` application image.
 With `s3gw-ui` image, we are referring at a generic term indicating
-an image containing an application used to provide a UI related with the `s3gw` project.
+an image containing an application used to provide a UI related with the `s3gw`
+project.
 
 ## Conventions
 
-The `s3gw-ui` application is associated with a `Dockerfile` and adheres to some conventions:  
+The `s3gw-ui` application is associated with a `Dockerfile` and adheres to some
+conventions:
 
-* Dockerfile build context must be placed inside a directory placed alongside to the `s3gw-core` project.
+* Dockerfile build context must be placed inside a directory placed alongside to
+  the `s3gw-core` project.
 * You should be able to build that application from that directory with:
 
 ```text
@@ -17,8 +20,8 @@ npm install
 npm run build
 ```
 
-In other words, an `s3gw-ui` application should be consumable by `node` after it has
-been built.
+In other words, an `s3gw-ui` application should be consumable by `node` after it
+has been built.
 
 ## Prerequisites
 
@@ -41,7 +44,7 @@ The build script expects the following directory hierarchy.
 
 ## Build the application
 
-You can build a `s3gw-ui` image by running the `build-ui.sh` script.  
+You can build a `s3gw-ui` image by running the `build-ui.sh` script.
 The simplest form is:
 
 ```shell
@@ -51,7 +54,8 @@ $ ./build-ui.sh
 Building s3gw-ui image ...
 ```
 
-Invoking it without any argument, means that the script defaults to the following environment variables:
+Invoking it without any argument, means that the script defaults to the
+following environment variables:
 
 ```text
 IMAGE_NAME        = "s3gw-ui"
