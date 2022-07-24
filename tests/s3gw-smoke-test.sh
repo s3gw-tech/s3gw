@@ -59,6 +59,7 @@ s3 ls s3://${bucket} || exit 1
 s3 ls s3://${bucket}-dne && exit 1
 
 dd if=/dev/random bs=1k count=1k of=obj1.bin || exit 1
+dd if=/dev/random bs=1k count=2k of=obj2.bin || exit 1
 
 s3 put obj1.bin s3://${bucket}/ || exit 1
 s3 put obj1.bin s3://${bucket}/obj1.bin || exit 1
@@ -86,5 +87,46 @@ for what in ${must_have[@]} ; do
   done
   $found || exit 1
 done
+
+s3 rm s3://${bucket}/obj1.bin.2 || exit 1
+
+s3 put obj2.bin s3://${bucket}/obj2.bin || exit 1
+s3 put obj1.bin s3://${bucket}/obj2.bin || exit 1
+s3 get s3://${bucket}/obj2.bin obj2.bin.local || exit 1
+md5_before=$(md5sum -b obj2.bin | cut -f1 -d' ')
+md5_after=$(md5sum -b obj2.bin.local | cut -f1 -d' ')
+md5_expected=$(md5sum -b obj1.bin | cut -f1 -d' ')
+
+[[ "${md5_before}" != "${md5_after}" ]] || exit 1
+[[ "${md5_after}" == "${md5_expected}" ]] || exit 1
+
+md5_obj1=$(md5sum -b obj1.bin | cut -f1 -d' ')
+
+do_copy() {
+  dst_bucket=$1
+
+  # For now this operation fails. While the copy actually succeeds, s3cmd then
+  # tries to perform an ACL operation on the bucket/object, and that fails.
+  # We need to ensure the object is there instead, and check it matches in
+  # contents.
+  s3 cp s3://${bucket}/obj1.bin s3://${dst_bucket}/obj1.bin.copy || true
+  s3 get s3://${dst_bucket}/obj1.bin.copy obj1.bin.copy.${dst_bucket} || exit 1
+
+  md5_copy=$(md5sum -b obj1.bin.copy.${dst_bucket} | cut -f1 -d' ')
+  [[ "${md5_copy}" == "${md5_obj1}" ]] || exit 1
+
+  if ! s3 ls s3://${dst_bucket} | grep -q obj1.bin.copy ; then
+    exit 1
+  fi
+}
+
+# copy from $bucket/obj to $bucket/obj.copy
+do_copy ${bucket}
+
+# copy from $bucket/obj to $newbucket/obj.copy
+newbucket="${bucket}-2"
+s3 mb s3://${newbucket} || exit 1
+do_copy ${newbucket}
+
 
 exit 0
