@@ -24,9 +24,12 @@ usage() {
 usage: $0 HOST[:PORT] [options]
 
 options:
-  --large     Run a large test.
-  --medium    Run a medium test.
-  --small     Run a small test.
+  --large         Run a large test.
+  --medium        Run a medium test.
+  --small         Run a small test.
+
+  --outdir PATH   Directory to write results to.
+  --desc DESC     Specify a short description of this test.
 EOF
 }
 
@@ -45,6 +48,8 @@ fi
 duration="1m"
 objects=50
 test_type="small"
+outdir="s3gw-bench-results"
+desc=
 
 pos_args=()
 while [[ $# -gt 0 ]]; do
@@ -64,6 +69,14 @@ while [[ $# -gt 0 ]]; do
       objects=50
       test_type="small"
       ;;
+    --outdir)
+      outdir="$2"
+      shift 1
+      ;;
+    --desc)
+      desc="$2"
+      shift 1
+      ;;
     *)
       pos=(${pos[@]} $1)
       ;;
@@ -77,7 +90,18 @@ if [[ -z "${url}" ]]; then
   exit 1
 fi
 
-cat <<EOF
+[[ -z "${outdir}" ]] && \
+  error "error: please specify a valid output directory" && \
+  exit 1
+
+[[ -e "${outdir}" ]] && [[ ! -d "${outdir}" ]] && \
+  error "error: '${outdir}' is not a directory" && \
+  exit 1
+
+[[ ! -e "${outdir}" ]] && ( mkdir ${outdir} || exit 1 )
+
+
+cat >/dev/stderr <<EOF
 Running ${test_type} test with
   duration: ${duration}
    objects: ${objects}
@@ -94,15 +118,18 @@ run_test() {
   testdate="$(date -u +%F[%H%M%S])"
   testid="$(tr -dc a-z0-9 < /dev/urandom | head -c 4)"
   testbucket="s3gw-bench-${testid}"
-  testout="s3gw-bench-${test_type}-${testdate}-${testid}-${objsize}.csv.zst"
+  testfn="s3gw-bench"
+  [[ -n "${desc}" ]] && testfn="${testfn}-${desc}"
+  testfn="${testfn}-${test_type}-${testdate}-${testid}-${objsize}"
+  testout="${outdir}/${testfn}"
 
   ${warpcmd} mixed --host ${url} \
     --access-key test --secret-key test \
+    --benchdata ${testout} \
     --obj.size ${objsize} --objects ${objects} \
     --duration ${duration} \
     --noclear \
-    --bucket ${testbucket} \
-    --analyze.out ${testout}
+    --bucket ${testbucket}
   return $?
 }
 
