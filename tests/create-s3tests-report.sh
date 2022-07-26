@@ -221,4 +221,3 @@ if $publish ; then
   git commit -m "results/s3tests: report ${outfn}" -S -s || exit 1
   git push origin main || exit 1
 fi
-

@@ -27,7 +27,7 @@ applications.
 
 ![Roadmap](/assets/images/s3gw-roadmap.jpg)
 
-The aim is to deliver a Minumum Viable Product (MVP). In a nutshell, an MVP
+The aim is to deliver a Minimum Viable Product (MVP). In a nutshell, an MVP
 seeks to collect the maximum amount of validated learning about our users in a
 short time.
 
