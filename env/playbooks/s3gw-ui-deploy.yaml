@@ -57,4 +57,3 @@
       kubernetes.core.k8s:
         state: present
         src: /home/{{ user }}/s3gw-ui/s3gw-ui-service.yaml
-

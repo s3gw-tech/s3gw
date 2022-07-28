@@ -12,4 +12,3 @@ parameters:
   numberOfReplicas: "1"
   staleReplicaTimeout: "2880"
   fromBackup: ""
-

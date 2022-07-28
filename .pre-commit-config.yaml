@@ -1,0 +1,34 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    - id: trailing-whitespace
+    - id: check-yaml
+    - id: check-added-large-files
+    - id: end-of-file-fixer
+    - id: debug-statements
+    - id: mixed-line-ending
+    - id: detect-private-key
+    - id: destroyed-symlinks
+    - id: check-shebang-scripts-are-executable
+    - id: check-case-conflict
+
+- repo: https://github.com/jumanjihouse/pre-commit-hooks
+  rev: 2.1.5
+  hooks:
+    - id: forbid-binary
+      exclude: >-
+        (?x)^(
+          assets/images/.*
+        )$
+    - id: git-check
+
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.1.0
+  hooks:
+    - id: codespell
+
+- repo: https://github.com/DavidAnson/markdownlint-cli2
+  rev: v0.4.0
+  hooks:
+    - id: markdownlint-cli2

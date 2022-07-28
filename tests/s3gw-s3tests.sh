@@ -62,20 +62,20 @@ display_name = john.doe
 email = john.doe@example.com
 user_id = testid
 access_key = test
-secret_key = test 
+secret_key = test
 
 [s3 tenant]
 display_name = testx$tenanteduser
 user_id = testid
-access_key = test 
-secret_key = test 
+access_key = test
+secret_key = test
 email = tenanteduser@example.com
 
 [iam]
 email = s3@example.com
 user_id = testid
-access_key = test 
-secret_key = test 
+access_key = test
+secret_key = test
 display_name = youruseridhere
 EOF
 

@@ -223,6 +223,3 @@ case ${cmd} in
     exit 1
     ;;
 esac
-
-
-
