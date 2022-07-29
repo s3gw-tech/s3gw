@@ -61,7 +61,7 @@ function show_ingresses() {
   echo -e "\n"
   echo "Please add the following line to /etc/hosts to be able to access the Longhorn UI and s3gw:"
   echo -e "\n"
-  echo "${ip}   longhorn.local s3gw.local s3gw-no-tls.local"
+  echo "${ip}   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local"
   echo -e "\n"
   echo "Longhorn UI available at: https://longhorn.local"
   echo "                          https://longhorn.local:30443"
