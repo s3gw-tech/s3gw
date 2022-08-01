@@ -1,0 +1,12 @@
+[submodule "core"]
+	path = core
+	url = https://github.com/aquarist-labs/s3gw-core
+[submodule "ceph"]
+	path = ceph
+	url = https://github.com/aquarist-labs/ceph
+[submodule "charts"]
+	path = charts
+	url = https://github.com/aquarist-labs/s3gw-charts
+[submodule "ui"]
+	path = ui
+	url = https://github.com/aquarist-labs/s3gw-ui
