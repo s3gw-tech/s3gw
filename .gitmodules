@@ -1,6 +1,6 @@
-[submodule "core"]
-	path = core
-	url = https://github.com/aquarist-labs/s3gw-core
+[submodule "tools"]
+	path = tools
+	url = https://github.com/aquarist-labs/s3gw-tools
 [submodule "ceph"]
 	path = ceph
 	url = https://github.com/aquarist-labs/ceph
