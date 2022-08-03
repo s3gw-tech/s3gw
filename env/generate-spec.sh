@@ -22,6 +22,14 @@ s3gw_image_pull_policy="Always"
 s3gw_ui_image="localhost/s3gw-ui:latest"
 s3gw_ui_image_pull_policy="Never"
 
+info() {
+  echo "INFO: $*" >/dev/stdout
+}
+
+error() {
+  echo "ERROR: $*" >/dev/stderr
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --output|-o)
@@ -35,6 +43,8 @@ while [[ $# -gt 0 ]]; do
   esac
   shift 1
 done
+
+info "Output file: ${tgtfile}"
 
 s3gw_image=$(printf '%s\n' "$s3gw_image" | sed -e 's/[]\/$*.^[]/\\&/g')
 
@@ -57,7 +67,7 @@ sed "s/##RGW_DEFAULT_USER_ACCESS_KEY_BASE64##/"\"${rgw_default_user_access_key_b
 sed -i "s/##RGW_DEFAULT_USER_SECRET_KEY_BASE64##/\""${rgw_default_user_secret_key_base64}\""/" longhorn/longhorn-s3gw-secret.tmp.yaml
 
 [[ -z "${tgtfile}" ]] && \
-  echo "error: missing output file" >&2 && \
+  error "Missing output file" && \
   exit 1
 
 specs=(

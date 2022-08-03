@@ -4,5 +4,6 @@ metadata:
   name: s3gw-config
   namespace: s3gw-system
 data:
-  RGW_BACKEND_STORE: "dbstore"
+  RGW_BACKEND_STORE: "sfs"
   DEBUG_RGW: "1"
+  RGW_SERVICE_URL: "https://s3gw.local"

@@ -12,7 +12,7 @@ The `s3gw-ui` application is associated with a `Dockerfile` and adheres to some
 conventions:
 
 * Dockerfile build context must be placed inside a directory placed alongside to
-  the `s3gw-core` project.
+  the `s3gw-ui` project.
 * You should be able to build that application from that directory with:
 
 ```text
@@ -27,7 +27,7 @@ has been built.
 
 Make sure you've installed the following applications:
 
-* Podman or Docker
+* Podman
 
 The build script expects the following directory hierarchy.
 
@@ -44,22 +44,22 @@ The build script expects the following directory hierarchy.
 
 ## Build the application
 
-You can build a `s3gw-ui` image by running the `build-ui.sh` script.
-The simplest form is:
+Before building the `s3gw-ui` image you need to build the conatainer
+image that is used to compile the Angular based aaplication. To do
+so, simply run:
 
 ```shell
-$ cd ~/git/s3gw-core/build-ui
-
-$ ./build-ui.sh
-Building s3gw-ui image ...
+cd ~/git/s3gw-core/build-ui
+./build.sh builder-image
 ```
 
-Invoking it without any argument, means that the script defaults to the
-following environment variables:
+This needs to be done once. After that you can build a `s3gw-ui` image
+by running the commands:
 
-```text
-IMAGE_NAME        = "s3gw-ui"
-CONTAINER_ENGINE  = "podman"
+```shell
+cd ~/git/s3gw-core/build-ui
+./build.sh app
+./build.sh app-image
 ```
 
 ## Running the application
@@ -67,15 +67,5 @@ CONTAINER_ENGINE  = "podman"
 You can run a `s3gw-ui` application with:
 
 ```shell
-$ podman run -p 8080:8080 localhost/s3gw-ui
-Starting up http-server, serving dist
-
-http-server version: 14.1.0
-
-...
-
-Available on:
-  http://127.0.0.1:8080
-  http://<YOUR_HOST_IP>:8080
-Hit CTRL-C to stop the server
+podman run --replace --name=s3gw-ui -it -p 8080:8080 localhost/s3gw-ui
 ```
