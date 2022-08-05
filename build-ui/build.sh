@@ -29,11 +29,11 @@ EOF
 }
 
 info() {
-  echo "INFO: $*" >/dev/stdout
+  echo "[INFO] $*" >/dev/stdout
 }
 
 error() {
-  echo "ERROR: $*" >/dev/stderr
+  echo "[ERROR] $*" >/dev/stderr
 }
 
 build_builder_image() {
