@@ -28,7 +28,7 @@ The build scripts expect the following directory hierarchy.
 |  |- build/
 |  ...
 |
-|- s3gw-core/
+|- s3gw-tools/
    |- build/
    ...
 ```
@@ -39,7 +39,7 @@ To build the `radosgw` binary, a containerized build environment is used.
 This container can be built by running the following command:
 
 ```shell
-cd ~/git/s3gw-core/build
+cd ~/git/s3gw-tools/build
 podman build --tag build-radosgw -f ./Dockerfile.build-radosgw
 ```
 
@@ -80,7 +80,7 @@ If the Ceph `radosgw` binary is compiled, the container image can be build
 with the following commands:
 
 ```shell
-cd ~/git/s3gw-core/build
+cd ~/git/s3gw-tools/build
 ./build-container.sh
 ```
 
@@ -88,7 +88,7 @@ By default, this will build an `s3gw` image using podman.
 In order to build an `s3gw` image with Docker, you can run:
 
 ```shell
-cd ~/git/s3gw-core/build
+cd ~/git/s3gw-tools/build
 CONTAINER_ENGINE=docker ./build-container.sh
 ```
 

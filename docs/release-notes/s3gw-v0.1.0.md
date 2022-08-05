@@ -25,6 +25,6 @@ At the moment we support creating buckets, doing basic operations on objects
 Please refer to our [documentation][2] on how to start playing with the s3gw
 container. For Helm chart fans, information can be found [here][3].
 
-[1]: https://github.com/aquarist-labs/s3gw-core
-[2]: https://github.com/aquarist-labs/s3gw-core#quickstart
+[1]: https://github.com/aquarist-labs/s3gw-tools
+[2]: https://github.com/aquarist-labs/s3gw-tools#quickstart
 [3]: https://github.com/aquarist-labs/s3gw-charts#install

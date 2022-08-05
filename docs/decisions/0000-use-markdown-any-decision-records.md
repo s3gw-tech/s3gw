@@ -21,12 +21,12 @@ Where should the records live?
 
 ### Location
 
-- <https://github.com/aquarist-labs/s3gw-core>
+- <https://github.com/aquarist-labs/s3gw-tools>
 - SUSE Confluence
 
 ## Decision Outcome
 
-MADR in aquarist-labs/s3gw-core, because
+MADR in aquarist-labs/s3gw-tools, because
 
 - Architecture, design and code decisions should be open and public
 - Github merge request workflow adds an easy review workflow we
