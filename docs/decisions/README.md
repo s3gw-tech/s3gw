@@ -6,7 +6,7 @@ This directory contains decision records for s3gw.
 
 - Copy `adr-template.md` to `NNNN-title-with-dashes.md`
 - Edit `NNNN-title-with-dashes.md`
-- Create merge request to `aquarist-labs/s3gw-core`
+- Create merge request to `aquarist-labs/s3gw-tools`
 
 ## Resources
 

@@ -37,7 +37,7 @@ The build script expects the following directory hierarchy.
 |  |- package.json
 |  ...
 |
-|- s3gw-core/
+|- s3gw-tools/
    |- build-ui/
    ...
 ```
@@ -49,7 +49,7 @@ image that is used to compile the Angular based aaplication. To do
 so, simply run:
 
 ```shell
-cd ~/git/s3gw-core/build-ui
+cd ~/git/s3gw-tools/build-ui
 ./build.sh builder-image
 ```
 
@@ -57,7 +57,7 @@ This needs to be done once. After that you can build a `s3gw-ui` image
 by running the commands:
 
 ```shell
-cd ~/git/s3gw-core/build-ui
+cd ~/git/s3gw-tools/build-ui
 ./build.sh app
 ./build.sh app-image
 ```

@@ -1,9 +1,9 @@
 # s3gw
 
-![License](https://img.shields.io/github/license/aquarist-labs/s3gw-core)
-![Issues](https://img.shields.io/github/issues/aquarist-labs/s3gw-core)
-![Lint](https://github.com/aquarist-labs/s3gw-core/actions/workflows/lint.yaml/badge.svg)
-![Build](https://github.com/aquarist-labs/s3gw-core/actions/workflows/build-environment.yml/badge.svg)
+![License](https://img.shields.io/github/license/aquarist-labs/s3gw-tools)
+![Issues](https://img.shields.io/github/issues/aquarist-labs/s3gw-tools)
+![Lint](https://github.com/aquarist-labs/s3gw-tools/actions/workflows/lint.yaml/badge.svg)
+![Build](https://github.com/aquarist-labs/s3gw-tools/actions/workflows/build-environment.yml/badge.svg)
 
 An S3-compatible Gateway based on Ceph RGW, using a non-RADOS backend for
 standalone usage.

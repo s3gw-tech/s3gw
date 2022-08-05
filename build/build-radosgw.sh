@@ -44,7 +44,7 @@ build_radosgw() {
   if [ ! -d "${CCACHE_DIR}" ]; then
     echo "ccache dir not found, create."
     mkdir "${CCACHE_DIR}"
-    echo "Created by aquarist-labs/s3gw-core build-radosgw container" > \
+    echo "Created by aquarist-labs/s3gw-tools build-radosgw container" > \
       "${CCACHE_DIR}/README"
   fi
 

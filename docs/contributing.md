@@ -11,5 +11,5 @@ yet, or to contribute with further details to an existing issue.
 
 You can join us in [Slack][2].
 
-[1]: https://github.com/aquarist-labs/s3gw-core/issues
+[1]: https://github.com/aquarist-labs/s3gw/issues
 [2]: https://join.slack.com/t/aquaristlabs/shared_invite/zt-nphn0jhg-QYKw__It8JPMkUR_sArOug
