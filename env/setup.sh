@@ -27,6 +27,10 @@ use_local_image_s3exp=1
 has_image_s3exp=true
 s3gw_image_s3exp="localhost/s3gw-ui:latest"
 
+function info() {
+  echo "[INFO] $*" >/dev/stdout
+}
+
 function error() {
   echo "[ERROR] ${@}" >&2
 }
@@ -82,6 +86,56 @@ function install_on_vm() {
   source ./setup-vm.sh build
 }
 
+function export_local_image() {
+  info "Checking for s3gw image locally..."
+  img=$(podman images --noheading --sort created s3gw:latest --format '{{.Repository}}:{{.Tag}}' | \
+    head -n 1)
+
+  if [[ -z "${img}" ]]; then
+    error "Unable to find s3gw image locally; abort."
+    exit 1
+  fi
+
+  rm -rf ./s3gw.ctr.tar
+  podman image save ${img} -o ./s3gw.ctr.tar || (
+    error "Failed to export s3gw image."
+    exit 1
+  )
+}
+
+function import_local_image() {
+  info "Importing local s3gw container image..."
+  sudo k3s ctr images import ./s3gw.ctr.tar || (
+    error "Failed to import local s3gw image."
+    exit 1
+  )
+}
+
+function export_local_ui_image() {
+  info "Checking for s3gw-ui image locally..."
+  img=$(podman images --noheading --sort created s3gw-ui:latest --format '{{.Repository}}:{{.Tag}}' | \
+    head -n 1)
+
+  if [[ -z "${img}" ]]; then
+    error "Unable to find s3gw-ui image locally."
+    exit 1
+  fi
+
+  rm -rf ./s3gw-ui.ctr.tar
+  podman image save ${img} -o ./s3gw-ui.ctr.tar || (
+    error "Failed to export s3gw-ui image."
+    exit 1
+  )
+}
+
+function import_local_ui_image() {
+  info "Importing local s3gw-ui container image..."
+  sudo k3s ctr images import ./s3gw-ui.ctr.tar || (
+    error "Failed to import local s3gw-ui image."
+    exit 1
+  )
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --dev)
@@ -109,6 +163,16 @@ while [[ $# -gt 0 ]]; do
       install_on_vm
       exit 0
       ;;
+    --import-local-image)
+      save_local_image
+      import_local_image
+      exit 0
+      ;;
+    --import-local-ui-image)
+      export_local_ui_image
+      import_local_ui_image
+      exit 0
+      ;;
   esac
   shift
 done
@@ -120,19 +184,7 @@ fi
 
 if $dev_env ; then
   if [[ ! -e "./s3gw.ctr.tar" ]]; then
-    echo "Checking for s3gw image locally..."
-    img=$(podman images --noheading --sort created s3gw:latest --format '{{.Repository}}:{{.Tag}}' | \
-      head -n 1)
-
-    if [[ -z "${img}" ]]; then
-      error "Unable to find s3gw image locally; abort."
-      exit 1
-    fi
-
-    podman image save ${img} -o ./s3gw.ctr.tar || (
-      error "Failed to export s3gw image."
-      exit 1
-    )
+    save_local_image
   fi
   use_local_image=1
   ! $has_image && s3gw_image="localhost/s3gw:latest"
@@ -146,19 +198,7 @@ fi
 
 if $has_image_s3exp ; then
   if [[ ! -e "./s3gw-ui.ctr.tar" ]]; then
-    echo "Checking for s3gw-ui image locally..."
-    img=$(podman images --noheading --sort created s3gw-ui:latest --format '{{.Repository}}:{{.Tag}}' | \
-      head -n 1)
-
-    if [[ -z "${img}" ]]; then
-      error "Unable to find s3gw-ui image locally; abort."
-      exit 1
-    fi
-
-    podman image save ${img} -o ./s3gw-ui.ctr.tar || (
-      error "Failed to export s3gw-ui image."
-      exit 1
-    )
+    export_local_ui_image
   fi
   use_local_image_s3exp=1
   ! $has_image_s3exp && s3gw_image_s3exp="localhost/s3gw-ui:latest"
@@ -192,11 +232,7 @@ k3s kubectl apply \
 )
 
 if [ ${use_local_image} -eq 1 ]; then
-  echo "Importing local s3gw container image..."
-  sudo k3s ctr images import ./s3gw.ctr.tar || (
-    error "Failed to import local s3gw image."
-    exit 1
-  )
+  import_local_image
 else
   echo "Pulling s3gw container image..."
   sudo k3s ctr images pull ${s3gw_image} || (
@@ -206,11 +242,7 @@ else
 fi
 
 if [ ${use_local_image_s3exp} -eq 1 ]; then
-  echo "Importing local s3gw-ui container image..."
-  sudo k3s ctr images import ./s3gw-ui.ctr.tar || (
-    error "Failed to import local s3gw-ui image."
-    exit 1
-  )
+  import_local_ui_image
 else
   echo "Pulling s3gw-ui container image..."
   sudo k3s ctr images pull ${s3gw_image_s3exp} || (
