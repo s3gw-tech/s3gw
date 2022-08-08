@@ -176,7 +176,7 @@ spec:
     spec:
       containers:
         - name: s3gw-ui
-          image: localhost/s3gw-ui:latest
+          image: ghcr.io/aquarist-labs/s3gw-ui:latest
           imagePullPolicy: Never
           envFrom:
             - configMapRef:

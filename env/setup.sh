@@ -23,9 +23,9 @@ has_image=false
 s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
 
 #this will likely change to have defaults as s3gw_image
-use_local_image_s3exp=1
-has_image_s3exp=true
-s3gw_image_s3exp="localhost/s3gw-ui:latest"
+use_local_image_s3exp=0
+has_image_s3exp=false
+s3gw_image_s3exp="ghcr.io/aquarist-labs/s3gw-ui:latest"
 
 function info() {
   echo "[INFO] $*" >/dev/stdout
