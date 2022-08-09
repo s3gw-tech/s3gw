@@ -71,7 +71,7 @@ One can easily setup k3s with s3gw from the internet, by running
 
 ```shell
 curl -sfL \
-  https://raw.githubusercontent.com/aquarist-labs/s3gw-tools/env/setup.sh \
+  https://raw.githubusercontent.com/aquarist-labs/s3gw-tools/main/env/setup.sh \
   | sh -
 ```
 
