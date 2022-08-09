@@ -63,11 +63,12 @@ function wait_ingresses() {
 
 function show_ingresses() {
   ip=$(kubectl get -n s3gw-system ingress s3gw-ingress -o 'jsonpath={.status.loadBalancer.ingress[].ip}');
-  echo -e "\n"
-  echo "Please add the following line to /etc/hosts to be able to access the Longhorn UI and s3gw:"
-  echo -e "\n"
+  echo ""
+  echo "Please add the following line to /etc/hosts to be able to access"
+  echo "the Longhorn UI and s3gw:"
+  echo ""
   echo "${ip}   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local"
-  echo -e "\n"
+  echo ""
   echo "Longhorn UI available at: https://longhorn.local"
   echo "                          https://longhorn.local:30443"
   echo "s3gw available at:        http://s3gw.local"
@@ -77,7 +78,14 @@ function show_ingresses() {
   echo "                          http://s3gw-no-tls.local"
   echo "                          http://s3gw-no-tls.local:30080"
   echo "s3gw-ui available at:     https://s3gw-ui.local:30443"
-  echo -e "\n"
+  echo ""
+  echo "Note, the UI will not be able to access the RGW AdminOps API when"
+  # Check https://github.com/aquarist-labs/s3gw/issues/31 to get more
+  # information about the CORS issues.
+  echo "using HTTPS and self-signed certificates because of CORS issues."
+  echo "To workaround that, please open the URL https://s3gw.local in the"
+  echo "browser and accept the SSL certificate before accessing the UI."
+  echo ""
 }
 
 function install_on_vm() {
