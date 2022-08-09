@@ -1,6 +1,6 @@
 # K3s environment running s3gw with Longhorn
 
-This is the entrypoint to setup a Kubernetes cluster running s3gw with Longhorn.
+This is the entrypoint to set up a Kubernetes cluster running s3gw with Longhorn.
 You can choose to install a **K3s** cluster directly on your machine
 or on top of virtual machines.
 
@@ -11,7 +11,7 @@ Refer to the appropriate section to proceed with the setup:
 
 ## Ingresses
 
-Services are exposed with an Kubernetes ingress; each service category is
+Services are exposed with a Kubernetes ingress; each service category is
 allocated on a separate virtual host:
 
 - **Longhorn dashboard**, on: `longhorn.local`
@@ -24,15 +24,15 @@ You are required to resolve these names with the external ip of one
 of the nodes of the cluster.
 
 When you are running the cluster on a virtual machine,
-you can patch host's `/etc/hosts` file as follow:
+you can patch host's `/etc/hosts` file as follows:
 
 ```text
 10.46.201.101   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local s3gw-ui-no-tls.local
 ```
 
-This makes host names resolving with the admin node.
+This will make host names resolving with the admin node.
 Otherwise, when you are running the cluster on bare metal,
-you can patch host's `/etc/hosts` file as follow:
+you can patch host's `/etc/hosts` file as follows:
 
 ```text
 127.0.0.1   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local s3gw-ui-no-tls.local
@@ -67,11 +67,11 @@ This is something we intend figuring out in the near future.
 
 ### From the internet
 
-One can easily setup k3s with s3gw from the internet, by running
+One can easily set up k3s with s3gw from the internet, by running
 
 ```shell
 curl -sfL \
-  https://raw.githubusercontent.com/aquarist-labs/s3gw-tools/main/k3s/setup.sh \
+  https://raw.githubusercontent.com/aquarist-labs/s3gw-tools/main/env/setup.sh \
   | sh -
 ```
 
