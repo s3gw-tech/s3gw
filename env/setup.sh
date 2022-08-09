@@ -17,6 +17,7 @@
 set -e
 
 ghraw="https://raw.githubusercontent.com"
+install_s3gw=true
 dev_env=false
 use_local_image=0
 has_image=false
@@ -173,36 +174,41 @@ while [[ $# -gt 0 ]]; do
       import_local_ui_image
       exit 0
       ;;
+    --no-s3gw)
+      install_s3gw=false
+      ;;
   esac
   shift
 done
 
-if [[ -z "${s3gw_image}" ]]; then
-  error "s3gw image not provided"
-  exit 1
-fi
-
-if $dev_env ; then
-  if [[ ! -e "./s3gw.ctr.tar" ]]; then
-    save_local_image
+if $install_s3gw ; then
+  if [[ -z "${s3gw_image}" ]]; then
+    error "s3gw image not provided"
+    exit 1
   fi
-  use_local_image=1
-  ! $has_image && s3gw_image="localhost/s3gw:latest"
-  echo "Using local s3gw image '${s3gw_image}'."
-fi
 
-if [[ -z "${s3gw_image_s3exp}" ]]; then
-  error "s3gw-ui image not provided"
-  exit 1
-fi
-
-if $has_image_s3exp ; then
-  if [[ ! -e "./s3gw-ui.ctr.tar" ]]; then
-    export_local_ui_image
+  if $dev_env ; then
+    if [[ ! -e "./s3gw.ctr.tar" ]]; then
+      save_local_image
+    fi
+    use_local_image=1
+    ! $has_image && s3gw_image="localhost/s3gw:latest"
+    echo "Using local s3gw image '${s3gw_image}'."
   fi
-  use_local_image_s3exp=1
-  ! $has_image_s3exp && s3gw_image_s3exp="localhost/s3gw-ui:latest"
-  echo "Using local s3gw-ui image '${s3gw_image_s3exp}'."
+
+  if [[ -z "${s3gw_image_s3exp}" ]]; then
+    error "s3gw-ui image not provided"
+    exit 1
+  fi
+
+  if $has_image_s3exp ; then
+    if [[ ! -e "./s3gw-ui.ctr.tar" ]]; then
+      export_local_ui_image
+    fi
+    use_local_image_s3exp=1
+    ! $has_image_s3exp && s3gw_image_s3exp="localhost/s3gw-ui:latest"
+    echo "Using local s3gw-ui image '${s3gw_image_s3exp}'."
+  fi
 fi
 
 if k3s --version >&/dev/null ; then
@@ -231,24 +237,26 @@ k3s kubectl apply \
   exit 1
 )
 
-if [ ${use_local_image} -eq 1 ]; then
-  import_local_image
-else
-  echo "Pulling s3gw container image..."
-  sudo k3s ctr images pull ${s3gw_image} || (
-    error "Failed to pull s3gw image ${s3gw_image}."
-    exit 1
-  )
-fi
+if $install_s3gw ; then
+  if [ ${use_local_image} -eq 1 ]; then
+    import_local_image
+  else
+    echo "Pulling s3gw container image..."
+    sudo k3s ctr images pull ${s3gw_image} || (
+      error "Failed to pull s3gw image ${s3gw_image}."
+      exit 1
+    )
+  fi
 
-if [ ${use_local_image_s3exp} -eq 1 ]; then
-  import_local_ui_image
-else
-  echo "Pulling s3gw-ui container image..."
-  sudo k3s ctr images pull ${s3gw_image_s3exp} || (
-    error "Failed to pull s3gw-ui image ${s3gw_image_s3exp}."
-    exit 1
-  )
+  if [ ${use_local_image_s3exp} -eq 1 ]; then
+    import_local_ui_image
+  else
+    echo "Pulling s3gw-ui container image..."
+    sudo k3s ctr images pull ${s3gw_image_s3exp} || (
+      error "Failed to pull s3gw-ui image ${s3gw_image_s3exp}."
+      exit 1
+    )
+  fi
 fi
 
 # Workaround a K8s behaviour that CustomResourceDefinition must be
@@ -261,25 +269,27 @@ while [[ $(kubectl get crd middlewares.traefik.containo.us -o 'jsonpath={..statu
 done
 echo
 
-s3gw_yaml="s3gw.yaml"
-$dev_env && s3gw_yaml="s3gw-dev.yaml"
+if $install_s3gw ; then
+  s3gw_yaml="s3gw.yaml"
+  $dev_env && s3gw_yaml="s3gw-dev.yaml"
 
-if [[ -e ${s3gw_yaml} ]]; then
-  apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
-elif [[ -e "generate-spec.sh" ]]; then
-  extra=""
-  $dev_env && extra="--dev"
-  echo "Generating s3gw spec file at '${s3gw_yaml}'..."
-  ./generate-spec.sh --output ${s3gw_yaml} ${extra} --ingress ${ingress}
-  apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
-else
-  echo "Installing s3gw..."
-  k3s kubectl apply \
-    -f ${ghraw}/aquarist-labs/s3gw-tools/main/env/s3gw.yaml || (
-    error "Failed to install s3gw."
-    exit 1
-  )
+  if [[ -e ${s3gw_yaml} ]]; then
+    apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
+  elif [[ -e "generate-spec.sh" ]]; then
+    extra=""
+    $dev_env && extra="--dev"
+    echo "Generating s3gw spec file at '${s3gw_yaml}'..."
+    ./generate-spec.sh --output ${s3gw_yaml} ${extra} --ingress ${ingress}
+    apply "Installing s3gw from spec file at '${s3gw_yaml}'..." ${s3gw_yaml}
+  else
+    echo "Installing s3gw..."
+    k3s kubectl apply \
+      -f ${ghraw}/aquarist-labs/s3gw-tools/main/env/s3gw.yaml || (
+      error "Failed to install s3gw."
+      exit 1
+    )
+  fi
+
+  wait_ingresses
+  show_ingresses
 fi
-
-wait_ingresses
-show_ingresses
