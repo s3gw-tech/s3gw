@@ -1,8 +1,5 @@
 # Developing the S3 Gateway
 
-You can refer to the [development](./docs/development.md) section to understand
-how to build the `s3gw` container image.
-
 ## Introduction
 
 Given we are still setting up the project, figuring out requirements, and
@@ -57,7 +54,7 @@ bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
 
 Once the daemon is running, and outputting its logs to the terminal, one can
 start issuing commands to the daemon. We rely on `s3cmd`, which can be found
-on [github][4] or obtained through `pip`.
+on [Github][4] or obtained through `pip`.
 
 `s3cmd` will require to be configured to talk to RGW. This can be achieved by
 first running `s3cmd -c $(pwd)/.s3cfg --configure`. By default, the

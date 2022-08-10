@@ -9,7 +9,7 @@ existing gateway running somewhere accessible by the tests. This may be an
 matter whether these running on the local machine or on a remote host, as long
 as they are accessible to the tests.
 
-## smoke tests
+## Smoke tests
 
 Basic test battery to smoke out errors and potential regressions.
 
@@ -20,7 +20,7 @@ we will be able to find the `radosgw`.
 At the moment, these tests mainly rely on `s3cmd`, which requires to be
 installed and available in the `PATH`.
 
-## s3tests
+## S3 tests
 
 Runs a comprehensive test battery against a running `radosgw`. It relies on
 [ceph/s3-tests](https://github.com/ceph/s3-tests), and will clone this
@@ -34,7 +34,7 @@ Each run will be kept in a directory of the form `s3gw-s3test-DATE-TESTID`.
 The cloned `ceph/s3-tests` repository, as well as logs, will be kept within
 this directory.
 
-### creating reports
+### Creating reports
 
 Test reports may be generated using the `create-s3tests-report.sh` script.
 This script requires the resulting log file from an `s3gw-s3tests.sh` run.
@@ -47,7 +47,7 @@ file](https://github.com/aquarist-labs/s3gw-status#readme).)
 
 Please check `create-s3tests-report.sh --help` for more information.
 
-## benchmarking
+## Benchmarking
 
 With tracking our improvement over time in mind, we should be benchmarking
 `radosgw` with the file based backend `simplefile` we have been developing.
@@ -73,7 +73,7 @@ Each time `wrap` is run, a file will be created containing the results of
 the benchmark. This file can later on be used to compare results between runs.
 For more information, please check `warp`'s help.
 
-## stress testing
+## Stress testing
 
 For the purpose of stress testing `s3gw`, you can rely on
 [fio](https://github.com/axboe/fio).
@@ -83,8 +83,8 @@ You can therefore use the tool to issue concurrent and/or serial operations agai
 `s3gw`.
 For a basic stress testing activity you should normally want to shot a series
 of `PUT`(s), `GET`(s) and `DELETE`(s).
-Such workload can be modeled with a fio *jobfile*.
-For example, you can customize the following *jobfile* and tuning it to realize
+Such workload can be modeled with a fio _jobfile_.
+For example, you can customize the following _jobfile_ and tuning it to realize
 the test you wish to perform.
 
 ```ini
@@ -118,7 +118,7 @@ size=16m
 bs=16m
 ```
 
-Once you have created your *jobfile*: `s3gw.fio` you can simply launch
+Once you have created your _jobfile_: `s3gw.fio` you can simply launch
 the workload with:
 
 ```shell
@@ -128,7 +128,7 @@ Starting 9 processes
 ...
 ```
 
-This *jobfile* connects to an S3 gateway listening on `localhost:7480`
+This _jobfile_ connects to an S3 gateway listening on `localhost:7480`
 and operates on a object `obj`
 which resides inside an existing `foo` bucket.
 This example launches 3 types of jobs: `s3-write` (PUT), `s3-read`

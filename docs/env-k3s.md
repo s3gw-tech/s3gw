@@ -52,7 +52,7 @@ http://s3gw-ui-no-tls.local:30080
 
 This README will guide you through the setup of a K3s cluster on bare metal.
 If you are looking for K3s cluster running on virtual machines,
-refer to our [K3s on virtual machines](./README.vm.md).
+refer to [K3s on virtual machines](#k3s-on-virtual-machines).
 
 ### Disabling firewalld
 
@@ -119,17 +119,7 @@ Backup Target Credential Secret: `s3gw-secret`
 Follow this guide if you wish to run a K3s cluster installed on virtual
 machines. You will have a certain degree of choice in terms of customization
 options. If you are looking for a more lightweight environment running directly
-on bare metal, refer to our [K3s on bare metal](./README.bm.md).
-
-### Table of Contents
-
-- [Description](#description)
-- [Requirements](#requirements)
-- [Supported Vagrant boxes](#supported-vagrant-boxes)
-- [Building the environment](#building-the-environment)
-- [Destroying the environment](#destroying-the-environment)
-- [Accessing the environment](#accessing-the-environment)
-  - [ssh](#ssh)
+on bare metal, refer to [K3s on bare metal](#k3s-on-bare-metal).
 
 ### Description
 
