@@ -209,7 +209,7 @@ if $install_s3gw ; then
     exit 1
   fi
 
-  if $has_image_s3exp ; then
+  if $dev_env ; then
     if [[ ! -e "./s3gw-ui.ctr.tar" ]]; then
       export_local_ui_image
     fi
