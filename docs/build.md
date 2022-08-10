@@ -8,7 +8,7 @@ This documentation will guide you through the several steps to build the
 > **NOTE:** The absolute paths mentioned in this document may be different
 > on your system.
 
-### Prerequisites
+## Prerequisites
 
 Make sure you've installed the following applications:
 
@@ -33,7 +33,7 @@ The build scripts expect the following directory hierarchy.
    ...
 ```
 
-### Building the radosgw binary
+## Building the radosgw binary
 
 To build the `radosgw` binary, a containerized build environment is used.
 This container can be built by running the following command:
@@ -74,7 +74,7 @@ podman run \
   localhost/build-radosgw
 ```
 
-### Build the s3gw container image
+## Build the s3gw container image
 
 If the Ceph `radosgw` binary is compiled, the container image can be build
 with the following commands:
@@ -99,7 +99,7 @@ environment variable.
 The container image name is `s3gw` by default. This can be customized via
 the environment variable `IMAGE_NAME`.
 
-### Running the s3gw container
+## Running the s3gw container
 
 Finally, you can run the `s3gw` container with the following command:
 

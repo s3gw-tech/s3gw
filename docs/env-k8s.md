@@ -4,7 +4,7 @@ Follow this guide if you wish to run an `s3gw` image on the latest stable
 Kubernetes release. You will be able to quickly build a cluster installed on a
 set of virtual machines. You will have a certain degree of choice in terms of
 customization options. If you are looking for a more lightweight environment
-running directly on bare metal, refer to our [K3s section](./README.k3s.md).
+running directly on bare metal, refer to our [K3s section](env-k3s.md).
 
 ## Table of Contents
 

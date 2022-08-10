@@ -11,9 +11,9 @@ project.
 The `s3gw-ui` application is associated with a `Dockerfile` and adheres to some
 conventions:
 
-* Dockerfile build context must be placed inside a directory placed alongside to
+- Dockerfile build context must be placed inside a directory placed alongside to
   the `s3gw-ui` project.
-* You should be able to build that application from that directory with:
+- You should be able to build that application from that directory with:
 
 ```text
 npm install
@@ -27,7 +27,7 @@ has been built.
 
 Make sure you've installed the following applications:
 
-* Podman
+- Podman
 
 The build script expects the following directory hierarchy.
 
