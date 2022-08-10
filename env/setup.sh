@@ -77,7 +77,10 @@ function show_ingresses() {
   echo "                          https://s3gw.local:30443"
   echo "                          http://s3gw-no-tls.local"
   echo "                          http://s3gw-no-tls.local:30080"
-  echo "s3gw-ui available at:     https://s3gw-ui.local:30443"
+  echo "s3gw-ui available at:     http://s3gw-ui-no-tls.local"
+  echo "                          http://s3gw-ui-no-tls.local:30080"
+  echo "                          https://s3gw-ui.local"
+  echo "                          https://s3gw-ui.local:30443"
   echo ""
   echo "Note, the UI will not be able to access the RGW AdminOps API when"
   # Check https://github.com/aquarist-labs/s3gw/issues/31 to get more
