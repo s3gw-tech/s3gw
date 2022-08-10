@@ -197,7 +197,7 @@ if $install_s3gw ; then
 
   if $dev_env ; then
     if [[ ! -e "./s3gw.ctr.tar" ]]; then
-      save_local_image
+      export_local_image
     fi
     use_local_image=1
     ! $has_image && s3gw_image="localhost/s3gw:latest"
