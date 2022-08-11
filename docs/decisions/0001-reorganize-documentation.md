@@ -20,7 +20,7 @@ In particular, the following points stick out:
   - using the helm chart belongs in installation/operations, not development
   - build instructions (including those for the containers) belong in the
     development section
-  - operating the gateway on longhorn belongs in installtion/operations
+  - operating the gateway on longhorn belongs in installation/operations
   - roadmap possibly and decision records definitively belong with the technical
     information for developers
 - The development section should be ordered such that it's easy for newcomers
@@ -38,7 +38,7 @@ In particular, the following points stick out:
   technical documentation. Meaning that there are two possible places to find
   technical information in
 - Just reading the table of contents gives the impression that developing the
-  s3gw is the most important thing one can do with it, as detailed installtion
+  s3gw is the most important thing one can do with it, as detailed installation
   instructions are in the fourth section, after developer and build instructions
 - Contribution instructions are buried within other sections, making it just a
   bit less convenient to find them
@@ -46,7 +46,7 @@ In particular, the following points stick out:
 ### Reorganizing
 
 - The most important information for a new user is 'how do I use this thing',
-  so the installtion and operation instructions should be the first section
+  so the installation and operation instructions should be the first section
   after 'Welcome & Quickstart'
 - All technical information in one place (the development section), including
   build instructions
