@@ -26,4 +26,3 @@ nav:
     - License: 'license.md'
   - 'Team decisions':
     - Use Markdown Any Decision Records: 'decisions/0000-use-markdown-any-decision-records.md'
-theme: readthedocs
