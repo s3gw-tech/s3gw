@@ -1,4 +1,4 @@
-site_name: s3gw Documentationn
+site_name: s3gw Documentation
 theme:
   name: readthedocs
   highlightjs: true
