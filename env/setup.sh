@@ -99,16 +99,17 @@ function install_on_vm() {
 }
 
 function export_local_image() {
-  info "Checking for s3gw image locally..."
+  info "Checking for local s3gw image..."
   img=$(podman images --noheading --sort created s3gw:latest --format '{{.Repository}}:{{.Tag}}' | \
     head -n 1)
 
   if [[ -z "${img}" ]]; then
-    error "Unable to find s3gw image locally; abort."
+    error "Unable to find local s3gw image."
     exit 1
   fi
 
   rm -rf ./s3gw.ctr.tar
+  info "Exporting ${img}..."
   podman image save ${img} -o ./s3gw.ctr.tar || (
     error "Failed to export s3gw image."
     exit 1
@@ -124,16 +125,17 @@ function import_local_image() {
 }
 
 function export_local_ui_image() {
-  info "Checking for s3gw-ui image locally..."
+  info "Checking for local s3gw-ui image..."
   img=$(podman images --noheading --sort created s3gw-ui:latest --format '{{.Repository}}:{{.Tag}}' | \
     head -n 1)
 
   if [[ -z "${img}" ]]; then
-    error "Unable to find s3gw-ui image locally."
+    error "Unable to find local s3gw-ui image."
     exit 1
   fi
 
   rm -rf ./s3gw-ui.ctr.tar
+  info "Exporting ${img}..."
   podman image save ${img} -o ./s3gw-ui.ctr.tar || (
     error "Failed to export s3gw-ui image."
     exit 1
