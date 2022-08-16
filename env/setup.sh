@@ -176,7 +176,7 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     --import-local-image)
-      save_local_image
+      export_local_image
       import_local_image
       exit 0
       ;;
