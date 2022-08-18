@@ -1,0 +1,63 @@
+---
+name: Release S3GW
+on:
+  schedule:
+    - cron: '30 4 * * 1-6'  # Every night 4:30 except sunday
+
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  # Figure out which are the refs to be built
+  set-git-refs:
+    runs-on: ubuntu-latest
+
+    outputs:
+      ceph-git-ref: ${{ steps.git-refs.outputs.ceph }}
+      tools-git-ref: ${{ steps.git-refs.outputs.tools }}
+      ui-git-ref: ${{ steps.git-refs.outputs.ui }}
+      charts-git-ref: ${{ steps.git-refs.outputs.charts }}
+      github-ref-name: ${{ steps.git-refs.outputs.github-ref-name }}
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set Git Refs
+        id: git-refs
+        run: |
+          for r in $(git submodule | awk '{print $2}'); do
+            echo "::set-output name=${r}::$(git log -1 --format="%H" "${r}")"
+          done
+          echo "::set-output name=github-ref-name::${GITHUB_REF_NAME:-nightly}"
+
+  # Build the build-environment container, using it's workflow
+  build-env:
+    uses: aquarist-labs/s3gw-tools/.github/workflows/build-environment.yaml
+    needs: set-git-refs
+    with:
+      tag: ${{ needs.set-git-refs.outputs.github-ref-name }}
+      ref: ${{ needs.set-git-refs.outputs.tools-git-ref }}
+
+  # Build the radosgw binary using the previously built container image
+  build-radosgw:
+    uses: aquarist-labs/ceph/.github/workflows/build-radosgw.yaml
+    needs:
+      - set-git-refs
+      - build-env
+    with:
+      tag: ${{ needs.set-git-refs.outputs.github-ref-name }}
+      ref: ${{ needs.set-git-refs.outputs.ceph-git-ref }}
+
+  # Build and push the radosgw container using the radosgw-binary
+  # TODO
+
+  # Build and push the ui container
+  # TODO
+
+  # Release the charts
+  # TODO
