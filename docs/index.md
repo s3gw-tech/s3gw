@@ -2,7 +2,7 @@
 
 ## Project objective
 
-We're building an easy-to-use Open Source and Cloud Native S3 service for
+We're developing an easy-to-use Open Source and Cloud Native S3 service for
 Kubernetes.
 Our focus is to complement the Rancher portfolio, although the tool isn't
 limited to Rancher products.

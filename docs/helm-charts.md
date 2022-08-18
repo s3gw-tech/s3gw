@@ -65,7 +65,7 @@ tls:
 
 ### Existing Volumes
 
-The s3gw is best deployed ontop of a [longhorn](https://longhorn.io) volume. If
+The s3gw is best deployed on top of a [longhorn](https://longhorn.io) volume. If
 you have longhorn installed in your cluster, all appropriate resources will be
 automatically deployed for you.
 Make sure the `storageType` is set to `"longhorn"` and the correct size for the

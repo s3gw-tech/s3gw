@@ -44,7 +44,7 @@ The build script expects the following directory hierarchy.
 
 ## Build the application
 
-Before building the `s3gw-ui` image you need to build the conatainer
+Before building the `s3gw-ui` image you need to build the container
 image that is used to compile the Angular based aaplication. To do
 so, simply run:
 
