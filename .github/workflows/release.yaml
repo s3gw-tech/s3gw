@@ -7,10 +7,19 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - '*'
 
 jobs:
-  release:
+  set-git-refs:
     runs-on: ubuntu-latest
+
+    outputs:
+      ceph-git-ref: ${{ steps.git-refs.outputs.ceph }}
+      tools-git-ref: ${{ steps.git-refs.outputs.tools }}
+      ui-git-ref: ${{ steps.git-refs.outputs.ui }}
+      charts-git-ref: ${{ steps.git-refs.outputs.charts }}
+      github-ref-name: ${{ steps.git-refs.outputs.github-ref-name }}
 
     steps:
 
@@ -27,19 +36,24 @@ jobs:
           done
           echo "::set-output name=github-ref-name::${GITHUB_REF_NAME:-nightly}"
 
-      # Build the build-environment container, using it's workflow
-      - name: Build Environment
-        uses: ./s3gw-tools/.github/workflows/build-environment.yaml
-        with:
-          tag: ${{ steps.git-refs.outputs.github-ref-name }}
-          ref: ${{ steps.git-refs.outputs.tools-git-ref }}
 
-      # Build the radosgw binary using the previously built container image
-      - name: Build Radosgw Binary
-        uses: ./ceph/.github/workflows/build-radosgw.yaml
-        with:
-          tag: ${{ steps.git-refs.outputs.github-ref-name }}
-          ref: ${{ steps.git-refs.outputs.ceph-git-ref }}
+  # Build the build-environment container, using it's workflow
+  build-env:
+    uses: aquarist-labs/s3gw-tools/.github/workflows/build-environment.yaml@main
+    needs: set-git-refs
+    with:
+      tag: ${{ needs.set-git-refs.outputs.github-ref-name }}
+      ref: ${{ needs.set-git-refs.outputs.tools-git-ref }}
+
+#   # Build the radosgw binary using the previously built container image
+#   build-radosgw:
+#     uses: aquarist-labs/ceph/.github/workflows/build-radosgw.yml@s3gw
+#     needs:
+#       - set-git-refs
+#       - build-env
+#     with:
+#       tag: ${{ needs.set-git-refs.outputs.github-ref-name }}
+#       ref: ${{ needs.set-git-refs.outputs.ceph-git-ref }}
 
   # Build and push the radosgw container using the radosgw-binary
   # TODO
