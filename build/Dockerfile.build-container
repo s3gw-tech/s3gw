@@ -12,19 +12,19 @@ RUN zypper -n install \
   liboath0 \
   libicu71 \
   libthrift-0_16_0 \
-  libboost_atomic1_79_0 \
-  libboost_chrono1_79_0 \
-  libboost_context1_79_0 \
-  libboost_coroutine1_79_0 \
-  libboost_date_time1_79_0 \
-  libboost_filesystem1_79_0 \
-  libboost_iostreams1_79_0 \
-  libboost_program_options1_79_0 \
-  libboost_random1_79_0 \
-  libboost_regex1_79_0 \
-  libboost_serialization1_79_0 \
-  libboost_system1_79_0 \
-  libboost_thread1_79_0 \
+  libboost_atomic1_80_0 \
+  libboost_chrono1_80_0 \
+  libboost_context1_80_0 \
+  libboost_coroutine1_80_0 \
+  libboost_date_time1_80_0 \
+  libboost_filesystem1_80_0 \
+  libboost_iostreams1_80_0 \
+  libboost_program_options1_80_0 \
+  libboost_random1_80_0 \
+  libboost_regex1_80_0 \
+  libboost_serialization1_80_0 \
+  libboost_system1_80_0 \
+  libboost_thread1_80_0 \
  && zypper clean --all
 
 RUN mkdir -p /data
