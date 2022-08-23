@@ -12,12 +12,21 @@ class UserRestAPITests(unittest.TestCase):
         self.auth = S3Auth(UserRestAPITests.ACCESS_KEY, UserRestAPITests.SECRET_KEY, self.URL)
 
     def test_smoke_test(self):
+        # list users using the metadata endpoint.
+        response = requests.get(self.URL + '/admin/metadata/user', auth=self.auth)
+        self.assertEqual(200, response.status_code)
+        json_response = json.loads(response.content)
+        self.assertIsInstance(json_response, list)
+        self.assertIn("testid", json_response)
+
         # list users (we should get only testid (user created at startup))
         response = requests.get(self.URL + '/admin/user?list', auth=self.auth)
         self.assertEqual(200, response.status_code)
         json_response = json.loads(response.content)
+        self.assertIsInstance(json_response, dict)
+        self.assertIsInstance(json_response["keys"], list)
         self.assertEqual(1, len(json_response["keys"]))
-        self.assertEqual("testid", json_response["keys"][0])
+        self.assertIn("testid", json_response["keys"])
 
         # add a user
         response = requests.put(self.URL + '/admin/user?uid=user2&display-name=TEST+NAME', auth=self.auth)
