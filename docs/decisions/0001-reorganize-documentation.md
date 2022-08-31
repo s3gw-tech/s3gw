@@ -1,7 +1,3 @@
----
-status: proposed
----
-
 # Reorganize Documentation
 
 ## The documentation may be hard to navigate from an outside perspective

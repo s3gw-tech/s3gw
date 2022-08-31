@@ -1,7 +1,3 @@
----
-status: proposed
----
-
 # Use Markdown Any Decision Records
 
 ## Context and Problem Statement
