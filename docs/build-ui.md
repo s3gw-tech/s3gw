@@ -45,7 +45,7 @@ The build script expects the following directory hierarchy.
 ## Build the application
 
 Before building the `s3gw-ui` image you need to build the container
-image that is used to compile the Angular based aaplication. To do
+image that is used to compile the Angular based application. To do
 so, simply run:
 
 ```shell
@@ -64,8 +64,28 @@ cd ~/git/s3gw-tools/build-ui
 
 ## Running the application
 
+The user interface is running on port 8080 by default.
+
 You can run a `s3gw-ui` application with:
 
 ```shell
 podman run --replace --name=s3gw-ui -it -p 8080:8080 localhost/s3gw-ui
 ```
+
+### Configuration
+
+To configure the application at runtime the following environment
+variables are available:
+
+- RGW_SERVICE_URL
+
+  This variable allows you to configure the URL to the RGW service.
+
+  ```shell
+  podman run --name=s3gw-ui ... -e RGW_SERVICE_URL=https://foo.bar:7480 localhost/s3gw-ui
+  ```
+
+  Please keep in mind that the browser will report errors related to
+  CORS if the RGW is running on a different URL or port and self-signed
+  SSL certificates are used. In most cases this can be  fixed by
+  visiting the URL of the RGW to accept the SSL certificate.

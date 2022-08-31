@@ -13,6 +13,36 @@ The app will automatically reload if you change any of the source files.
 Make sure the `proxy.conf.json` file exists and is configured to access your
 `s3gw` installation.
 
+### Connect to a K3s setup
+
+If you want to connect the user interface to a [K3s setup](./env-k3s.md),
+use the following `proxy.conf.json` file.
+
+```json
+{
+  "/admin/user": {
+    "target": "https://s3gw.local",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/admin/metadata/user": {
+    "target": "https://s3gw.local",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/admin/bucket": {
+    "target": "https://s3gw.local",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "http://localhost:4200": {
+    "target": "https://s3gw.local",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
+```
+
 ## Beautify and linting code
 
 Run `npm run fix` to beautify and lint the source code.
