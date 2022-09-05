@@ -56,8 +56,8 @@ refer to [K3s on virtual machines](#k3s-on-virtual-machines).
 
 ### Minimum Free Disk Space
 
-Longhorn requires a `minimal available storage percentage` on the root disk, which is `25%` by default.
-Check [Longhorn Docs](https://longhorn.io/docs/1.3.1/best-practices/#minimal-available-storage-and-over-provisioning) for details.
+Longhorn requires a `minimal available storage percentage` on the root disk,
+which is `25%` by default. Check [Longhorn Docs] for details.
 
 ### Disabling firewalld
 
@@ -283,3 +283,5 @@ Connecting to worker-2 ...
 
 When connecting to a worker node be sure to match the `WORKER_COUNT`
 value with the one you used in the build phase.
+
+[Longhorn Docs]: https://longhorn.io/docs/1.3.1/best-practices/#minimal-available-storage-and-over-provisioning
