@@ -54,6 +54,11 @@ This README will guide you through the setup of a K3s cluster on bare metal.
 If you are looking for K3s cluster running on virtual machines,
 refer to [K3s on virtual machines](#k3s-on-virtual-machines).
 
+### Minimum Free Disk Space
+
+Longhorn requires a `minimal available storage percentage` on the root disk,
+which is `25%` by default. Check [Longhorn Docs] for details.
+
 ### Disabling firewalld
 
 In some host systems, including OpenSUSE Tumbleweed, one will need to disable
@@ -278,3 +283,5 @@ Connecting to worker-2 ...
 
 When connecting to a worker node be sure to match the `WORKER_COUNT`
 value with the one you used in the build phase.
+
+[Longhorn Docs]: https://longhorn.io/docs/1.3.1/best-practices/#minimal-available-storage-and-over-provisioning
