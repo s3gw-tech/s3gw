@@ -44,6 +44,8 @@ jobs:
     with:
       tag: ${{ needs.set-git-refs.outputs.github-ref-name }}
       ref: ${{ needs.set-git-refs.outputs.tools-git-ref }}
+      dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
 
 #   # Build the radosgw binary using the previously built container image
 #   build-radosgw:
