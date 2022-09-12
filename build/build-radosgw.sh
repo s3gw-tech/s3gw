@@ -51,9 +51,8 @@ build_radosgw() {
   cd ${CEPH_DIR}
 
   # This is necessary since git v2.35.2 because of CVE-2022-24765
-  git config --global --add safe.directory "${CEPH_DIR}"
-
-  ./install-deps.sh || true
+  # but we have to continue in case CEPH_DIR is not a git repo
+  git config --global --add safe.directory "${CEPH_DIR}" || true
 
   if [ -d "build" ]; then
       cd build/

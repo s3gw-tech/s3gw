@@ -16,20 +16,23 @@ RUN zypper -n install --no-recommends \
       'pkgconfig(systemd)' \
       'pkgconfig(udev)' \
       babeltrace-devel \
-      bash \
       binutils \
       ccache \
       cmake \
+      cpp11 \
       cryptsetup-devel \
       cunit-devel \
       fdupes \
       fuse-devel \
       gcc-c++ \
+      gcc11 \
+      gcc11-c++ \
       git \
       gperf \
       jq \
       keyutils-devel \
       libaio-devel \
+      libasan6 \
       libboost_atomic1_80_0-devel \
       libboost_context1_80_0-devel \
       libboost_coroutine1_80_0-devel \
@@ -54,12 +57,13 @@ RUN zypper -n install --no-recommends \
       librabbitmq-devel \
       librdkafka-devel \
       libsqliteorm \
+      libstdc++6-devel-gcc11 \
       libtool \
+      libtsan0 \
       libxml2-devel \
       lttng-ust-devel \
       lua-devel \
       lua54-luarocks \
-      make \
       make \
       memory-constraints \
       mozilla-nss-devel \
