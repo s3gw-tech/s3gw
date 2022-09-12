@@ -17,16 +17,6 @@ on:
         required: false
         default: "main"
         type: string
-      dockerhub_username:
-        description: "A username to use for push to dockerhub"
-        required: true
-        default: ${{ secrets.DOCKERHUB_USERNAME }}
-        type: string
-      dockerhub_token:
-        description: "A token to use for push to dockerhub"
-        required: true
-        default: ${{ secrets.DOCKERHUB_TOKEN }}
-        type: string
 
 jobs:
   build:
@@ -47,8 +37,8 @@ jobs:
       - name: Dockerhub Login
         uses: docker/login-action@v1
         with:
-          username: ${{ inputs.dockerhub_username }}
-          password: ${{ inputs.dockerhub_token }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set Container Image Tag
         id: tag
@@ -63,6 +53,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ inputs.dockerhub_username }}/buildenv-radosgw:${{ steps.tag.outputs.tag }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/buildenv-radosgw:${{ steps.tag.outputs.tag }}
           file: 'build/Dockerfile.build-radosgw'
           context: 'build'
