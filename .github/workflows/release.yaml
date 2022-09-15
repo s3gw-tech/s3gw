@@ -226,10 +226,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         draft: true
+        body_path: docs/release-notes/latest
         generate_release_notes: true
         fail_on_unmatched_files: true
         files: |
-          CHANGELOG.md
           LICENSE
 
   # Release the charts
