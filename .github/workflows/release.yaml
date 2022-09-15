@@ -173,7 +173,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/s3gw:${{ needs.set-git-refs.outputs.github-ref-name }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/s3gw:${{ needs.set-git-refs.outputs.github-ref-name }}
+            ghcr.io/${{ github.repository_owner }}/s3gw:latest
           file: tools/build/Dockerfile.build-container
           context: ceph/build
 
@@ -207,7 +209,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/s3gw-ui:${{ needs.set-git-refs.outputs.github-ref-name }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/s3gw-ui:${{ needs.set-git-refs.outputs.github-ref-name }}
+            ghcr.io/${{ github.repository_owner }}/s3gw-ui:latest
           file: ui/Dockerfile
           context: ui
 
