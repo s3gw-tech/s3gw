@@ -153,12 +153,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Dockerhub Login
+      - name: GHCR Login
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Radogw Artifacts
         uses: actions/download-artifact@v3
@@ -173,7 +173,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/s3gw:${{ needs.set-git-refs.outputs.github-ref-name }}
+          tags: ghcr.io/${{ github.repository_owner }}/s3gw:${{ needs.set-git-refs.outputs.github-ref-name }}
           file: tools/build/Dockerfile.build-container
           context: ceph/build
 
@@ -196,18 +196,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Dockerhub Login
+      - name: GHCR Login
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Container
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/s3gw-ui:${{ needs.set-git-refs.outputs.github-ref-name }}
+          tags: ghcr.io/${{ github.repository_owner }}/s3gw-ui:${{ needs.set-git-refs.outputs.github-ref-name }}
           file: ui/Dockerfile
           context: ui
 
