@@ -125,7 +125,7 @@ jobs:
       - name: Generate Artifact Identifier
         id: artifact_id
         run: |
-          ARTIFACT_ID=radosgw-$GITHUB_REF_NAME
+          ARTIFACT_ID=radosgw-${{ needs.set-git-refs.outputs.github-ref-name }}
           echo "::set-output name=artifact_id::$ARTIFACT_ID"
 
       - uses: actions/upload-artifact@v3
@@ -178,7 +178,7 @@ jobs:
           context: ceph/build
 
   # Build and push the ui container
-  build-ui:
+  build-s3gw-ui-container:
     runs-on: ubuntu-latest
     needs:
       - set-git-refs
@@ -210,6 +210,27 @@ jobs:
           tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/s3gw-ui:${{ needs.set-git-refs.outputs.github-ref-name }}
           file: ui/Dockerfile
           context: ui
+
+  draft-release:
+    runs-on: ubuntu-latest
+    needs:
+      - build-s3gw-container
+      - build-s3gw-ui-container
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+        generate_release_notes: true
+        fail_on_unmatched_files: true
+        files: |
+          CHANGELOG.md
+          LICENSE
 
   # Release the charts
   # TODO
