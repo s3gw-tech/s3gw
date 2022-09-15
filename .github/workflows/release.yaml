@@ -1,9 +1,6 @@
 ---
 name: Release S3GW
 on:
-  schedule:
-    - cron: '30 4 * * 1-6'  # Every night 4:30 except sunday
-
   push:
     tags:
       - "v*"
@@ -32,8 +29,7 @@ jobs:
           for r in $(git submodule | awk '{print $2}'); do
             echo "::set-output name=${r}::$(git log -1 --format="%H" "${r}")"
           done
-          echo "::set-output name=github-ref-name::${GITHUB_REF_NAME:-nightly}"
-
+          echo "::set-output name=github-ref-name::${GITHUB_REF_NAME}"
 
   # Build the build-environment container, using it's workflow
   build-env:
