@@ -28,8 +28,6 @@ class UserRestAPITests(unittest.TestCase):
         self.assertEqual(json_response["bucket_info"]["bucket"]["bucket_id"], json_response["bucket_info"]["bucket"]["marker"])
         self.assertEqual(bucket_name, json_response["bucket_info"]["bucket"]["name"])
         self.assertNotEqual("", json_response["bucket_info"]["creation_time"])
-        self.assertNotEqual("", json_response["object_ver"]["tag"])
-        self.assertEqual(1, json_response["object_ver"]["ver"])
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
