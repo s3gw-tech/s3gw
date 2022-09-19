@@ -9,25 +9,22 @@ nav:
   - Quickstart: "quickstart.md"
   - "Installation & setup":
       - Using a Helm chart: "helm-charts.md"
-      - "s3gw with Longhorn setup":
-          - K3s Setup: "env-k3s.md"
-          - K8s Setup: "env-k8s.md"
+      - K8s & K3s setup: "s3gw-with-k8s-k3s.md"
   - "Contributing":
       - Contributing: "contributing.md"
   - "Development manual":
-      - "Architecture":
-          - Developing the S3 Gateway: "developing.md"
-      - "Build instructions":
-          - Building the s3gw container image: "build.md"
-          - Building the s3gw-UI image: "build-ui.md"
-      - "Testing":
-          - Testing the s3gw: "testing.md"
+      - Developing the S3 Gateway: "developing.md"
+      - Build instructions: "build-instructions.md"
+      - Testing the s3gw: "testing.md"
       - UI: "ui.md"
       - Roadmap: "roadmap.md"
       - S3 API compatibility table: "s3-compatibility-table.md"
-      - "Team decisions":
-          - Use Markdown Any Decision Records: "decisions/0000-use-markdown-any-decision-records.md"
-          - Reorganize Documentation: "decisions/0001-reorganize-documentation.md"
   - "About & license":
       - Repositories: "s3gw-repos.md"
       - License: "license.md"
+  - "Team decisions":
+      - Use Markdown Any Decision Records: "decisions/0000-use-markdown-any-decision-records.md"
+      - Reorganize Documentation: "decisions/0001-reorganize-documentation.md"
+      - s3gw Storage Backend: "decisions/0002-s3gw-storage-backend.md"
+      - SFS SAL Backend Design: "decisions/0003-sfs.md"
+      - Release captain: "decisions/0004-release-captain.md"
