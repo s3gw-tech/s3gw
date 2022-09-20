@@ -29,4 +29,4 @@ docker run -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
 ```
 
 For more information on building and running a container, please read our
-[guide](../build/).
+[guide](../developing/#how-to-build-your-own-containers/).
