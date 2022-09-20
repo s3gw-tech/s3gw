@@ -8,15 +8,16 @@ Run `npm ci` to install the necessary node modules.
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`.
-The app will automatically reload if you change any of the source files.
-Make sure the `proxy.conf.json` file exists and is configured to access your
-`s3gw` installation.
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app
+will automatically reload if you change any of the source files. Make sure the
+`proxy.conf.json` file exists and is configured to access your `s3gw`
+installation.
 
 ### Connect to a K3s setup
 
-If you want to connect the user interface to a [K3s setup](./env-k3s.md),
-use the following `proxy.conf.json` file.
+If you want to connect the user interface to a
+[K3s setup](../s3gw-with-k8s-k3s/#k3s-with-longhorn), use the following
+`proxy.conf.json` file.
 
 ```json
 {
