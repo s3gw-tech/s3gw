@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - added multipart upload tests.
 - rearranged python test names to follow a `test-*.py` convention.
+- created top-script to run smoke tests and python tests.
 
 ## [0.6.0] - 2022-09-29
 
