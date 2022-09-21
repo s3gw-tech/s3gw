@@ -128,5 +128,17 @@ newbucket="${bucket}-2"
 s3 mb s3://${newbucket} || exit 1
 do_copy ${newbucket}
 
+# delete the bucket contents
+s3 del --recursive --force s3://${bucket}
+
+# list the bucket, it should be empty
+lst=($(s3 ls s3://${bucket}))
+[[ ${#lst[@]} -eq 0 ]] || exit 1
+
+# remove the bucket
+s3 rb s3://${bucket}
+
+# should no longer be available
+s3 ls s3://${bucket} && exit 1
 
 exit 0
