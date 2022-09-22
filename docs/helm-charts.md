@@ -8,14 +8,28 @@ must clone the repo:
 ```
 
 Before installing, familiarize yourself with the options, if necessary provide
-your own `values.yaml` file.
-Then change into the repository and install using helm:
+your own `values.yaml` file. Then change into the repository and install using
+helm:
 
 ```bash
   cd s3gw-charts
   helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE
   --create-namespace -f /path/to/your/custom/values.yaml
 ```
+
+## Rancher
+
+Installing s3gw via the Rancher App Catalog is made easy, the steps are as
+follow
+
+- Cluster -> Projects/Namespaces - create the `s3gw` namespace.
+- Storage -> PersistentVolumeClaim -> Create -> choose the `s3gw` namespace ->
+  provide a size and name it `s3gw-pvc`.
+- Apps -> Repositories -> Create `s3gw` using the s3gw-charts Git URL
+  <https://github.com/aquarist-labs/s3gw-charts> and the main branch.
+- Apps -> Charts -> Install Traefik.
+- Apps -> Charts -> Install `s3gw` -> Storage -> Storage Type: `pvc` -> PVC
+  Name: `s3gw-pvc`.
 
 ## Dependencies
 
@@ -53,9 +67,8 @@ enableIngress: true
 ### TLS Certificates
 
 provide the TLS certificate in the `values.yaml` file to enable TLS at the
-ingress.
-Note that the connection between the ingress and s3gw itself within the cluster
-will not be TLS protected.
+ingress. Note that the connection between the ingress and s3gw itself within the
+cluster will not be TLS protected.
 
 ```yaml
 tls:
@@ -67,9 +80,8 @@ tls:
 
 The s3gw is best deployed on top of a [longhorn](https://longhorn.io) volume. If
 you have longhorn installed in your cluster, all appropriate resources will be
-automatically deployed for you.
-Make sure the `storageType` is set to `"longhorn"` and the correct size for the
-claim is set in `storageSize`:
+automatically deployed for you. Make sure the `storageType` is set to
+`"longhorn"` and the correct size for the claim is set in `storageSize`:
 
 ```yaml
 storageType: "longhorn"
