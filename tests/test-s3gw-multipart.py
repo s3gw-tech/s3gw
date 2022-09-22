@@ -357,3 +357,86 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         )
         entry = res["Uploads"][0]
         self.assertTrue("UploadId" in entry and entry["UploadId"] == upload_id2)
+
+    def test_abort_multipart_upload(self):
+        bucket_name = self.get_random_bucket_name()
+        self.s3c.create_bucket(Bucket=bucket_name)
+        self.assert_bucket_exists(bucket_name)
+
+        res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+        self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
+        if "Uploads" in res:
+            # "Uploads" may or may not be present if there are zero multipart
+            # uploads in progress.
+            self.assertTrue(len(res["Uploads"]) == 0)
+
+        objname = "aaaa"
+        res = self.s3c.create_multipart_upload(Bucket=bucket_name, Key=objname)
+        self.assertTrue("UploadId" in res)
+        self.assertTrue(len(res["UploadId"]) > 0)
+        upload_id = res["UploadId"]
+
+        res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+        self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
+        self.assertTrue("Uploads" in res and len(res["Uploads"]) == 1)
+        entry = res["Uploads"][0]
+        self.assertTrue("UploadId" in entry and entry["UploadId"] == upload_id)
+
+        # doesn't return relevant information
+        self.s3c.abort_multipart_upload(
+            Bucket=bucket_name, Key=objname, UploadId=upload_id
+        )
+
+        res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+        self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
+        if "Uploads" in res:
+            self.assertTrue(len(res["Uploads"]) == 0)
+
+        upload = self.s3.MultipartUpload(bucket_name, objname, upload_id)
+        part = upload.Part(1)  # type: ignore
+        has_error = False
+        try:
+            part.upload(Body=f"foobarbaz")
+        except self.s3.meta.client.exceptions.NoSuchUpload:
+            has_error = True
+        self.assertTrue(has_error)
+
+        # XXX: this is likely a bug, we should not have a multipart upload if
+        # it was not created via 'create_multipart_upload()', because it was
+        # not inited in the backend.
+        res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+        self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
+        self.assertTrue("Uploads" in res and len(res["Uploads"]) == 1)
+
+        res = self.s3c.create_multipart_upload(Bucket=bucket_name, Key=objname)
+        self.assertTrue("UploadId" in res)
+        self.assertTrue(len(res["UploadId"]) > 0)
+        self.assertNotEqual(upload_id, res["UploadId"])
+        upload_id2 = res["UploadId"]
+
+        res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+        self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
+        self.assertTrue("Uploads" in res and len(res["Uploads"]) == 2)
+
+        # doesn't return relevant information
+        self.s3c.abort_multipart_upload(
+            Bucket=bucket_name, Key=objname, UploadId=upload_id2
+        )
+
+        res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+        self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
+        self.assertTrue("Uploads" in res and len(res["Uploads"]) == 1)
+
+        # ensure bucket is removed
+        self.s3c.delete_bucket(Bucket=bucket_name)
+
+        # ensure there are no more multiparts for this bucket, which should be
+        # the case since we expect the bucket to not exist.
+        has_error = False
+        try:
+            res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
+            # we should never reach this point
+            print(f"oops! res = {res}")
+        except self.s3.meta.client.exceptions.NoSuchBucket:
+            has_error = True
+        self.assertTrue(has_error)
