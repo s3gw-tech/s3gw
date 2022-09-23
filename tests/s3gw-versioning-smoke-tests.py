@@ -162,11 +162,11 @@ class VersioningSmokeTests(unittest.TestCase):
         # delete the object
         self.s3_client.delete_object(Bucket=bucket_name, Key=object_name)
 
-        # check that we have 3 versions
+        # check that we have 2 versions plus 1 DeleteMarker
         # only 1 version should be flagged as the latest
         response = self.s3_client.list_object_versions(Bucket=bucket_name, Prefix=object_name)
         self.assertTrue('Versions' in response)
-        self.assertEqual(3, len(response['Versions']))
+        self.assertEqual(2, len(response['Versions']))
 
         num_latest = 0
         deleted_version_id = ''
@@ -177,11 +177,9 @@ class VersioningSmokeTests(unittest.TestCase):
             self.assertEqual({'DisplayName': 'M. Tester', 'ID': 'testid'}, version['Owner'])
             self.assertEqual(etag, version['ETag'])
             self.assertNotEqual('null', version['VersionId'])
-            if (version['IsLatest']):
-                num_latest += 1
-                deleted_version_id = version['VersionId']
-        self.assertEqual(1, num_latest)
-        self.assertNotEqual('', deleted_version_id)
+            self.assertFalse(version['IsLatest'])
+
+        self.assertEqual(1, len(response['DeleteMarkers']))
 
         # try to download the file, a 404 error should be returned
         check_deleted_file = os.path.join(self.test_dir.name, 'check_deleted.bin')
@@ -245,19 +243,17 @@ class VersioningSmokeTests(unittest.TestCase):
         # delete the object
         self.s3_client.delete_object(Bucket=bucket_name, Key=object_name)
 
-        # we should still have 1 version
+        # we should still have 0 versions and 1 delete marker
         response = self.s3_client.list_object_versions(Bucket=bucket_name, Prefix=object_name)
-        self.assertTrue('Versions' in response)
-        self.assertEqual(1, len(response['Versions']))
+        self.assertTrue('DeleteMarkers' in response)
+        self.assertFalse('Versions' in response)
+        self.assertEqual(1, len(response['DeleteMarkers']))
 
         num_latest = 0
         deleted_version_id = ''
-        for version in response['Versions']:
-            self.assertEqual(os.path.getsize(test_file_path_1), version['Size'])
+        for version in response['DeleteMarkers']:
             self.assertEqual(object_name, version['Key'])
-            self.assertEqual('STANDARD', version['StorageClass'])
             self.assertEqual({'DisplayName': 'M. Tester', 'ID': 'testid'}, version['Owner'])
-            self.assertEqual(etag, version['ETag'])
             self.assertEqual('null', version['VersionId'])
             self.assertTrue(version['IsLatest'])
 
