@@ -130,13 +130,25 @@ class VersioningSmokeTests(unittest.TestCase):
             self.assertEqual(object_name, version['Key'])
             self.assertEqual('STANDARD', version['StorageClass'])
             self.assertEqual({'DisplayName': 'M. Tester', 'ID': 'testid'}, version['Owner'])
-            self.assertEqual(etag, version['ETag'])
             self.assertNotEqual('null', version['VersionId'])
             if (version['IsLatest']):
                 num_latest += 1
                 last_version_id = version['VersionId']
+                self.assertEqual(etag, version['ETag'])
             else:
                 previous_version_id = version['VersionId']
+
+        # check that all etags differ
+        for version in response['Versions']:
+            etag = version['ETag']
+            version_id = version['VersionId']
+            for version2 in response['Versions']:
+                version_id2 = version2['VersionId']
+                if (version_id2 != version_id):
+                    etag2 = version2['ETag']
+                    self.assertNotEqual(etag, etag2)
+
+
         self.assertEqual(1, num_latest)
         self.assertNotEqual('', last_version_id)
         self.assertNotEqual('', previous_version_id)
@@ -175,7 +187,6 @@ class VersioningSmokeTests(unittest.TestCase):
             self.assertEqual(object_name, version['Key'])
             self.assertEqual('STANDARD', version['StorageClass'])
             self.assertEqual({'DisplayName': 'M. Tester', 'ID': 'testid'}, version['Owner'])
-            self.assertEqual(etag, version['ETag'])
             self.assertNotEqual('null', version['VersionId'])
             self.assertFalse(version['IsLatest'])
 
