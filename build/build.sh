@@ -20,6 +20,10 @@ ccachedir=${S3GW_CCACHE_DIR:-""}
 build_image_name=${S3GW_BUILD_IMAGE_NAME:-"s3gw-builder"}
 build_image=${S3GW_BUILD_IMAGE:-"${build_image_name}:latest"}
 s3gw_image=${S3GW_IMAGE:-"s3gw"}
+with_tests=${WITH_TESTS:-"OFF"}
+build_test_image_name=${S3GW_TEST_BUILD_IMAGE_NAME:-"s3gw-test-builder"}
+build_test_image=${S3GW_TEST_BUILD_IMAGE:-"${build_test_image_name}:latest"}
+s3gw_test_image=${S3GW_TEST_IMAGE:-"s3gw-test"}
 
 force=false
 
@@ -32,6 +36,7 @@ commands
   build-image       Create the radosgw build image.
   radosgw           Build radosgw.
   s3gw              Create an s3gw container image.
+  s3gw-test         Create an s3gw-test container image.
   help              This message.
 
 options
@@ -42,11 +47,15 @@ options
   --force           Forces building even if image exists.
 
 env variables
-  S3GW_CEPH_DIR           Specifies the Ceph source directory.
-  S3GW_CCACHE_DIR         Specifies the ccache directory.
-  S3GW_BUILD_IMAGE_NAME   Specifies the build image name.
-  S3GW_BUILD_IMAGE        Specifies the build image (name:tag).
-  S3GW_IMAGE              Specifies the s3gw container image name.
+  S3GW_CEPH_DIR                 Specifies the Ceph source directory.
+  S3GW_CCACHE_DIR               Specifies the ccache directory.
+  S3GW_BUILD_IMAGE_NAME         Specifies the build image name.
+  S3GW_BUILD_IMAGE              Specifies the build image (name:tag).
+  S3GW_IMAGE                    Specifies the s3gw container image name.
+  WITH_TESTS                    Specifies whether build the s3gw test images too.
+  S3GW_TEST_BUILD_IMAGE_NAME    Specifies the test build image name.
+  S3GW_TEST_BUILD_IMAGE         Specifies the test build image (name:tag).
+  S3GW_TEST_IMAGE               Specifies the s3gw test container image name.
 
 EOF
 }
@@ -126,6 +135,7 @@ build_radosgw() {
 
   podman run -it --replace --name s3gw-builder \
     -e S3GW_CCACHE_DIR=/srv/ccache \
+    -e WITH_TESTS=${with_tests} \
     ${volumes[@]} \
     ${build_image}
 }
@@ -175,6 +185,58 @@ build_s3gw() {
   podman tag ${imgname} s3gw:latest || exit 1
 }
 
+build_s3gw_test() {
+
+  [[ -z "${cephdir}" ]] && \
+    error "missing ceph directory" && exit 1
+  [[ ! -d "${cephdir}" ]] && \
+    error "path at '${cephdir}' is not a directory" && exit 1
+  [[ ! -d "${cephdir}/.git" ]] && \
+    error "path at '${cephdir}' is not a repository" && exit 1
+  [[ ! -d "${cephdir}/build" ]] && \
+    error "unable to find build directory at '${cephdir}'" && exit 1
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_sqlite_users" ]] && \
+    error "unable to find unittest_rgw_sfs_sqlite_users binary at '${cephdir}' build directory" && \
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_sqlite_buckets" ]] && \
+    error "unable to find unittest_rgw_sfs_sqlite_buckets binary at '${cephdir}' build directory" && \
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_sqlite_objects" ]] && \
+    error "unable to find unittest_rgw_sfs_sqlite_objects binary at '${cephdir}' build directory" && \
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_sqlite_versioned_objects" ]] && \
+    error "unable to find unittest_rgw_sfs_sqlite_versioned_objects binary at '${cephdir}' build directory" && \
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_sfs_bucket" ]] && \
+    error "unable to find unittest_rgw_sfs_sfs_bucket binary at '${cephdir}' build directory" && \
+    exit 1
+
+  ver=$(git --git-dir ${cephdir}/.git rev-parse --short HEAD)
+  imgname="${s3gw_test_image}:${ver}"
+
+  echo "ceph dir: ${cephdir}"
+  echo "   image: ${imgname}"
+
+  is_done=false
+
+  ifs=$IFS
+  IFS=$'\n'
+  for l in $(podman image list --format '{{.Repository}}:{{.Tag}}'); do
+    IFS=" " a=(${l//\// })
+    if [[ "${a[1]}" == "${imgname}" ]] && ! $force ; then
+      echo "found built image '${l}', mark it latest"
+      podman tag ${l} s3gw-test:latest || exit 1
+      is_done=true
+      break
+    fi
+  done
+  IFS=${ifs}
+
+  if $is_done ; then
+    return 0
+  fi
+
+  podman build -t ${imgname} \
+    -f $(pwd)/Dockerfile.build-radosgw-test-container \
+    ${cephdir}/build || exit 1
+  podman tag ${imgname} s3gw-test:latest || exit 1
+}
 
 cmd="${1}"
 shift 1
@@ -217,6 +279,9 @@ case ${cmd} in
     ;;
   s3gw)
     build_s3gw || exit 1
+    ;;
+  s3gw-test)
+    build_s3gw_test || exit 1
     ;;
   *)
     error "unknown command '${cmd}'"
