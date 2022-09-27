@@ -221,6 +221,62 @@ podman run -p 7480:7480 localhost/s3gw --rgw-backend-store dbstore --debug-rgw 1
 
 [5]: https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
 
+### Building the radosgw test binaries
+
+A number of binaries implementing various tests for radosgw can be built.
+Such binaries are focalized for testing specific radosgw implementation employed
+for s3gw project.
+
+You can build them by executing:
+
+```shell
+podman run \
+  --replace \
+  --name build-radosgw \
+  -e WITH_TESTS="ON" \
+  -v ../../ceph/:/srv/ceph/ \
+  localhost/build-radosgw
+```
+
+### Build the s3gw-test container image
+
+If the test binaries are compiled, a container image can be build with
+the following commands:
+
+```shell
+cd ~/git/s3gw-tools/build
+./build-radosgw-test-container.sh
+```
+
+By default, this will build an `s3gw-test` image using podman.
+In order to build an `s3gw-test` image with Docker, you can run:
+
+```shell
+cd ~/git/s3gw-tools/build
+CONTAINER_ENGINE=docker ./build-radosgw-test-container.sh
+```
+
+The container build script expects the test binaries at the relative path
+`../ceph/build/bin`. This can be customized via the `CEPH_DIR` environment
+variable.
+
+The container image name is `s3gw-test` by default.
+This can be customized via the environment variable `IMAGE_NAME`.
+
+### Running the s3gw-test container
+
+Finally, you can run the `s3gw-test` container with the following command:
+
+```shell
+podman run localhost/s3gw-test
+```
+
+or, when using Docker:
+
+```shell
+docker run -p 7480:7480 localhost/s3gw-test
+```
+
 ## Building a s3gw-ui application image
 
 This documentation will guide you through the several steps to build a `s3gw-ui`
