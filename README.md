@@ -3,7 +3,8 @@
 ![License](https://img.shields.io/github/license/aquarist-labs/s3gw)
 ![Issues](https://img.shields.io/github/issues/aquarist-labs/s3gw)
 ![Lint](https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml/badge.svg)
-![Build](https://github.com/aquarist-labs/s3gw/actions/workflows/build-environment.yml/badge.svg)
+![Build][5]
+[![Artifact Hub][4]][3]
 
 We're developing an easy-to-use Open Source and Cloud Native S3 service for
 Kubernetes.
@@ -61,3 +62,6 @@ limitations under the License.
 
 [1]: https://github.com/aquarist-labs/s3gw-charts
 [2]: https://s3gw-docs.readthedocs.io/en/latest/
+[3]: https://artifacthub.io/packages/search?repo=s3gw
+[4]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/s3gw
+[5]: https://github.com/aquarist-labs/s3gw/actions/workflows/release.yaml/badge.svg
