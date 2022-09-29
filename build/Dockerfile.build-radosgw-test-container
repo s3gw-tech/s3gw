@@ -1,0 +1,51 @@
+FROM opensuse/tumbleweed
+LABEL Name=s3gw-test
+
+RUN zypper -n install \
+  libblkid1 \
+  libexpat1 \
+  libtcmalloc4 \
+  libfmt8 \
+  liboath0 \
+  libicu71 \
+  libthrift-0_16_0 \
+  libboost_atomic1_80_0 \
+  libboost_chrono1_80_0 \
+  libboost_context1_80_0 \
+  libboost_coroutine1_80_0 \
+  libboost_date_time1_80_0 \
+  libboost_filesystem1_80_0 \
+  libboost_iostreams1_80_0 \
+  libboost_program_options1_80_0 \
+  libboost_random1_80_0 \
+  libboost_regex1_80_0 \
+  libboost_serialization1_80_0 \
+  libboost_system1_80_0 \
+  libboost_thread1_80_0 \
+ && zypper clean --all
+
+COPY ./bin/unittest_rgw_sfs_sqlite_users /usr/bin/unittest_rgw_sfs_sqlite_users
+COPY ./bin/unittest_rgw_sfs_sqlite_buckets /usr/bin/unittest_rgw_sfs_sqlite_buckets
+COPY ./bin/unittest_rgw_sfs_sqlite_objects /usr/bin/unittest_rgw_sfs_sqlite_objects
+COPY ./bin/unittest_rgw_sfs_sqlite_versioned_objects /usr/bin/unittest_rgw_sfs_sqlite_versioned_objects
+COPY ./bin/unittest_rgw_sfs_sfs_bucket /usr/bin/unittest_rgw_sfs_sfs_bucket
+COPY [ "./lib/libradosgw.so", \
+       "./lib/libradosgw.so.2", \
+       "./lib/libradosgw.so.2.0.0", \
+       "./lib/librados.so", \
+       "./lib/librados.so.2", \
+       "./lib/librados.so.2.0.0", \
+       "./lib/libceph-common.so", \
+       "./lib/libceph-common.so.2", \
+       "/usr/lib64/" ]
+
+RUN touch /usr/bin/run_tests.sh && chmod +x /usr/bin/run_tests.sh
+RUN echo -e "#!/bin/bash\n\
+unittest_rgw_sfs_sqlite_users || exit 1\n\
+unittest_rgw_sfs_sqlite_buckets || exit 1\n\
+unittest_rgw_sfs_sqlite_objects || exit 1\n\
+unittest_rgw_sfs_sqlite_versioned_objects || exit 1\n\
+unittest_rgw_sfs_sfs_bucket || exit 1\n" \
+> /usr/bin/run_tests.sh
+
+ENTRYPOINT ["/usr/bin/run_tests.sh"]
