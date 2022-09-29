@@ -27,6 +27,7 @@ s3gw_image="ghcr.io/aquarist-labs/s3gw:latest"
 use_local_image_s3exp=0
 has_image_s3exp=false
 s3gw_image_s3exp="ghcr.io/aquarist-labs/s3gw-ui:latest"
+longhorn_custom_settings=false
 
 function info() {
   echo "[INFO] $*" >/dev/stdout
@@ -150,6 +151,21 @@ function import_local_ui_image() {
   )
 }
 
+function check_longhorn_custom_settings() {
+  if [[ ! -e "./longhorn-setting.yaml" ]]; then
+    error "Unable to find longhorn-setting.yaml file."
+    exit 1
+  fi
+}
+
+# https://github.com/mikefarah/yq
+function yq() {
+  podman run --rm -i \
+    -e LONGHORN_SETTING="$(cat longhorn-setting.yaml)" \
+    -v "${PWD}":/workdir \
+    mikefarah/yq "$@"
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --dev)
@@ -189,6 +205,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-s3gw)
       install_s3gw=false
+      ;;
+    --longhorn-custom-settings)
+      check_longhorn_custom_settings
+      longhorn_custom_settings=true
+      ;;
+    *)
+      error "Unknown argument '${1}'"
+      exit 1
       ;;
   esac
   shift
@@ -244,11 +268,21 @@ k3s kubectl apply \
 )
 
 echo "Installing Longhorn..."
-k3s kubectl apply \
-  -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml || (
-  error "Failed to install Longhorn."
-  exit 1
-)
+if $longhorn_custom_settings ; then
+  curl -s ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml | \
+    yq 'select(.kind == "ConfigMap" and .metadata.name == "longhorn-default-setting").data = env(LONGHORN_SETTING)' | \
+    yq 'select(.kind != null)' | \
+    k3s kubectl apply -f - || (
+    error "Failed to install Longhorn."
+    exit 1
+  )
+else
+  k3s kubectl apply \
+    -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml || (
+    error "Failed to install Longhorn."
+    exit 1
+  )
+fi
 
 if $install_s3gw ; then
   if [ ${use_local_image} -eq 1 ]; then

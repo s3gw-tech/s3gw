@@ -5,3 +5,4 @@ playbooks/admin.conf
 test.yaml
 s3gw.tar
 cors.xml
+longhorn-setting.yaml
