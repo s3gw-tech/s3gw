@@ -47,21 +47,21 @@ the command line directly using `helm --set key=value`.
 
 ### Hostname
 
-Use the `hostname` setting to configure the hostname under which you would like
-to make the gateway available:
+Use the `hostname`, `hostnameNoTLS`, `ui.hostname` and `ui.hostnameNoTLS`
+settings to configure the hostname under which you would like
+to make the gateway and it's user interface available:
 
 ```yaml
 hostname: s3gw.local
 ```
-
-The plain HTTP endpoint will then be generated as: `no-tls-s3gw.local`
 
 ### Ingress Options
 
 The chart can install an ingress resource for a Traefik ingress controller:
 
 ```yaml
-enableIngress: true
+ingress:
+  enabledtrue
 ```
 
 ### TLS Certificates
@@ -71,43 +71,54 @@ ingress. Note that the connection between the ingress and s3gw itself within the
 cluster will not be TLS protected.
 
 ```yaml
+ui:
+  tls:
+    crt: CERTIFICATE_FOR_UI
+    key: CERTIFICATE_KEY_FOR_UI
 tls:
   crt: PUT_YOUR_CERTIFICATE_HERE
   key: PUT_YOUR_CERTIFICATES_KEY_HERE
 ```
 
-### Existing Volumes
+Note that the certificates must be provided as base64 encoded PEM in one long
+string without line breaks. You can create them from a PEM file:
+
+When using self-signed certificates, you may encounter CORS issues accessing the
+UI. This can be worked around by first accessing the S3 endpoint itself
+`https://hostname` with the browser and accepting that certificate, before
+accessing the UI via `https://ui.hostname`
+
+```bash
+cat certificate.pem | base64 -w 0
+```
+
+### Storage
 
 The s3gw is best deployed on top of a [longhorn](https://longhorn.io) volume. If
 you have longhorn installed in your cluster, all appropriate resources will be
-automatically deployed for you. Make sure the `storageType` is set to
-`"longhorn"` and the correct size for the claim is set in `storageSize`:
+automatically deployed for you.
+
+The size of the volume can be controlled with `storageSize`:
 
 ```yaml
-storageType: "longhorn"
 storageSize: 10Gi
 ```
 
-However if you want to use s3gw with other storage providers, you can do so too.
-You must first deploy a persistent volume claim for your storage provider. Then
-you deploy s3gw and set it to use that persistent volume claim (pvc) with:
+If you want to reuse an existing storage class or otherwise need more control
+over storage settings, set `storageClass.create` to `false` and
+`storageClass.name` to the name of your preferred storage class.
 
 ```yaml
-storageType: "pvc"
-storage: the-name-of-the-pvc
+storageClass:
+  name: my-custom-storageclass
+  create: false
 ```
 
-s3gw will then reuse that pvc instead of deploying a longhorn volume.
+#### Local Storage
 
-You can also use local filesystem storage instead, by setting `storageType` to
-`"local"`, `storageSize` to the desired quota and `storage` to the path on the
-hosts filesystem, e.g:
-
-```yaml
-storageType: "local"
-storageSize: 10Gi
-storage: /mnt/extra-storage/
-```
+You can use the `storageClass.local` and `storageClass.localPath` variables to
+set up a node-local volume for testing, if you don't have longhorn. This is an
+experimental feature for development use only.
 
 ### Image Settings
 
@@ -120,15 +131,13 @@ imageRegistry: "ghcr.io/aquarist-labs"
 imageName: "s3gw"
 imageTag: "latest"
 imagePullPolicy: "Always"
-imageRegistry_ui: "ghcr.io/aquarist-labs"
-imageName_ui: "s3gw-ui"
-imageTag_ui: "latest"
-imagePullPolicy_ui: "Always"
 ```
 
 To configure the image and registry for the user interface, use:
 
 ```yaml
-imageName_ui: "s3gw-ui"
-imageTag_ui: "latest"
+ui.imageRegistry: "ghc.io/aquarist-labs"
+ui.imageName: "s3gw-ui"
+ui.imagePullPolicy: "Always"
+ui.imageTag: "latest"
 ```
