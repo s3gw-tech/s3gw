@@ -1,21 +1,30 @@
 # Installation and options
 
-In order to install s3gw using Helm, from this repository directly, first you
-must clone the repo:
+The canonical way to install the helm chart is via a helm repository:
 
 ```bash
-  git clone https://github.com/aquarist-labs/s3gw-charts.git
+helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
+helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE \
+  --create-namespace -f /path/to/your/custom/values.yaml
+```
+
+The chart can also be installed directly from the git repository. To do so, the
+repo must be cloned first:
+
+```bash
+git clone https://github.com/aquarist-labs/s3gw-charts.git
+```
+
+And then the chart can be installed from within the repo directory:
+
+```bash
+cd s3gw-charts
+helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE \
+  --create-namespace -f /path/to/your/custom/values.yaml
 ```
 
 Before installing, familiarize yourself with the options, if necessary provide
-your own `values.yaml` file. Then change into the repository and install using
-helm:
-
-```bash
-  cd s3gw-charts
-  helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE
-  --create-namespace -f /path/to/your/custom/values.yaml
-```
+your own `values.yaml` file.
 
 ## Rancher
 
@@ -44,6 +53,17 @@ ingress controller.
 The helm chart can be customized for your Kubernetes environment. To do so,
 either provide a `values.yaml` file with your settings, or set the options on
 the command line directly using `helm --set key=value`.
+
+### Access Credentials
+
+It is strongly advisable to customize the initial access credentials.
+These can be used to access the admin UI, as well as the S3 endpoint. Additional
+credentials can be created using the admin UI.
+
+```yaml
+accessKey: admin
+secretKey: foobar
+```
 
 ### Hostname
 
