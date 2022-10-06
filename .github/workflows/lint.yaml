@@ -7,6 +7,9 @@ jobs:
       - name: Set up Git repository
         uses: actions/checkout@v3
       - name: Lint
-        uses: DavidAnson/markdownlint-cli2-action@v5
+        uses: DavidAnson/markdownlint-cli2-action@v7
         with:
-          globs: '**/*.md'
+          command: config
+          globs: |
+            .github/workflows/config/custom.markdownlint.jsonc
+            '**/*.md'
