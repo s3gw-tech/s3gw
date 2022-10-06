@@ -47,6 +47,9 @@ class MultipartFile(BaseModel):
 
 
 class MultipartUploadSmokeTests(unittest.TestCase):
+
+    buckets: List[str]
+
     def setUp(self) -> None:
         self.s3 = boto3.resource(  # type: ignore
             "s3",
@@ -62,11 +65,26 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         )
         self.testdir = tempfile.TemporaryDirectory()
         self.testpath = Path(self.testdir.name)
+        self.buckets = []
 
     def tearDown(self) -> None:
+        # cleanup buckets
+        for name in self.buckets:
+            bucket = self.s3.Bucket(name)
+            bucket.objects.delete()
+            bucket.delete()
+
         self.s3c.close()
         self.s3.meta.client.close()
         self.testdir.cleanup()
+
+    def create_bucket(self) -> str:
+        name = self.get_random_bucket_name()
+        self.s3c.create_bucket(Bucket=name)
+        self.assert_bucket_exists(name)
+        assert name not in self.buckets
+        self.buckets.append(name)
+        return name
 
     def get_random_name(self, len: int) -> str:
         return "".join(
@@ -135,10 +153,7 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         self.assertTrue(found)
 
     def test_dne_upload_multipart(self):
-        bucket_name = self.get_random_bucket_name()
-        self.s3c.create_bucket(Bucket=bucket_name)
-        self.assert_bucket_exists(bucket_name)
-
+        bucket_name = self.create_bucket()
         objname = self.get_random_object_name()
         upload_id = self.get_random_upload_id()
         upload = self.s3.MultipartUpload(bucket_name, objname, upload_id)
@@ -150,13 +165,11 @@ class MultipartUploadSmokeTests(unittest.TestCase):
             has_error = True
 
         self.assertTrue(has_error)
+        self.s3c.delete_bucket(Bucket=bucket_name)
         return
 
     def test_multipart_upload_download(self):
-        bucket_name = self.get_random_bucket_name()
-        self.s3c.create_bucket(Bucket=bucket_name)
-        self.assert_bucket_exists(bucket_name)
-
+        bucket_name = self.create_bucket()
         objname = self.get_random_object_name()
         objsize = 100 * 1024**2  # 100 MB
         objpath, md5 = self.gen_random_file(objname, objsize)
@@ -180,10 +193,7 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         self.assertTrue(down_md5.hexdigest() == md5)
 
     def test_upload_multipart_manual(self):
-        bucket_name = self.get_random_bucket_name()
-        self.s3c.create_bucket(Bucket=bucket_name)
-        self.assert_bucket_exists(bucket_name)
-
+        bucket_name = self.create_bucket()
         objname = self.get_random_object_name()
         objsize = 100 * 1024**2  # 100 MB
         partsize = 10 * 1024**2  # 10 MB
@@ -245,10 +255,7 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         self.assertTrue(md5.hexdigest() == mp.md5)
 
     def test_list_ongoing_parts(self):
-        bucket_name = self.get_random_bucket_name()
-        self.s3c.create_bucket(Bucket=bucket_name)
-        self.assert_bucket_exists(bucket_name)
-
+        bucket_name = self.create_bucket()
         objname = self.get_random_object_name()
         objsize = 100 * 1024**2  # 100 MB
         partsize = 10 * 1024**2  # 10 MB
@@ -297,9 +304,7 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         self.assertTrue("Size" in res_part and res_part["Size"] == part_size)
 
     def test_list_multipart_uploads(self):
-        bucket_name = self.get_random_bucket_name()
-        self.s3c.create_bucket(Bucket=bucket_name)
-        self.assert_bucket_exists(bucket_name)
+        bucket_name = self.create_bucket()
 
         # we need known object names so we can have deterministic results later
         # on when obtaining the multiparts list.
@@ -359,9 +364,7 @@ class MultipartUploadSmokeTests(unittest.TestCase):
         self.assertTrue("UploadId" in entry and entry["UploadId"] == upload_id2)
 
     def test_abort_multipart_upload(self):
-        bucket_name = self.get_random_bucket_name()
-        self.s3c.create_bucket(Bucket=bucket_name)
-        self.assert_bucket_exists(bucket_name)
+        bucket_name = self.create_bucket()
 
         res = self.s3c.list_multipart_uploads(Bucket=bucket_name)
         self.assertTrue("IsTruncated" in res and not res["IsTruncated"])
