@@ -5,7 +5,7 @@ RUN zypper -n install \
   libblkid1 \
   libexpat1 \
   libtcmalloc4 \
-  libfmt8 \
+  libfmt9 \
   liboath0 \
   libicu71 \
   libthrift-0_16_0 \

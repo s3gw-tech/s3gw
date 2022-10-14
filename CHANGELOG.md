@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - rearranged python test names to follow a `test-*.py` convention.
 - created top-script to run smoke tests and python tests.
 
+### Changed
+
+- libfmt system package updated to version 9 in gateway's Dockerfiles.
+
 ## [0.6.0] - 2022-09-29
 
 - added '--longhorn-custom-settings' option to env/setup.sh to install longhorn
