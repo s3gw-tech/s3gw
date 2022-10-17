@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expose `ETag` header in the Traefik s3gw ingress to allow multi-part
   uploads via browser (gh#aquarist-labs/s3gw#170).
 - build containers based on openSUSE Leap 15.4 instead of Tumbleweed.
+- radosgw binaries have been moved to /radosgw directory in gateway's Dockerfiles.
 
 ## [0.7.0] - 2022-10-20
 

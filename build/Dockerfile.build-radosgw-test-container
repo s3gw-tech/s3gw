@@ -29,11 +29,15 @@ RUN zypper -n install \
   libboost_thread1_80_0 \
  && zypper clean --all
 
-COPY ./bin/unittest_rgw_sfs_sqlite_users /usr/bin/unittest_rgw_sfs_sqlite_users
-COPY ./bin/unittest_rgw_sfs_sqlite_buckets /usr/bin/unittest_rgw_sfs_sqlite_buckets
-COPY ./bin/unittest_rgw_sfs_sqlite_objects /usr/bin/unittest_rgw_sfs_sqlite_objects
-COPY ./bin/unittest_rgw_sfs_sqlite_versioned_objects /usr/bin/unittest_rgw_sfs_sqlite_versioned_objects
-COPY ./bin/unittest_rgw_sfs_sfs_bucket /usr/bin/unittest_rgw_sfs_sfs_bucket
+RUN mkdir -p /radosgw
+ENV PATH /radosgw:$PATH
+ENV LD_LIBRARY_PATH /radosgw:$LD_LIBRARY_PATH
+
+COPY ./bin/unittest_rgw_sfs_sqlite_users /radosgw/unittest_rgw_sfs_sqlite_users
+COPY ./bin/unittest_rgw_sfs_sqlite_buckets /radosgw/unittest_rgw_sfs_sqlite_buckets
+COPY ./bin/unittest_rgw_sfs_sqlite_objects /radosgw/unittest_rgw_sfs_sqlite_objects
+COPY ./bin/unittest_rgw_sfs_sqlite_versioned_objects /radosgw/unittest_rgw_sfs_sqlite_versioned_objects
+COPY ./bin/unittest_rgw_sfs_sfs_bucket /radosgw/unittest_rgw_sfs_sfs_bucket
 COPY [ "./lib/libradosgw.so", \
        "./lib/libradosgw.so.2", \
        "./lib/libradosgw.so.2.0.0", \
@@ -42,15 +46,15 @@ COPY [ "./lib/libradosgw.so", \
        "./lib/librados.so.2.0.0", \
        "./lib/libceph-common.so", \
        "./lib/libceph-common.so.2", \
-       "/usr/lib64/" ]
+       "/radosgw/" ]
 
-RUN touch /usr/bin/run_tests.sh && chmod +x /usr/bin/run_tests.sh
+RUN touch /radosgw/run_tests.sh && chmod +x /radosgw/run_tests.sh
 RUN echo -e "#!/bin/bash\n\
 unittest_rgw_sfs_sqlite_users || exit 1\n\
 unittest_rgw_sfs_sqlite_buckets || exit 1\n\
 unittest_rgw_sfs_sqlite_objects || exit 1\n\
 unittest_rgw_sfs_sqlite_versioned_objects || exit 1\n\
 unittest_rgw_sfs_sfs_bucket || exit 1\n" \
-> /usr/bin/run_tests.sh
+> /radosgw/run_tests.sh
 
-ENTRYPOINT ["/usr/bin/run_tests.sh"]
+ENTRYPOINT ["run_tests.sh"]

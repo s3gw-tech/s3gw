@@ -32,9 +32,13 @@ RUN zypper -n install \
   libboost_thread1_80_0 \
  && zypper clean --all
 
+RUN mkdir -p /radosgw
+ENV PATH /radosgw:$PATH
+ENV LD_LIBRARY_PATH /radosgw:$LD_LIBRARY_PATH
+
 RUN mkdir -p /data
 
-COPY ./bin/radosgw /usr/bin/radosgw
+COPY ./bin/radosgw /radosgw/
 COPY [ "./lib/libradosgw.so", \
        "./lib/libradosgw.so.2", \
        "./lib/libradosgw.so.2.0.0", \
@@ -43,12 +47,12 @@ COPY [ "./lib/libradosgw.so", \
        "./lib/librados.so.2.0.0", \
        "./lib/libceph-common.so", \
        "./lib/libceph-common.so.2", \
-       "/usr/lib64/" ]
+       "/radosgw/" ]
 
 EXPOSE 7480
 
 VOLUME ["/data"]
-ENTRYPOINT ["/usr/bin/radosgw", "-d", \
+ENTRYPOINT ["radosgw", "-d", \
   "--no-mon-config", \
   "--id", "${ID}", \
   "--rgw-data", "/data/", \
