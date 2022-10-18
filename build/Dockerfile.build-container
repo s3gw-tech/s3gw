@@ -1,16 +1,21 @@
-FROM opensuse/tumbleweed
+FROM opensuse/leap:15.4
 LABEL Name=s3gw
 
 ARG ID=s3gw
 ENV ID=${ID}
 
+# Add OBS repository for additional dependencies necessary on Leap 15.4
+RUN zypper ar \
+  https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
+  s3gw-deps \
+ && zypper --gpg-auto-import-keys ref
 RUN zypper -n install \
   libblkid1 \
   libexpat1 \
   libtcmalloc4 \
   libfmt9 \
   liboath0 \
-  libicu71 \
+  libicu-suse65_1 \
   libthrift-0_16_0 \
   libboost_atomic1_80_0 \
   libboost_chrono1_80_0 \
