@@ -4,9 +4,11 @@
 [submodule "ceph"]
 	path = ceph
 	url = https://github.com/aquarist-labs/ceph
+	branch = s3gw-v0.7.0
 [submodule "charts"]
 	path = charts
 	url = https://github.com/aquarist-labs/s3gw-charts
 [submodule "ui"]
 	path = ui
 	url = https://github.com/aquarist-labs/s3gw-ui
+	branch = s3gw-v0.7.0
