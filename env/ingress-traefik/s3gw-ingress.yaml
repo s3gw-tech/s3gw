@@ -11,6 +11,7 @@ spec:
       - "PUT"
       - "POST"
       - "DELETE"
+      - "OPTIONS"
     accessControlAllowOriginList:
       - "*"
     accessControlAllowHeaders:

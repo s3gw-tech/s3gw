@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Expose `ETag` header in the Traefik s3gw ingress to allow multi-part
   uploads via browser (gh#aquarist-labs/s3gw#170).
+- Add the `OPTIONS` method to the Traefik CORS configuration (gh#aquarist-labs/s3gw#188).
 - build containers based on openSUSE Leap 15.4 instead of Tumbleweed.
 
 ## [0.7.0] - 2022-10-20
