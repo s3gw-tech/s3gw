@@ -26,4 +26,5 @@ nav:
       - Reorganize Documentation: "decisions/0001-reorganize-documentation.md"
       - s3gw Storage Backend: "decisions/0002-s3gw-storage-backend.md"
       - SFS SAL Backend Design: "decisions/0003-sfs.md"
-      - Release captain: "decisions/0004-release-captain.md"
+      - Release Captain: "decisions/0004-release-captain.md"
+      - Project Labels: "decisions/0005-project-labels.md"
