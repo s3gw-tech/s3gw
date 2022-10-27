@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - libfmt system package updated to version 9 in gateway's Dockerfiles.
+- build containers based on openSUSE Leap 15.4 instead of Tumbleweed.
 
 ## [0.6.0] - 2022-09-29
 

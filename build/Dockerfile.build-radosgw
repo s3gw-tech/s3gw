@@ -1,9 +1,9 @@
-FROM opensuse/tumbleweed
+FROM opensuse/leap:15.4
 
-# Add OBS repository for libsqliteorm
+# Add OBS repository for additional dependencies necessary on Leap 15.4
 RUN zypper ar \
-  https://download.opensuse.org/repositories/home:/jluis/openSUSE_Tumbleweed/ \
-  sqliteorm \
+  https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
+  s3gw-deps \
  && zypper --gpg-auto-import-keys ref
 RUN zypper -n install --no-recommends \
       'cmake>3.5' \
@@ -63,7 +63,7 @@ RUN zypper -n install --no-recommends \
       libxml2-devel \
       lttng-ust-devel \
       lua-devel \
-      lua54-luarocks \
+      lua53-luarocks \
       make \
       memory-constraints \
       mozilla-nss-devel \
