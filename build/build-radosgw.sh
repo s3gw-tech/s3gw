@@ -58,7 +58,8 @@ build_radosgw() {
 
   # This is necessary since git v2.35.2 because of CVE-2022-24765
   # but we have to continue in case CEPH_DIR is not a git repo
-  git config --global --add safe.directory "${CEPH_DIR}" || true
+  # Since git 2.36 the the wildcard '*' is also accepted
+  git config --global --add safe.directory "*" || true
 
   if [ -d "build" ]; then
       cd build/
@@ -96,7 +97,7 @@ build_radosgw_test() {
 
   # This is necessary since git v2.35.2 because of CVE-2022-24765
   # but we have to continue in case CEPH_DIR is not a git repo
-  git config --global --add safe.directory "${CEPH_DIR}" || true
+  git config --global --add safe.directory "*" || true
 
   if [ -d "build" ]; then
       cd build/
