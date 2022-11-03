@@ -181,10 +181,6 @@ allocated on a separate virtual host:
 - **s3gw**, on: `s3gw.local` and `s3gw-no-tls.local`
 - **s3gw s3 explorer**, on: `s3gw-ui.local` and `s3gw-ui-no-tls.local`
 
-Host names are exposed with a node port service listening on ports 30443 (https)
-and 30080 (http). You are required to resolve these names with the external ip
-of one of the nodes of the cluster.
-
 When you are running the cluster on a virtual machine, you can patch host's
 `/etc/hosts` file as follows:
 
@@ -203,11 +199,11 @@ follows:
 Services can now be accessed at:
 
 ```text
-https://longhorn.local:30443
-https://s3gw.local:30443
-http://s3gw-no-tls.local:30080
-https://s3gw-ui.local:30443
-http://s3gw-ui-no-tls.local:30080
+https://longhorn.local
+https://s3gw.local
+http://s3gw-no-tls.local
+https://s3gw-ui.local
+http://s3gw-ui-no-tls.local
 ```
 
 ### K3s on Bare Metal
