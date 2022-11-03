@@ -52,7 +52,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: s3gw-system-cors-header@kubernetescrd
 spec:
   rules:
-    - host: s3gw-no-tls.local
+    - host: s3gw.local
       http:
         paths:
           - path: /
