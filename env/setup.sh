@@ -16,6 +16,9 @@
 
 set -e
 
+INSTALL_K3S_VERSION=v1.24.7+k3s1
+INSTALL_LONGHORN_VERSION=v1.3.2
+
 ghraw="https://raw.githubusercontent.com"
 install_s3gw=true
 dev_env=false
@@ -254,22 +257,22 @@ if k3s --version >&/dev/null ; then
 fi
 
 echo "Installing K3s..."
-curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 || (
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${INSTALL_K3S_VERSION} sh -s - --write-kubeconfig-mode 644 || (
   error "Failed to install K3s."
   exit 1
 )
 
-# https://longhorn.io/docs/1.2.4/deploy/install/#installing-open-iscsi
+# https://longhorn.io/docs/1.3.2/deploy/install/#installing-open-iscsi
 echo "Installing iscsi..."
 k3s kubectl apply \
-  -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/prerequisite/longhorn-iscsi-installation.yaml || (
+  -f ${ghraw}/longhorn/longhorn/${INSTALL_LONGHORN_VERSION}/deploy/prerequisite/longhorn-iscsi-installation.yaml || (
   error "Failed to install iscsi."
   exit 1
 )
 
 echo "Installing Longhorn..."
 if $longhorn_custom_settings ; then
-  curl -s ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml | \
+  curl -s ${ghraw}/longhorn/longhorn/${INSTALL_LONGHORN_VERSION}/deploy/longhorn.yaml | \
     yq 'select(.kind == "ConfigMap" and .metadata.name == "longhorn-default-setting").data = env(LONGHORN_SETTING)' | \
     yq 'select(.kind != null)' | \
     k3s kubectl apply -f - || (
@@ -278,7 +281,7 @@ if $longhorn_custom_settings ; then
   )
 else
   k3s kubectl apply \
-    -f ${ghraw}/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml || (
+    -f ${ghraw}/longhorn/longhorn/${INSTALL_LONGHORN_VERSION}/deploy/longhorn.yaml || (
     error "Failed to install Longhorn."
     exit 1
   )
