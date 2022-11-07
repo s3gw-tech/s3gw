@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.0] - unreleased
 
+### Added
+
+- added a script able to update the s3gw's deployment in kubernetes with the
+  radosgw binary built by the developer.
+
 ### Changed
 
 - Expose `ETag` header in the Traefik s3gw ingress to allow multi-part
