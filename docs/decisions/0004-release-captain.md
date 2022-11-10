@@ -68,7 +68,8 @@ After the testing phase the following actions need to be done:
   ```shell
   cd ~/git/s3gw/
   git checkout -b v0.8.0-upstream upstream/v0.8.0
-  git tag --annotate --sign v0.8.0
+  git tag --annotate --sign -m "Release v0.8.0" release-v0.8.0
+  git push upstream tag release-v0.8.0
   ```
 
 - Merge the changes of the `s3gw` release branch into `main`.
@@ -99,8 +100,8 @@ After the testing phase the following actions need to be done:
   - Use `vx.y.z` as title.
   - Paste the content of `s3gw/docs/release-notes/s3gw-vx.x.x.md` as
     release notes.
-- After waiting for the release pipeline to finish building, go to the release
-  page and make the draft release public.
+- After waiting for the [release pipeline][4] to finish building, go to the
+  release page and make the draft release public.
 
 ### Sanity Checks
 
@@ -119,3 +120,4 @@ The proposed steps are approved and this document can be used as reference.
 [1]: https://github.com/aquarist-labs/s3gw-ui/branches
 [2]: https://git-scm.com/book/en/v2/Git-Basics-Tagging
 [3]: https://github.com/aquarist-labs/s3gw/releases/new
+[4]: https://github.com/aquarist-labs/s3gw/actions/workflows/release.yaml
