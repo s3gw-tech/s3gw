@@ -46,22 +46,35 @@ After the testing phase the following actions need to be done:
   in the `vx.y.z` release branch. Use previous release notes for guidance.
 - Change `s3gw/docs/release-notes/latest` to point to the new release notes
   (this will be used by automation).
-- Bump all branches in `s3gw/.gitmodules`.
-- Push these changes via PR into the `vx.y.z` release branch.
+
+  ```shell
+  cd ~/git/s3gw/docs/release-notes/
+  ln -sf s3gw-v0.8.0.md latest
+  ```
+
+- Bump all branches of the sub-projects in `s3gw/.gitmodules`. Finally, run
+  the following command to update the submodules.
+
+  ```shell
+  cd ~/git/s3gw/
+  git submodule update --init --remote --merge
+  ```
+
+- Commit these changes via PR into the `vx.y.z` release branch.
 - After the PR has been merged, create an annotated and signed [version tag][2]
   `vx.y.z` in the `s3gw` repository (this triggers the release pipeline, which
   creates the container and a draft release).
 
   ```shell
-  cd ~/git/s3gw
-  git checkout v0.8.0
+  cd ~/git/s3gw/
+  git checkout -b v0.8.0-upstream upstream/v0.8.0
   git tag --annotate --sign v0.8.0
   ```
 
 - Merge the changes of the `s3gw` release branch into `main`.
 
   ```shell
-  cd ~/git/s3gw
+  cd ~/git/s3gw/
   git fetch upstream
   git checkout main -b merge_w_v0.8.0
   git rebase upstream/main
@@ -73,7 +86,7 @@ After the testing phase the following actions need to be done:
   and `s3gw-charts` sub-projects into `main`, e.g.:
 
   ```shell
-  cd ~/git/s3gw-ui
+  cd ~/git/s3gw-ui/
   git fetch upstream
   git checkout main -b merge_w_v0.8.0
   git rebase upstream/main
