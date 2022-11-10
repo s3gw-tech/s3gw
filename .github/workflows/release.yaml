@@ -3,7 +3,7 @@ name: Release S3GW
 on:
   push:
     tags:
-      - "v*"
+      - "release-v*"
 
 jobs:
   set-git-refs:
