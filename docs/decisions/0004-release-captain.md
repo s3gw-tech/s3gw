@@ -44,6 +44,22 @@ After the testing phase the following actions need to be done:
   root folder of the sub-projects or below `src/rgw/store/sfs/` for `ceph`.
   Create a new PR out of these changes for each sub-project. These changes
   will be merged into `main` with separate PRs at a later date.
+- After all previous PRs have been merged, the development branches of the
+  `ceph`, `s3gw-ui`, `s3gw-tools` and `s3gw-charts` sub-projects need to be
+  [tagged][2], e.g.:
+
+  ```shell
+  cd ~/git/s3gw-ui/
+  git checkout -b v0.8.x-upstream upstream/v0.8.x
+  git tag --annotate --sign -m "Release v0.8.0" v0.8.0
+  git push upstream tag v0.8.0
+
+  cd ~/git/ceph/
+  git checkout -b s3gw-v0.8.x-upstream aquarist-labs-upstream/s3gw-v0.8.x
+  git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
+  git push aquarist-labs-upstream tag s3gw-v0.8.0
+  ```
+
 - Aggregate the changelog and create `s3gw/docs/release-notes/s3gw-vN.N.N.md`
   in the `vN.N.x` development branch. Use previous release notes for guidance.
 - Change `s3gw/docs/release-notes/latest` to point to the new release notes
@@ -54,8 +70,9 @@ After the testing phase the following actions need to be done:
   ln -sf s3gw-v0.8.0.md latest
   ```
 
-- Bump all branches of the sub-projects in `s3gw/.gitmodules`. Finally, run
-  the following command to update the submodules.
+- Bump all branches of the sub-projects in `s3gw/.gitmodules` by using the
+  previously created tags. Finally, run the following command to update the
+  submodules.
 
   ```shell
   cd ~/git/s3gw/
