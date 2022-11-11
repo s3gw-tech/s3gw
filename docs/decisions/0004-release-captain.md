@@ -56,7 +56,7 @@ After the testing phase the following actions need to be done:
 
   cd ~/git/ceph/
   git checkout -b s3gw-v0.8.x-upstream aquarist-labs-upstream/s3gw-v0.8.x
-  git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
+  git tag --annotate --sign -m "Release s3gw-v0.8.0" s3gw-v0.8.0
   git push aquarist-labs-upstream tag s3gw-v0.8.0
   ```
 
@@ -95,10 +95,10 @@ After the testing phase the following actions need to be done:
 
   ```shell
   cd ~/git/s3gw/
-  git fetch upstream
-  git checkout main -b merge_w_v0.8.x
+  git fetch --tags upstream
+  git checkout main -b merge_w_v0.8.0
   git rebase upstream/main
-  git merge --signoff upstream/v0.8.x
+  git merge --signoff v0.8.0
   ```
 
   Create a new PR out of these changes.
@@ -107,10 +107,16 @@ After the testing phase the following actions need to be done:
 
   ```shell
   cd ~/git/s3gw-ui/
-  git fetch upstream
-  git checkout main -b merge_w_v0.8.x
+  git fetch --tags upstream
+  git checkout main -b merge_w_v0.8.0
   git rebase upstream/main
-  git merge --signoff upstream/v0.8.x
+  git merge --signoff v0.8.0
+
+  cd ~/git/ceph/
+  git fetch --tags aquarist-labs-upstream
+  git checkout s3gw -b merge_w_s3gw-v0.8.0
+  git rebase aquarist-labs-upstream/s3gw
+  git merge --signoff s3gw-v0.8.0
   ```
 
   Create a new PR out of these changes.
