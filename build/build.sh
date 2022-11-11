@@ -205,6 +205,10 @@ build_s3gw_test() {
     error "unable to find unittest_rgw_sfs_sqlite_versioned_objects binary at '${cephdir}' build directory" && \
   [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_sfs_bucket" ]] && \
     error "unable to find unittest_rgw_sfs_sfs_bucket binary at '${cephdir}' build directory" && \
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_metadata_compatibility" ]] && \
+    error "unable to find unittest_rgw_sfs_metadata_compatibility binary at '${cephdir}' build directory" && \
+  [[ ! -e "${cephdir}/build/bin/unittest_rgw_sfs_gc" ]] && \
+    error "unable to find unittest_rgw_sfs_gc binary at '${cephdir}' build directory" && \
     exit 1
 
   ver=$(git --git-dir ${cephdir}/.git rev-parse --short HEAD)

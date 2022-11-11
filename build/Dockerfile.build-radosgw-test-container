@@ -38,6 +38,8 @@ COPY ./bin/unittest_rgw_sfs_sqlite_buckets /radosgw/unittest_rgw_sfs_sqlite_buck
 COPY ./bin/unittest_rgw_sfs_sqlite_objects /radosgw/unittest_rgw_sfs_sqlite_objects
 COPY ./bin/unittest_rgw_sfs_sqlite_versioned_objects /radosgw/unittest_rgw_sfs_sqlite_versioned_objects
 COPY ./bin/unittest_rgw_sfs_sfs_bucket /radosgw/unittest_rgw_sfs_sfs_bucket
+COPY ./bin/unittest_rgw_sfs_metadata_compatibility /radosgw/unittest_rgw_sfs_metadata_compatibility
+COPY ./bin/unittest_rgw_sfs_gc /radosgw/unittest_rgw_sfs_gc
 COPY [ "./lib/libradosgw.so", \
        "./lib/libradosgw.so.2", \
        "./lib/libradosgw.so.2.0.0", \
@@ -55,6 +57,8 @@ unittest_rgw_sfs_sqlite_buckets || exit 1\n\
 unittest_rgw_sfs_sqlite_objects || exit 1\n\
 unittest_rgw_sfs_sqlite_versioned_objects || exit 1\n\
 unittest_rgw_sfs_sfs_bucket || exit 1\n" \
+unittest_rgw_sfs_metadata_compatibility || exit 1\n" \
+unittest_rgw_sfs_gc || exit 1\n" \
 > /radosgw/run_tests.sh
 
 ENTRYPOINT ["run_tests.sh"]
