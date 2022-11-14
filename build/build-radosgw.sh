@@ -112,6 +112,8 @@ build_radosgw_test() {
   ninja -j${NPROC} bin/unittest_rgw_sfs_sqlite_objects
   ninja -j${NPROC} bin/unittest_rgw_sfs_sqlite_versioned_objects
   ninja -j${NPROC} bin/unittest_rgw_sfs_sfs_bucket
+  ninja -j${NPROC} bin/unittest_rgw_sfs_metadata_compatibility
+  ninja -j${NPROC} bin/unittest_rgw_sfs_gc
 }
 
 build_radosgw
