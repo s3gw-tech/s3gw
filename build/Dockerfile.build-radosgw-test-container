@@ -56,8 +56,8 @@ unittest_rgw_sfs_sqlite_users || exit 1\n\
 unittest_rgw_sfs_sqlite_buckets || exit 1\n\
 unittest_rgw_sfs_sqlite_objects || exit 1\n\
 unittest_rgw_sfs_sqlite_versioned_objects || exit 1\n\
-unittest_rgw_sfs_sfs_bucket || exit 1\n" \
-unittest_rgw_sfs_metadata_compatibility || exit 1\n" \
+unittest_rgw_sfs_sfs_bucket || exit 1\n \
+unittest_rgw_sfs_metadata_compatibility || exit 1\n \
 unittest_rgw_sfs_gc || exit 1\n" \
 > /radosgw/run_tests.sh
 
