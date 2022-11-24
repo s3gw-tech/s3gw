@@ -22,17 +22,16 @@ For the testing phase that is done right before the official release, the
 following actions need to be done.
 
 - Create a development branch for a next release in the `ceph`, `s3gw`,
-  `s3gw-ui`, `s3gw-tools` and `s3gw-charts` repositories if necessary. This can
-  be done easily by visiting the branches page of the sub-project on GitHub.
-  E.g. visit the [s3gw-ui branches][1] page, click the `New branch` button and
-  enter `v0.8.x`.
+  `s3gw-ui`, `s3gw-tools` and `s3gw-charts` repositories if necessary.
+  The name of the branch should reflect the current milestone. Branching
+  can be done easily by visiting the branches page of the sub-project on
+  GitHub. E.g. visit the [s3gw-ui branches][1] page, click the `New branch`
+  button and enter `s3gw-v0.8.x`.
   All bugfixes will be done in the `main` branches of the sub-projects and
-  then backported to the `vN.N.x` development branch afterwards. The name of
-  the branch should reflect the current milestone (i.e. `v0.8.x`).
-  In the `ceph` repository we need to prepend `s3gw-` (i.e. `s3gw-v0.8.x`).
+  then backported to the `s3gw-vN.N.x` development branch afterwards.
 - Update the chart version to `N.N.N` in `s3gw-charts/charts/s3gw/Chart.yaml`,
-  e.g. `0.8.0`.
-  Create a PR including these changes for the `vN.N.x` development branch.
+  e.g. `0.8.0`. Create a PR including these changes for the `s3gw-vN.N.x`
+  development branch.
 
 ### Create a Release
 
@@ -40,7 +39,7 @@ After the testing phase the following actions need to be done:
 
 - Update the changelog from `Unreleased` to the current release date for each
   sub-project `ceph`, `s3gw-ui`, `s3gw-tools` and `s3gw-charts` in their
-  corresponding `vN.N.x` development branch. You will find the changelog in the
+  corresponding development branch. You will find the changelog in the
   root folder of the sub-projects or below `src/rgw/store/sfs/` for `ceph`.
   Create a new PR out of these changes for each sub-project. These changes
   will be merged into `main` with separate PRs at a later date.
@@ -50,9 +49,9 @@ After the testing phase the following actions need to be done:
 
   ```shell
   cd ~/git/s3gw-ui/
-  git checkout -b v0.8.x-upstream upstream/v0.8.x
-  git tag --annotate --sign -m "Release v0.8.0" v0.8.0
-  git push upstream tag v0.8.0
+  git checkout -b v0.8.x-upstream upstream/s3gw-v0.8.x
+  git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
+  git push upstream tag s3gw-v0.8.0
 
   cd ~/git/ceph/
   git checkout -b s3gw-v0.8.x-upstream aquarist-labs-upstream/s3gw-v0.8.x
@@ -61,7 +60,8 @@ After the testing phase the following actions need to be done:
   ```
 
 - Aggregate the changelog and create `s3gw/docs/release-notes/s3gw-vN.N.N.md`
-  in the `vN.N.x` development branch. Use previous release notes for guidance.
+  in the corresponding development branch. Use previous release notes for
+  guidance.
 - Change `s3gw/docs/release-notes/latest` to point to the new release notes
   (this will be used by automation).
 
@@ -79,16 +79,16 @@ After the testing phase the following actions need to be done:
   git submodule update --init --remote --merge
   ```
 
-- Commit these changes via PR into the `vN.N.x` development branch.
-- After the PR has been merged, create an annotated and signed [version tag][2]
-  `vN.N.N` in the `s3gw` repository (this triggers the release pipeline, which
-  creates the container and a draft release).
+- Commit these changes via PR into the `s3gw-vN.N.x` development branch.
+- After the PR has been merged, create an annotated and signed
+  [version tag][2] `s3gw-vN.N.N` in the `s3gw` repository (this triggers
+  the release pipeline, which creates the container and a draft release).
 
   ```shell
   cd ~/git/s3gw/
-  git checkout -b v0.8.x-upstream upstream/v0.8.x
-  git tag --annotate --sign -m "Release v0.8.0" v0.8.0
-  git push upstream tag v0.8.0
+  git checkout -b v0.8.x-upstream upstream/s3gw-v0.8.x
+  git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
+  git push upstream tag s3gw-v0.8.0
   ```
 
 - Merge the changes of the `s3gw` release branch into `main`.
