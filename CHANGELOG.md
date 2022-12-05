@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `unittest_rgw_sfs_metadata_compatibility` and `unittest_rgw_sfs_gc` unit tests
-  for testing rgw/sfs.
+- Added `unittest_rgw_sfs_metadata_compatibility` and `unittest_rgw_sfs_gc`
+  unit tests for testing rgw/sfs.
 
 ## [0.8.0] - 2022-11-10
 
