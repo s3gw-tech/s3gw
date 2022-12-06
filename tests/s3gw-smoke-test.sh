@@ -71,7 +71,7 @@ down_md5=$(md5sum -b obj1.bin.local | cut -f1 -d' ')
 
 [[ "${orig_md5}" == "${down_md5}" ]] || exit 1
 
-s3 get s3://${bucket}/dne.bin && exit 1
+s3 get s3://${bucket}/does-not-exist.bin && exit 1
 
 must_have=("obj1.bin" "obj1.bin.2" "my/obj1.bin")
 ifs_old=$IFS

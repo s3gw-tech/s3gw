@@ -198,7 +198,7 @@ class VersioningSmokeTests(unittest.TestCase):
             response = self.s3_client.download_file(bucket_name, object_name, check_deleted_file)
         self.assertTrue('404' in str(context.exception))
 
-        # download the previous version, it should still be reacheable
+        # download the previous version, it should still be reachable
         check_version_file_2 = os.path.join(self.test_dir.name, 'check_version2.bin')
         bucket.download_file(
             object_name,

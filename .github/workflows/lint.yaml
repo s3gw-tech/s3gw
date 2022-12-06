@@ -1,15 +1,20 @@
+---
 name: Lint
-on: [push, pull_request, workflow_dispatch]
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
+
       - name: Set up Git repository
         uses: actions/checkout@v3
-      - name: Lint
-        uses: DavidAnson/markdownlint-cli2-action@v7
-        with:
-          command: config
-          globs: |
-            .github/workflows/config/custom.markdownlint.jsonc
-            '**/*.md'
+
+      - name: Set up Python3
+        uses: actions/setup-python@v4
+
+      - name: Pre Commit
+        uses: pre-commit/action@v3.0.0
