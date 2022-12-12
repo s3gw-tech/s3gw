@@ -60,7 +60,7 @@ specific as possible. If the commit message title was too short to fully state
 what the commit is doing, use the body to explain not just the "what", but also
 the "why".
 
-Finally, it _must_ include a `Signed-off-by:` line matching an email address of
+Your commit _must_ include a `Signed-off-by:` line matching an email address of
 the commit's author to comply with our need for a
 [Developer Certificate of Origin (DCO)](https://developercertificate.org/). The
 DCO is a lightweight way for contributors to certify that they wrote or
@@ -89,6 +89,8 @@ For example:
 
    Signed-off-by: Random Developer <random@developer.io>
 ```
+
+Finally, please be sure to sign all commits with your GPG key (`git commit -S`).
 
 ## Pull Requests
 
