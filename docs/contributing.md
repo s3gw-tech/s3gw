@@ -11,6 +11,7 @@ yet, or to contribute with further details to an existing issue.
 
 - If the PR fixes a GitHub issue, then add the line `Fixes: https://github.com/aquarist-labs/s3gw/issues/<ISSUE_NR>`
   to the Git commit message.
+- Make sure your Git commit includes a `Signed-off-by:` line.
 - Make sure your Git commit is signed with a GPG key.
 - Include unit tests if possible.
 - Append a line to the CHANGELOG.md of the corresponding GH project. If the
@@ -25,5 +26,5 @@ We track our progress in this [Github project][2] board.
 You can join us in [Slack][3].
 
 [1]: https://github.com/aquarist-labs/s3gw/issues
-[2]: https://join.slack.com/t/aquaristlabs/shared_invite/zt-nphn0jhg-QYKw__It8JPMkUR_sArOug
-[3]: https://github.com/orgs/aquarist-labs/projects/5/views/1
+[2]: https://github.com/orgs/aquarist-labs/projects/5/views/1
+[3]: https://join.slack.com/t/aquaristlabs/shared_invite/zt-nphn0jhg-QYKw__It8JPMkUR_sArOug
