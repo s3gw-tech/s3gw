@@ -30,6 +30,7 @@ WITH_TESTS=${WITH_TESTS:-"OFF"}
 NPROC=${NPROC:-$(nproc --ignore=2)}
 
 CEPH_CMAKE_ARGS=(
+  "-GNinja"
   "-DWITH_CCACHE=ON"
   "-DBOOST_J=${NPROC}"
   "-DCMAKE_C_COMPILER=gcc-11"
@@ -93,17 +94,17 @@ _configure() {
 _build() {
   cd "${S3GW_BUILD_DIR}"
 
-  make -j"${NPROC}" radosgw
+  ninja -j"${NPROC}" bin/radosgw
 
   if [ "${WITH_TESTS}" == "ON" ] ; then
-    make -j"${NPROC}" \
-      unittest_rgw_sfs_sqlite_users \
-      unittest_rgw_sfs_sqlite_buckets \
-      unittest_rgw_sfs_sqlite_objects \
-      unittest_rgw_sfs_sqlite_versioned_objects \
-      unittest_rgw_sfs_sfs_bucket \
-      unittest_rgw_sfs_metadata_compatibility \
-      unittest_rgw_sfs_gc
+    ninja -j"${NPROC}" \
+      bin/unittest_rgw_sfs_sqlite_users \
+      bin/unittest_rgw_sfs_sqlite_buckets \
+      bin/unittest_rgw_sfs_sqlite_objects \
+      bin/unittest_rgw_sfs_sqlite_versioned_objects \
+      bin/unittest_rgw_sfs_sfs_bucket \
+      bin/unittest_rgw_sfs_metadata_compatibility \
+      bin/unittest_rgw_sfs_gc
   fi
 }
 
