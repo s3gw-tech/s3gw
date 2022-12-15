@@ -4,6 +4,7 @@ theme:
   highlightjs: true
 plugins:
   - search
+  - external-markdown
 nav:
   - Introduction: "index.md"
   - Quickstart: "quickstart.md"
