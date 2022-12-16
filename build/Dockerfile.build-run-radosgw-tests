@@ -1,0 +1,39 @@
+FROM opensuse/leap:15.4
+LABEL Name=s3gw-test
+
+# Add OBS repository for additional dependencies necessary on Leap 15.4
+RUN zypper ar \
+  https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
+  s3gw-deps \
+ && zypper --gpg-auto-import-keys ref
+RUN zypper -n install \
+  libblkid1 \
+  libexpat1 \
+  libtcmalloc4 \
+  libfmt9 \
+  liboath0 \
+  libicu-suse65_1 \
+  libthrift-0_16_0 \
+  libboost_atomic1_80_0 \
+  libboost_chrono1_80_0 \
+  libboost_context1_80_0 \
+  libboost_coroutine1_80_0 \
+  libboost_date_time1_80_0 \
+  libboost_filesystem1_80_0 \
+  libboost_iostreams1_80_0 \
+  libboost_program_options1_80_0 \
+  libboost_random1_80_0 \
+  libboost_regex1_80_0 \
+  libboost_serialization1_80_0 \
+  libboost_system1_80_0 \
+  libboost_thread1_80_0 \
+ && zypper clean --all
+
+RUN mkdir -p /radosgw
+ENV PATH /radosgw:$PATH
+ENV LD_LIBRARY_PATH /radosgw/lib:$LD_LIBRARY_PATH
+
+COPY run_tests.sh /radosgw/run_tests.sh
+RUN chmod +x /radosgw/run_tests.sh
+
+ENTRYPOINT ["run_tests.sh"]

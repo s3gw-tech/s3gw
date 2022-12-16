@@ -1,8 +1,0 @@
-black==22.6.0
-boto3-stubs==1.24.69
-botocore-stubs==1.27.69
-mypy-boto3-s3==1.24.36.post1
-mypy-extensions==0.4.3
-types-awscrt==0.14.6
-types-boto3==1.0.2
-types-s3transfer==0.6.0.post4
