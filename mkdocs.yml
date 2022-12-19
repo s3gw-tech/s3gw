@@ -2,11 +2,14 @@ site_name: s3gw Documentation
 theme:
   name: readthedocs
   highlightjs: true
+markdown_extensions:
+  - admonition
 plugins:
   - search
 nav:
   - Introduction: "index.md"
   - Quickstart: "quickstart.md"
+  - Roadmap: "roadmap.md"
   - "Installation & setup":
       - Using a Helm chart: "helm-charts.md"
       - K8s & K3s setup: "s3gw-with-k8s-k3s.md"
@@ -16,7 +19,6 @@ nav:
       - Developing the S3 Gateway: "developing.md"
       - Testing the s3gw: "testing.md"
       - UI: "ui.md"
-      - Roadmap: "roadmap.md"
       - S3 API compatibility table: "s3-compatibility-table.md"
   - "About & license":
       - Repositories: "s3gw-repos.md"
