@@ -49,6 +49,28 @@ ingress controller.
 You may also use a different ingress controller, but then you will have to
 create your own ingress resource.
 
+### Cert Manager
+
+If you wish, you can automate the TLS certificate management.
+s3gw can use [cert-manager](https://cert-manager.io/) in order to create TLS
+certificates for the various Ingresses and internal ClusterIP resources.
+
+If cert-manager is not already installed on the cluster,
+it can be installed like this:
+
+```shell
+$ kubectl create namespace cert-manager
+$ helm repo add jetstack https://charts.jetstack.io
+$ helm repo update
+$ helm install cert-manager --namespace cert-manager jetstack/cert-manager \
+    --set installCRDs=true \
+    --set extraArgs[0]=--enable-certificate-owner-ref=true
+```
+
+> **WARNING**: if cert-manager isn't installed in the namespace `cert-manager`,
+> you have to set `.Values.certManagerNamespace` accordingly,
+otherwise s3gw installation will fail.
+
 ## Options
 
 The helm chart can be customized for your Kubernetes environment. To do so,
@@ -94,20 +116,26 @@ ingress:
   enabled: true
 ```
 
-### TLS Certificates
+### TLS Certificate Management
 
-provide the TLS certificate in the `values.yaml` file to enable TLS at the
-ingress. Note that the connection between the ingress and s3gw itself within the
-cluster will not be TLS protected.
+When not using cert-manager, you have to manually specify
+the TLS certificates in the `values.yaml` file to enable TLS
+at the various Ingresses and ClusterIP resources.
+Note that the connection between the Ingress and the s3gw's ClusterIP
+within the cluster will not be TLS protected.
 
 ```yaml
-ui:
-  tls:
-    crt: CERTIFICATE_FOR_UI
-    key: CERTIFICATE_KEY_FOR_UI
 tls:
-  crt: PUT_YOUR_CERTIFICATE_HERE
-  key: PUT_YOUR_CERTIFICATES_KEY_HERE
+  publicDomain:
+    crt: PUBLIC_DOMAIN_CERTIFICATE_HERE
+    key: PUBLIC_DOMAIN_CERTIFICATE_KEY_HERE
+  privateDomain:
+    crt: PRIVATE_DOMAIN_CERTIFICATE_HERE
+    key: PRIVATE_DOMAIN_CERTIFICATE_KEY_HERE
+  ui:
+    publicDomain:
+      crt: CERTIFICATE_FOR_UI
+      key: CERTIFICATE_KEY_FOR_UI
 ```
 
 Note that the certificates must be provided as base64 encoded PEM in one long
