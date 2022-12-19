@@ -11,21 +11,21 @@ functional features:
 | Put Object                | ✅     |
 | Delete Object             | ✅     |
 | Get Object                | ✅     |
+| Bucket ACLs (Get, Put)    | ✅     |
+| Bucket Object Versions    | ✅     |
+| Get Bucket Info (HEAD)    | ✅     |
+| Multipart uploads         | ✅     |
+| Copy Object               | ✅     |
 | Bucket Lifecycle          |        |
 | Bucket Replication        |        |
 | Policy (Buckets, Objects) |        |
 | Bucket Website            |        |
-| Bucket ACLs (Get, Put)    |        |
 | Bucket Location           |        |
 | Bucket Notification       |        |
-| Bucket Object Versions    |        |
-| Get Bucket Info (HEAD)    |        |
 | Bucket Request Payment    |        |
 | Object ACLs (Get, Put)    |        |
 | Get Object Info (HEAD)    |        |
 | POST Object               |        |
-| Copy Object               |        |
-| Multipart Uploads         |        |
 | Object Tagging            |        |
 | Bucket Tagging            |        |
 | Storage Class             |        |
