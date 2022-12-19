@@ -15,11 +15,15 @@ We welcome new feature implementations, patches that fix bugs or code cleanup.
 
 You can clone from GitHub with:
 
+```bash
 git clone git@github.com:aquarist-labs/s3gw-tools
+```
 
 Or:
 
+```bash
 git clone git://github.com/aquarist-labs/s3gw-tools
+```
 
 This applies to all the repositories.
 
