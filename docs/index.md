@@ -1,29 +1,50 @@
 # Welcome to the s3gw project
 
-## Project objective
+## About the project
 
-We're developing an easy-to-use Open Source and Cloud Native S3 service for
-Kubernetes.
-Our focus is to complement the Rancher portfolio, although the tool isn't
-limited to Rancher products.
+The s3gw project is split into 4 work streams: [rgw/sfs-Ceph][1] (backend),
+[s3gw-tools][2] (tooling), [s3gw-charts][3] (helm charts) and [s3gw-ui][4]
+(frontend).
 
-## Project priorities
+## Project vision
 
-- Complement the Rancher portfolio.
-  - S3 solution for: Longhorn volume, Harvester, Epinio backups. Also OPNI models.
-  - Leverage k3s/k8s and Longhorn for deployment and redundancy, load balancing,
-  etc.
-    - Kubernetes-native management (helm chart, GitOps) and an end-user UI for
-    operations.
-- Single pod deployments (Edge and IoT and smaller on-prem deployments,
-development).
-  - Not a general-purpose scalable S3 data lake.
-  - Scaling would happen via multiple pods serving different instances.
-- We're leveraging the feature-rich S3 gateway from Ceph but without the rest of
-the Ceph stack (no RADOS).
+### What are we doing?
 
-## Summary
+The s3gw project helps Kubernetes users who need object storage (S3) to back up
+their application data to a ([Longhorn][5]) PV by offering a lightweight, Open Source
+S3 service, which is easy to deploy in a Cloud Native world.
 
-In a nutshell, this project provides the required infrastructure to build a container
-able to run on a kubernetes cluster, providing S3-compatible endpoints to
-Kubernetes applications.
+### Why are we doing it?
+
+We have identified a need for making cluster data backups easily available for
+apps that don't require petabyte-scale storage.
+
+### Features
+
+- An intuitive UI
+- S3 API compatibility
+- Kubernetes-native management
+- Leverages the feature-rich S3 gateway from Ceph
+- Strong integration with the Rancher Portfolio
+
+### Use cases
+
+- Epinio: Backups/CRDs
+- Harvester: Backups
+- OPNI: Backups
+- K3S/Edge
+- SAP Data Intelligence
+
+### Value proposition
+
+- Ideal for small-scale deployments/Edge
+- Lightweight, simple User Experience
+- Simple: Storage/replication handled by a PV ([Longhorn][5])
+- Designed to integrate with Rancher's product catalog
+- Open source licensing
+
+[1]: https://github.com/aquarist-labs/ceph
+[2]: https://github.com/aquarist-labs/s3gw-tools
+[3]: https://github.com/aquarist-labs/s3gw-charts
+[4]:https://github.com/aquarist-labs/s3gw-ui
+[5]: https://longhorn.io/
