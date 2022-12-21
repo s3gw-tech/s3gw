@@ -1,3 +1,5 @@
+<h1 align="center"><img alt="s3gw-logo" src="./assets/images/s3gw-logo.png" /></h1>
+
 # s3gw
 
 [![License][license-badge]][license-link]
@@ -75,6 +77,8 @@ limitations under the License.
 
 ----
 
+[s3gw]: https://s3gw.io
+[longhorn]: https://longhorn.io
 [build-badge]: https://github.com/aquarist-labs/s3gw/actions/workflows/release.yaml/badge.svg
 [build-link]: https://github.com/aquarist-labs/s3gw/releases
 [chart-badge]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/s3gw
