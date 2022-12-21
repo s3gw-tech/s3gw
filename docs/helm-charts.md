@@ -9,13 +9,13 @@ helm install $RELEASE_NAME s3gw/s3gw --namespace $S3GW_NAMESPACE \
 ```
 
 The chart can also be installed directly from the git repository. To do so, the
-repo must be cloned first:
+repository must be cloned first:
 
 ```bash
 git clone https://github.com/aquarist-labs/s3gw-charts.git
 ```
 
-And then the chart can be installed from within the repo directory:
+And then the chart can be installed from within the repository directory:
 
 ```bash
 cd s3gw-charts
@@ -32,11 +32,11 @@ Installing s3gw via the Rancher App Catalog is made easy, the steps are as
 follow
 
 - Cluster -> Projects/Namespaces - create the `s3gw` namespace.
-- Apps -> Repositories -> Create `s3gw` using the s3gw-charts Git URL
+- Apps -> Repositories -> Create `s3gw` using the s3gw-charts Web URL
   <https://aquarist-labs.github.io/s3gw-charts/> and the main branch.
 - Apps -> Charts -> Install Traefik.
-- Apps -> Charts -> Install `s3gw`. Select the `s3gw` namespace previously created.
-  This will create a `pvc` for `s3gw`.
+- Apps -> Charts -> Install `s3gw`.
+  Select the `s3gw` namespace previously created.
 
 ## Dependencies
 
