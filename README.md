@@ -1,45 +1,23 @@
-# s3gw
+# s3gw-tools
 
-![License](https://img.shields.io/github/license/aquarist-labs/s3gw)
-![Issues](https://img.shields.io/github/issues/aquarist-labs/s3gw)
-![Lint](https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml/badge.svg)
-![Build](https://github.com/aquarist-labs/s3gw/actions/workflows/build-environment.yml/badge.svg)
+[![License][license-badge]][license-url]
+[![Lint][lint-badge]][lint-url]
+[![Build][build-badge]][lint-url]
 
-We're developing an easy-to-use Open Source and Cloud Native S3 service for
-Kubernetes.
+Build tools for [s3gw][s3gw]
 
-## Quickstart
+s3gw is an S3-compatible service focused on deployments in a Kubernetes
+environment backed by any PVC, including Longhorn. Since its inception, the
+primary focus has been on cloud native deployments. However, the s3gw can be
+deployed in a myriad of scenarios, provided some form of storage is attached.
 
-### Helm chart
+s3gw is based on Ceph’s RADOSGW (RGW) but runs as a stand–alone service without
+the RADOS cluster and relies on a storage backend still under heavy development
+by the storage team at SUSE. A web-based UI for management and an object
+explorer are also part of s3gw.
 
-An easy way to deploy the S3 Gateway on your Kubernetes cluster is via a Helm
-chart. We've created a dedicated repository for it, which can be found
-[here][1].
-
-### Podman
-
-```shell
-podman run --replace --name=s3gw -it -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
-```
-
-### Docker
-
-```shell
-docker pull ghcr.io/aquarist-labs/s3gw:latest
-```
-
-In order to run the Docker container:
-
-```shell
-docker run -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
-```
-
-For more information on building and running a container, please read our
-[guide](./build/).
-
-## Documentation
-
-You can access our documentation [here][2].
+- [Developing][developing]
+- [Documentation][documentation].
 
 ## License
 
@@ -57,5 +35,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-[1]: https://github.com/aquarist-labs/s3gw-charts
-[2]: https://s3gw-docs.readthedocs.io/en/latest/
+[s3gw]: https://github.com/aquarist-labs/s3gw-charts
+[documentation]: https://s3gw-docs.readthedocs.io/en/latest/
+[developing]: https://s3gw-docs.readthedocs.io/en/latest/developing/
+[license-badge]: https://img.shields.io/github/license/aquarist-labs/s3gw
+[license-url]: https://s3gw-docs.readthedocs.io/en/latest/license/
+[lint-badge]: https://img.shields.io/github/actions/workflow/status/aquarist-labs/s3gw-tools/lint.yaml?branch=main&label=lint
+[lint-url]: https://github.com/aquarist-labs/s3gw-tools/actions/workflows/lint.yaml
+[build-badge]: https://img.shields.io/github/actions/workflow/status/aquarist-labs/s3gw-tools/build-environment.yaml?branch=main
+[build-url]: https://github.com/aquarist-labs/s3gw-tools/actions/workflows/build-environment.yaml
