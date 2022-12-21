@@ -47,17 +47,17 @@ After the testing phase the following actions need to be done:
   `ceph`, `s3gw-ui`, `s3gw-tools` and `s3gw-charts` sub-projects need to be
   [tagged][2], e.g.:
 
-  ```shell
-  cd ~/git/s3gw-ui/
-  git checkout -b v0.8.x-upstream upstream/s3gw-v0.8.x
-  git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
-  git push upstream tag s3gw-v0.8.0
+```bash
+cd ~/git/s3gw-ui/
+git checkout -b v0.8.x-upstream upstream/s3gw-v0.8.x
+git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
+git push upstream tag s3gw-v0.8.0
 
-  cd ~/git/ceph/
-  git checkout -b s3gw-v0.8.x-upstream aquarist-labs-upstream/s3gw-v0.8.x
-  git tag --annotate --sign -m "Release s3gw-v0.8.0" s3gw-v0.8.0
-  git push aquarist-labs-upstream tag s3gw-v0.8.0
-  ```
+cd ~/git/ceph/
+git checkout -b s3gw-v0.8.x-upstream aquarist-labs-upstream/s3gw-v0.8.x
+git tag --annotate --sign -m "Release s3gw-v0.8.0" s3gw-v0.8.0
+git push aquarist-labs-upstream tag s3gw-v0.8.0
+```
 
 - Aggregate the changelog and create `s3gw/docs/release-notes/s3gw-vN.N.N.md`
   in the corresponding development branch. Use previous release notes for
@@ -65,66 +65,69 @@ After the testing phase the following actions need to be done:
 - Change `s3gw/docs/release-notes/latest` to point to the new release notes
   (this will be used by automation).
 
-  ```shell
-  cd ~/git/s3gw/docs/release-notes/
-  ln -sf s3gw-v0.8.0.md latest
-  ```
+```bash
+cd ~/git/s3gw/docs/release-notes/
+ln -sf s3gw-v0.8.0.md latest
+```
 
 - Bump all branches of the sub-projects in `s3gw/.gitmodules` by using the
   previously created tags. Finally, run the following command to update the
   submodules.
 
-  ```shell
-  cd ~/git/s3gw/
-  git submodule update --init --remote --merge
-  ```
+```bash
+cd ~/git/s3gw/
+git submodule update --init --remote --merge
+```
 
 - Commit these changes via PR into the `s3gw-vN.N.x` development branch.
 - After the PR has been merged, create an annotated and signed
   [version tag][2] `s3gw-vN.N.N` in the `s3gw` repository (this triggers
   the release pipeline, which creates the container and a draft release).
 
-  ```shell
-  cd ~/git/s3gw/
-  git checkout -b v0.8.x-upstream upstream/s3gw-v0.8.x
-  git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
-  git push upstream tag s3gw-v0.8.0
-  ```
+```shell
+cd ~/git/s3gw/
+git checkout -b v0.8.x-upstream upstream/s3gw-v0.8.x
+git tag --annotate --sign -m "Release v0.8.0" s3gw-v0.8.0
+git push upstream tag s3gw-v0.8.0
+```
 
 - Merge the changes of the `s3gw` release branch into `main`.
 
-  ```shell
-  cd ~/git/s3gw/
-  git fetch --tags upstream
-  git checkout main -b merge_w_v0.8.0
-  git rebase upstream/main
-  git merge --signoff v0.8.0
-  ```
+```bash
+cd ~/git/s3gw/
+git fetch --tags upstream
+git checkout main -b merge_w_v0.8.0
+git rebase upstream/main
+git merge --signoff v0.8.0
+```
 
   Create a new PR out of these changes.
+
 - Merge the changes in the release branch of the `ceph`, `s3gw-ui`, `s3gw-tools`
   and `s3gw-charts` sub-projects into `main`, e.g.:
 
-  ```shell
-  cd ~/git/s3gw-ui/
-  git fetch --tags upstream
-  git checkout main -b merge_w_v0.8.0
-  git rebase upstream/main
-  git merge --signoff v0.8.0
+```bash
+cd ~/git/s3gw-ui/
+git fetch --tags upstream
+git checkout main -b merge_w_v0.8.0
+git rebase upstream/main
+git merge --signoff v0.8.0
 
-  cd ~/git/ceph/
-  git fetch --tags aquarist-labs-upstream
-  git checkout s3gw -b merge_w_s3gw-v0.8.0
-  git rebase aquarist-labs-upstream/s3gw
-  git merge --signoff s3gw-v0.8.0
-  ```
+cd ~/git/ceph/
+git fetch --tags aquarist-labs-upstream
+git checkout s3gw -b merge_w_s3gw-v0.8.0
+git rebase aquarist-labs-upstream/s3gw
+git merge --signoff s3gw-v0.8.0
+```
 
   Create a new PR out of these changes.
+
 - Create a [draft release][3] and choose the previously created tag.
   File the form with the following data:
   - Use `vN.N.N` as title, e.g. `v0.8.0`.
   - Paste the content of `s3gw/docs/release-notes/s3gw-vN.N.N.md` as
     release notes.
+
 - After waiting for the [release pipeline][4] to finish building, go to the
   release page and make the draft release public.
 
