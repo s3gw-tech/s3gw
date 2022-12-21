@@ -1,30 +1,47 @@
+<h1 align="center"><img alt="s3gw-logo" src="./assets/images/s3gw-logo.png" /></h1>
+
 # s3gw
 
 [![License][license-badge]][license-link]
-[![Documentation Status][docs-badge]][docs-link]
+[![Documentation][docs-badge]][docs-link]
 [![Issues][issues-badge]][issues-link]
 [![Lint][linter-badge]][linter-link]
 [![Build][build-badge]][build-link]
 [![Artifact Hub][chart-badge]][chart-link]
+[![Slack][slack-badge]][slack-link]
 
-We're developing an easy-to-use Open Source and Cloud Native S3 service for
-Kubernetes.
+[s3gw][s3gw] is an S3-compatible service focused on deployments in a Kubernetes
+environment backed by any PVC, including [Longhorn][longhorn].
+Since its inception, the primary focus has been on cloud native deployments.
+However, the s3gw can be deployed in a myriad of scenarios, provided some form
+of storage is attached.
 
 ## Quickstart
 
-### Helm chart
-
+<details>
+<summary>Helm Chart</summary>
 An easy way to deploy the S3 Gateway on your Kubernetes cluster is via a Helm
-chart. We've created a dedicated repository for it, which can be found
-[here][1].
+chart:
 
-### Podman
+```shell
+helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
+helm install s3gw s3gw/s3gw --namespace s3gw-system --create-namespace
+```
+
+Check out the [documentation][helm-docs] for details and configuration options.
+</details>
+
+<details>
+<summary>Podman</summary>
 
 ```shell
 podman run --replace --name=s3gw -it -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
 ```
 
-### Docker
+</details>
+
+<details>
+<summary>Docker</summary>
 
 ```shell
 docker pull ghcr.io/aquarist-labs/s3gw:latest
@@ -36,12 +53,11 @@ In order to run the Docker container:
 docker run -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
 ```
 
-For more information on building and running a container, please read our
-[guide](./build/).
+</details>
 
 ## Documentation
 
-You can access our documentation [here][2].
+You can access our documentation [here][docs-link].
 
 ## License
 
@@ -61,8 +77,8 @@ limitations under the License.
 
 ----
 
-[1]: https://github.com/aquarist-labs/s3gw-charts
-[2]: https://s3gw-docs.readthedocs.io/en/latest/
+[s3gw]: https://s3gw.io
+[longhorn]: https://longhorn.io
 [build-badge]: https://github.com/aquarist-labs/s3gw/actions/workflows/release.yaml/badge.svg
 [build-link]: https://github.com/aquarist-labs/s3gw/releases
 [chart-badge]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/s3gw
@@ -75,3 +91,6 @@ limitations under the License.
 [license-link]: https://github.com/aquarist-labs/s3gw/blob/main/LICENSE
 [linter-badge]: https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml/badge.svg
 [linter-link]: https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml
+[slack-badge]: https://img.shields.io/badge/slack-s3gw-brightgreen.svg?logo=slack
+[slack-link]: https://slack.com/app_redirect?channel=C04DCMUV8SE
+[helm-docs]: https://s3gw-docs.readthedocs.io/en/latest/helm-charts/

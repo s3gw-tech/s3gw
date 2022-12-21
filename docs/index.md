@@ -2,7 +2,7 @@
 
 ## About the project
 
-The s3gw project is split into 4 work streams: [rgw/sfs-Ceph][1] (backend),
+The s3gw project is split into 4 work streams: [rgw/sfs-ceph][1] (backend),
 [s3gw-tools][2] (tooling), [s3gw-charts][3] (helm charts) and [s3gw-ui][4]
 (frontend).
 
@@ -41,10 +41,10 @@ apps that don't require petabyte-scale storage.
 - Lightweight, simple User Experience
 - Simple: Storage/replication handled by a PV ([Longhorn][5])
 - Designed to integrate with Rancher's product catalog
-- Open source licensing
+- Open source licensing (Apache 2.0)
 
 [1]: https://github.com/aquarist-labs/ceph
 [2]: https://github.com/aquarist-labs/s3gw-tools
 [3]: https://github.com/aquarist-labs/s3gw-charts
-[4]:https://github.com/aquarist-labs/s3gw-ui
+[4]: https://github.com/aquarist-labs/s3gw-ui
 [5]: https://longhorn.io/
