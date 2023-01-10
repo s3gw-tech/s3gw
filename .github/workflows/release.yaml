@@ -27,9 +27,9 @@ jobs:
         id: git-refs
         run: |
           for r in $(git submodule | awk '{print $2}'); do
-            echo "::set-output name=${r}::$(git log -1 --format="%H" "${r}")"
+            echo "${r}=$(git log -1 --format=\"%H\" \"${r}\")" >> $GITHUB_OUTPUT
           done
-          echo "::set-output name=github-ref-name::${GITHUB_REF_NAME}"
+          echo "github-ref-name=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
 
   # Build the build-environment container, using it's workflow
   build-env:
@@ -87,7 +87,7 @@ jobs:
       - name: Create CCache Timestamp
         id: ccache_timestamp
         run: |
-          echo "::set-output name=timestamp::$(date +%Y-%m-%d-%H:%M:%S)"
+          echo "timestamp=$(date +%Y-%m-%d-%H:%M:%S)" >> $GITHUB_OUTPUT
 
       - name: Cache CCache Files
         uses: actions/cache@v3.0.4
@@ -122,7 +122,7 @@ jobs:
         id: artifact_id
         run: |
           ARTIFACT_ID=radosgw-${{ needs.set-git-refs.outputs.github-ref-name }}
-          echo "::set-output name=artifact_id::$ARTIFACT_ID"
+          echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v3
         with:
