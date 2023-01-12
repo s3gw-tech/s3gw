@@ -35,7 +35,7 @@ Check out the [documentation][helm-docs] for details and configuration options.
 <summary>Podman</summary>
 
 ```shell
-podman run --replace --name=s3gw -it -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
+podman run --replace --name=s3gw -it -p 7480:7480 quay.io/s3gw/s3gw:latest
 ```
 
 </details>
@@ -44,13 +44,13 @@ podman run --replace --name=s3gw -it -p 7480:7480 ghcr.io/aquarist-labs/s3gw:lat
 <summary>Docker</summary>
 
 ```shell
-docker pull ghcr.io/aquarist-labs/s3gw:latest
+docker pull quay.io/s3gw/s3gw:latest
 ```
 
 In order to run the Docker container:
 
 ```shell
-docker run -p 7480:7480 ghcr.io/aquarist-labs/s3gw:latest
+docker run -p 7480:7480 quay.io/s3gw/s3gw:latest
 ```
 
 </details>

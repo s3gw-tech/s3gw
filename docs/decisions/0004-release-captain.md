@@ -133,10 +133,10 @@ git merge --signoff s3gw-v0.8.0
 
 ### Sanity Checks
 
-- `s3gw` container published (ghcr.io/aquarist-labs/s3gw:vN.N.N).
-- `s3gw-ui` container published (ghcr.io/aquarist-labs/s3gw-ui:vN.N.N).
-- The container tags `ghcr.io/aquarist-labs/s3gw:latest` and
-  `ghcr.io/aquarist-labs/s3gw-ui:latest` should exist and point to their
+- `s3gw` container published (quay.io/s3gw/s3gw:vN.N.N).
+- `s3gw-ui` container published (quay.io/s3gw/s3gw-ui:vN.N.N).
+- The container tags `quay.io/s3gw/s3gw:latest` and
+  `quay.io/s3gw/s3gw-ui:latest` should exist and point to their
   respective latest container.
 - Chart updated.
 - Release notes.
