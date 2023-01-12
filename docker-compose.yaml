@@ -2,7 +2,7 @@
 version: "3.4"
 services:
   s3gw:
-    image: ghcr.io/aquarist-labs/s3gw:latest
+    image: quay.io/s3gw/s3gw:latest
     restart: always
     command:
       - "--rgw-backend-store"
@@ -16,7 +16,7 @@ services:
       - data:/data
 
   s3gw-ui:
-    image: ghcr.io/aquarist-labs/s3gw-ui:latest
+    image: quay.io/s3gw/s3gw-ui:latest
     restart: always
     stop_signal: SIGINT
     depends_on:
