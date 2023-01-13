@@ -106,6 +106,24 @@ secretKey:
 
 The chart then computes a random alphanumeric string of 32 characters
 for the field(s).
+The generated values are printed to the console after the installation completes
+successfully. They can also be retrieved later.
+
+To obtain the access key:
+
+```bash
+kubectl --namespace $S3GW_NAMESPACE get secret \
+  $(yq .defaultUserCredentialSecret values.yaml) \
+  -o yaml | yq .data.RGW_DEFAULT_USER_ACCESS_KEY | base64 -d
+```
+
+and to obtain the secret key:
+
+```bash
+kubectl --namespace $S3GW_NAMESPACE get secret \
+  $(yq .defaultUserCredentialSecret values.yaml) \
+  -o yaml | yq .data.RGW_DEFAULT_USER_SECRET_KEY | base64 -d
+```
 
 - **Existing secret**
 
