@@ -33,20 +33,20 @@ jobs:
       - name: Dockerhub Login
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Generate Date String
+      - name: Generate Tag based on Date
         id: date
         run: |
           DATE="$(date +%Y-%m-%d)"
-          echo "date=${DATE}" >> $GITHUB_OUTPUT
+          echo "tag=nightly-${DATE}" >> $GITHUB_OUTPUT
 
       - name: Build Buildenv Container
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/buildenv-radosgw:nightly-${{ steps.date.outputs.date }}
+          tags: quay.io/s3gw/buildenv-radosgw:${{ steps.date.outputs.tag}}
           file: tools/build/Dockerfile.build-radosgw
           context: tools/build
 
@@ -79,11 +79,12 @@ jobs:
 
       - name: Build radosgw Binary
         run: |
+          TAG=nightly-${{ needs.build-env.outputs.date }}
           docker run --rm \
             -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
             -e NPROC=4 \
             -e CMAKE_BUILD_TYPE=Release \
-            ${{ secrets.DOCKERHUB_USERNAME }}/buildenv-radosgw:nightly-${{ needs.build-env.outputs.date }}
+            quay.io/s3gw/buildenv-radosgw:${{ needs.build-env.outputs.tag }}
 
       - name: Compress Build Results
         run: |
@@ -101,7 +102,7 @@ jobs:
       - name: Generate Artifact Identifier
         id: artifact_id
         run: |
-          ARTIFACT_ID=radosgw-nightly-${{ needs.build-env.outputs.date }}
+          ARTIFACT_ID=radosgw-${{ needs.build-env.outputs.tag }}
           echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v3
@@ -150,7 +151,7 @@ jobs:
         with:
           push: true
           tags: |
-            quay.io/s3gw/s3gw:nightly-${{ needs.build-env.outputs.date }}
+            quay.io/s3gw/s3gw:${{ needs.build-env.outputs.tag }}
             quay.io/s3gw/s3gw:nightly-latest
           file: tools/build/Dockerfile.build-container
           context: ceph/build
