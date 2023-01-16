@@ -83,9 +83,66 @@ It is strongly advisable to customize the initial access credentials.
 These can be used to access the admin UI, as well as the S3 endpoint. Additional
 credentials can be created using the admin UI.
 
+Initial credentials for the default user can be provided in different ways:
+
+- **Explicit values**
+
+This is the default mode. You provide explicit values for both the S3 Access Key
+and the S3 Secret Key.
+
 ```yaml
 accessKey: admin
 secretKey: foobar
+```
+
+- **Random values**
+
+If you set `accessKey` and/or `secretKey` as the empty string:
+
+```yaml
+accessKey:
+secretKey:
+```
+
+The chart then computes a random alphanumeric string of 32 characters
+for the field(s).
+The generated values are printed to the console after the installation completes
+successfully. They can also be retrieved later.
+
+To obtain the access key:
+
+```bash
+kubectl --namespace $S3GW_NAMESPACE get secret \
+  $(yq .defaultUserCredentialSecret values.yaml) \
+  -o yaml | yq .data.RGW_DEFAULT_USER_ACCESS_KEY | base64 -d
+```
+
+and to obtain the secret key:
+
+```bash
+kubectl --namespace $S3GW_NAMESPACE get secret \
+  $(yq .defaultUserCredentialSecret values.yaml) \
+  -o yaml | yq .data.RGW_DEFAULT_USER_SECRET_KEY | base64 -d
+```
+
+- **Existing secret**
+
+You provide an existing secret containing the S3 credentials
+for the default user. This secret must contain 2 keys:
+
+- `RGW_DEFAULT_USER_ACCESS_KEY`: the S3 Access Key for the default user.
+- `RGW_DEFAULT_USER_SECRET_KEY`: the S3 Secret Key for the default user.
+
+To use this configuration, you have to enable the flag:
+
+```yaml
+useExistingSecret: true
+```
+
+You can set the name of the existing secret with:
+
+```yaml
+defaultUserCredentialsSecret: "my-secret"
 ```
 
 ### Service name
