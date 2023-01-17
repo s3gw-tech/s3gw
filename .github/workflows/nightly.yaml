@@ -3,7 +3,7 @@ name: Nightly Builds
 
 on:
   schedule:
-    cron: '0 0 * * *'  # Every night midnight
+    - cron: '0 0 * * *'  # Every night midnight
 
   workflow_dispatch:   # Or manually - for testing
 
