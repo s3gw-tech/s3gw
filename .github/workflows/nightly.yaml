@@ -11,8 +11,6 @@ jobs:
   # Build the build-environment container, using it's workflow
   build-env:
     runs-on: ubuntu-latest
-    needs:
-      - set-git-refs
 
     outputs:
       date: ${{ steps.date.outputs.date }}
