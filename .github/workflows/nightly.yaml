@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      date: ${{ steps.date.outputs.date }}
+      tag: ${{ steps.date.outputs.tag }}
 
     steps:
 
@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: quay.io/s3gw/build-radosgw:${{ steps.date.outputs.tag}}
+          tags: quay.io/s3gw/build-radosgw:${{ steps.date.outputs.tag }}
           file: tools/build/Dockerfile.build-radosgw
           context: tools/build
 
@@ -72,13 +72,13 @@ jobs:
         uses: actions/cache@v3.0.4
         with:
           path: ceph/build.ccache
-          key: ccache-${{ needs.build-env.outputs.date }}
+          key: ccache-${{ needs.build-env.outputs.tag }}
           restore-keys: |
             ccache-
 
       - name: Build radosgw Binary
         run: |
-          TAG=nightly-${{ needs.build-env.outputs.date }}
+          TAG=nightly-${{ needs.build-env.outputs.tag }}
           docker run --rm \
             -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
             -e NPROC=4 \
