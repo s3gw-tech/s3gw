@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: quay.io/s3gw/buildenv-radosgw:${{ steps.date.outputs.tag}}
+          tags: quay.io/s3gw/build-radosgw:${{ steps.date.outputs.tag}}
           file: tools/build/Dockerfile.build-radosgw
           context: tools/build
 
@@ -83,7 +83,7 @@ jobs:
             -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
             -e NPROC=4 \
             -e CMAKE_BUILD_TYPE=Release \
-            quay.io/s3gw/buildenv-radosgw:${{ needs.build-env.outputs.tag }}
+            quay.io/s3gw/build-radosgw:${{ needs.build-env.outputs.tag }}
 
       - name: Compress Build Results
         run: |
