@@ -39,9 +39,7 @@ ENV LD_LIBRARY_PATH /radosgw:$LD_LIBRARY_PATH
 RUN mkdir -p /data
 
 COPY ./bin/radosgw /radosgw/
-COPY [ "./lib/libradosgw.so", \
-       "./lib/libradosgw.so.2", \
-       "./lib/libradosgw.so.2.0.0", \
+COPY [ \
        "./lib/librados.so", \
        "./lib/librados.so.2", \
        "./lib/librados.so.2.0.0", \
