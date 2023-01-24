@@ -45,6 +45,7 @@ RUN zypper -n install --no-recommends \
       libboost_system1_80_0-devel \
       libboost_thread1_80_0-devel \
       libbz2-devel \
+      libcap-devel \
       libcap-ng-devel \
       libcurl-devel \
       libexpat-devel \
