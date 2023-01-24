@@ -111,9 +111,6 @@ jobs:
             ceph/build/bin/radosgw \
             ceph/build/lib/libceph-common.so \
             ceph/build/lib/libceph-common.so.2 \
-            ceph/build/lib/libradosgw.so \
-            ceph/build/lib/libradosgw.so.2 \
-            ceph/build/lib/libradosgw.so.2.0.0 \
             ceph/build/lib/librados.so \
             ceph/build/lib/librados.so.2 \
             ceph/build/lib/librados.so.2.0.0
