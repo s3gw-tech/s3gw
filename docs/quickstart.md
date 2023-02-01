@@ -7,7 +7,7 @@ options][1] for customization.
 
 ```shell
 helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
-helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE \
+helm install $RELEASE_NAME s3gw/s3gw --namespace $S3GW_NAMESPACE \
   --create-namespace -f /path/to/your/custom/values.yaml
 ```
 
