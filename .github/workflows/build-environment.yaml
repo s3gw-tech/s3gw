@@ -22,65 +22,34 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        dockerfile:
+          - build-radosgw
+          - build-run-radosgw
+          - build-run-radosgw-tests
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           ref: ${{ inputs.ref }}
 
-      - name: Build build-radosgw image
-        id: build-radosgw-image
+      - name: Build image ${{ matrix.dockerfile }}
+        id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: s3gw/build-radosgw
+          image: 's3gw/${{ matrix.dockerfile }}'
           tags: latest ${{ github.sha }}
-          containerfiles: 'build/Dockerfile.build-radosgw'
-          context: 'build'
+          containerfiles: 'tools/build/Dockerfile.${{ matrix.dockerfile }}'
+          context: 'tools/build'
 
       - name: Push build-radosgw to quay.io
-        id: push-build-radosgw-to-quay
+        id: push-to-quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          image: ${{ steps.build-radosgw-image.outputs.image }}
-          tags: ${{ steps.build-radosgw-image.outputs.tags }}
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Build run-radosgw image
-        id: run-radosgw-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: s3gw/run-radosgw
-          tags: latest ${{ github.sha }}
-          containerfiles: 'build/Dockerfile.build-run-radosgw'
-          context: 'build'
-
-      - name: Push run-radosgw to quay.io
-        id: push-run-radosgw-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.run-radosgw-image.outputs.image }}
-          tags: ${{ steps.run-radosgw-image.outputs.tags }}
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Build run-radosgw-tests image
-        id: run-radosgw-tests-image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: s3gw/run-radosgw-tests
-          tags: latest ${{ github.sha }}
-          containerfiles: 'build/Dockerfile.build-run-radosgw-tests'
-          context: 'build'
-
-      - name: Push run-radosgw-tests to quay.io
-        id: push-run-radosgw-tests-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.run-radosgw-tests-image.outputs.image }}
-          tags: ${{ steps.run-radosgw-tests-image.outputs.tags }}
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
