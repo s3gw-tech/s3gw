@@ -1,0 +1,63 @@
+- name: s3gw deploy
+  hosts: kubectl
+  tasks:
+
+    - name: Copy Longhorn cfg to local dir
+      copy: src=../longhorn dest=/home/{{ user }} mode=0777
+
+    - name: Copy s3gw cfg to local dir
+      copy: src=../s3gw dest=/home/{{ user }} mode=0777
+
+    - name: Set S3GW_IMAGE in s3gw-deployment.yaml
+      replace:
+        path: /home/{{ user }}/s3gw/s3gw-deployment.yaml
+        regexp: '##S3GW_IMAGE##'
+        replace: "{{ s3gw_image }}"
+
+    - name: Set S3GW_IMAGE_PULL_POLICY in s3gw-deployment.yaml
+      replace:
+        path: /home/{{ user }}/s3gw/s3gw-deployment.yaml
+        regexp: '##S3GW_IMAGE_PULL_POLICY##'
+        replace: "{{ s3gw_image_pull_policy }}"
+
+    - name: Apply s3gw-namespace.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-namespace.yaml
+
+    - name: Apply longhorn-storageclass.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/longhorn/longhorn-storageclass.yaml
+
+    - name: Apply s3gw-pvc.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-pvc.yaml
+
+    - name: Apply s3gw-config.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-config.yaml
+
+    - name: Apply s3gw-secret.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-secret.yaml
+
+    - name: Apply s3gw-deployment.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-deployment.yaml
+
+    - name: Apply s3gw-service.yaml
+      kubernetes.core.k8s:
+        state: present
+        src: /home/{{ user }}/s3gw/s3gw-service.yaml
+
+    - name: Wait s3gw application to become ready, this could take a while ...
+      command: kubectl wait --namespace s3gw-system --for=condition=ready pod --selector=app.aquarist-labs.io/name=s3gw --timeout=30s
+      register: result
+      until: result.rc == 0
+      retries: 20
+      delay: 2

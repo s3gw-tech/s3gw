@@ -1,0 +1,8 @@
+/*.ctr.tar
+s3gw/*.tmp.yaml
+playbooks/join-command
+playbooks/admin.conf
+test.yaml
+s3gw.tar
+cors.xml
+longhorn-setting.yaml

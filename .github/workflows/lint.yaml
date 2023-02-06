@@ -13,8 +13,8 @@ jobs:
       - name: Set up Git repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Set up Python3
+        uses: actions/setup-python@v4
 
-      - name: Pre-Commit Checks
+      - name: Pre Commit
         uses: pre-commit/action@v3.0.0

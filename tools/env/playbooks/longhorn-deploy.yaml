@@ -1,0 +1,9 @@
+- name: Deploy Longhorn
+  hosts: kubectl
+  tasks:
+
+    - name: Installing iscsi...
+      command: kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.4/deploy/prerequisite/longhorn-iscsi-installation.yaml
+
+    - name: Deploy Longhorn
+      command: kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.2.4/deploy/longhorn.yaml
