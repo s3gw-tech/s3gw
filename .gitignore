@@ -2,3 +2,7 @@
 venv
 .DS_Store
 .vscode
+.vagrant
+
+*.swp
+__pycache__/

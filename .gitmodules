@@ -7,3 +7,6 @@
 [submodule "ui"]
 	path = ui
 	url = https://github.com/aquarist-labs/s3gw-ui
+[submodule "k3s-ansible"]
+	path = tools/env/playbooks/k3s-ansible
+	url = https://github.com/k3s-io/k3s-ansible.git

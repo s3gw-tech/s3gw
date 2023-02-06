@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.aquarist-labs.io/name: s3gw-ui
+  name: s3gw-ui
+  namespace: s3gw-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.aquarist-labs.io/name: s3gw-ui
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app.aquarist-labs.io/name: s3gw-ui
+    spec:
+      containers:
+        - name: s3gw-ui
+          image: ##S3GW_UI_IMAGE##
+          imagePullPolicy: ##S3GW_UI_IMAGE_PULL_POLICY##
+          envFrom:
+            - configMapRef:
+                name: s3gw-config
+            - secretRef:
+                name: s3gw-secret
+          ports:
+            - containerPort: 8080

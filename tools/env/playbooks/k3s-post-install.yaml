@@ -1,0 +1,43 @@
+- name: K3s extras
+  hosts: master
+  become: true
+  tasks:
+
+    - name: add .kube/config
+      copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /home/{{ user }}/.kube/config
+        owner: "{{ user }}"
+        mode: '0600'
+        remote_src: yes
+
+    - name: export KUBECONFIG
+      lineinfile:
+        path: /home/{{ user }}/.bashrc
+        line: "export KUBECONFIG=~/.kube/config"
+
+    - name: Setting kubectl alias and enabling kubectl bash completion
+      command: "{{ item }}"
+      with_items:
+          - /bin/bash -c "sudo echo 'source <(kubectl completion bash)' >> /home/{{ user }}/.bashrc"
+          - /bin/bash -c "sudo touch /etc/bash_completion.d/kubectl"
+          - /bin/bash -c "sudo chmod 777 /etc/bash_completion.d/kubectl"
+          - /bin/bash -c "kubectl completion bash > /etc/bash_completion.d/kubectl"
+          - /bin/bash -c "sudo echo 'alias k=kubectl' >> /home/{{ user }}/.bashrc"
+          - /bin/bash -c "sudo echo 'complete -F __start_kubectl k' >> /home/{{ user }}/.bashrc"
+
+    - name: Patch k3s.yaml for this session
+      file:
+        path: /etc/rancher/k3s/k3s.yaml
+        mode: '0644'
+
+- name: Probe cluster
+  hosts: kubectl
+  tasks:
+
+    - name: Wait for admin-1 to become ready
+      command: kubectl get nodes admin-1
+      register: result
+      until: result.stdout.find("NotReady") == -1
+      retries: 25
+      delay: 5

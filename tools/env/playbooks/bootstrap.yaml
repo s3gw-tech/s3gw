@@ -1,0 +1,185 @@
+- name: Install Packages - [APT]
+  hosts: apt
+  become: true
+  tasks:
+
+    - name: Install packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - wget
+            - gnupg-agent
+            - software-properties-common
+
+    - name: Add signing key for Docker's repository
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add repository for Docker stable version
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+            - docker-ce
+            - docker-ce-cli
+
+- name: Install Packages - [ZYPPER]
+  hosts: zypper
+  become: true
+  tasks:
+
+    - name: Install packages
+      zypper:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+            - curl
+            - wget
+            - git
+            - docker
+            - python3-docker
+
+- name: Install pip
+  hosts: master
+  become: true
+  tasks:
+
+    - name: Install pip
+      command: "{{ item }}"
+      with_items:
+        - wget "https://bootstrap.pypa.io/pip/3.5/get-pip.py"
+        - python3 get-pip.py
+        - rm -rf get-pip.py
+
+- name: Install pip s3cmd [ALL]
+  hosts: master
+  become: true
+  tasks:
+    - name: Install pip s3cmd
+      command: pip install s3cmd
+
+- name: Install pip kubernetes [ALL]
+  hosts: master
+  tasks:
+    - name: Install pip kubernetes
+      command: pip install kubernetes
+
+- name: Install pip docker [APT]
+  hosts: apt:!node
+  become: true
+  tasks:
+    - name: Install pip docker
+      command: pip install docker
+
+- name: Patch Runtime
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Patching docker/daemon.json
+      copy:
+        dest: "/etc/docker/daemon.json"
+        content: |
+            {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "insecure-registries" : ["admin-1:5000"]
+            }
+
+    - name: Add user to Docker group
+      user:
+        name: "{{ user }}"
+        group: docker
+
+    - name: Restart Docker
+      service:
+        name: docker
+        state: restarted
+        daemon_reload: yes
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+
+- name: Start local registry
+  hosts: master
+  become: true
+  tasks:
+
+    - name: Start a local registry
+      command: docker run -d -p 5000:5000 --restart=always --name registry registry:2
+
+- name: Set up nodes to use local registry
+  hosts: all
+  become: true
+  tasks:
+
+    - name: Ensuring /etc/rancher/k3s
+      ansible.builtin.file:
+        path: /etc/rancher/k3s
+        state: directory
+        mode: '0755'
+
+    - name: Creating /etc/rancher/k3s/registries.yaml
+      copy:
+        content: ""
+        dest: /etc/rancher/k3s/registries.yaml
+        force: no
+
+    - name: Updating /etc/rancher/k3s/registries.yaml
+      blockinfile:
+        path: /etc/rancher/k3s/registries.yaml
+        block: |
+          mirrors:
+            admin-1.local:
+              endpoint:
+                - "http://admin-1:5000"
+
+- name: Local DNS
+  hosts: all
+  become: true
+  gather_facts: yes
+  tasks:
+
+    - name: Update /etc/hosts file with node name
+      tags: etchostsupdate
+      lineinfile:
+        path: "/etc/hosts"
+        regexp: ".*\t{{ hostvars[item]['ansible_fqdn']}}\t{{ hostvars[item]['ansible_hostname']}}"
+        line: "{{ hostvars[item]['ansible_eth1'].ipv4.address }}\t{{ hostvars[item]['ansible_fqdn']}}\t{{ hostvars[item]['ansible_hostname']}}"
+        state: present
+        backup: yes
+      register: etchostsupdate
+      with_items: "{{groups['all']}}"
+
+    - name: Patch /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.2\.1.*'
+        state: absent
+
+    - name: Add local names to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.0.1   longhorn.local s3gw.local s3gw-no-tls.local s3gw-ui.local"

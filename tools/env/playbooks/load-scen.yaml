@@ -1,0 +1,22 @@
+- name: Load scenario
+  hosts: kubectl
+  tasks:
+
+    - name: Create scenarios dir
+      file:
+        path: /home/{{ user }}/scenarios
+        state: directory
+        mode: '0777'
+
+    - name: Copy s3cmd.cfg
+      copy: src=../s3cmd.cfg dest=/home/{{ user }}/scenarios
+
+    - name: Copy scenario's resources
+      copy: src=../scenarios/{{ scenario }} dest=/home/{{ user }}/scenarios mode=0777
+
+    - name: Run load-scen.sh
+      shell: /home/{{ user }}/scenarios/{{ scenario }}/load-scen.sh
+      register: out
+      args:
+        chdir: /home/{{ user }}/scenarios/{{ scenario }}/
+    - debug: var=out.stdout_lines

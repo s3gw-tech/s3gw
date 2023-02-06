@@ -1,0 +1,55 @@
+---
+name: Build Environment
+on:
+  push:
+    branches:
+      - "main"
+
+  workflow_call:
+    inputs:
+      tag:
+        description: "A tag to use for the container image."
+        required: false
+        type: string
+        default: "latest"
+      ref:
+        description: "The git ref to checkout and build."
+        required: false
+        default: "main"
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dockerfile:
+          - build-radosgw
+          - build-run-radosgw
+          - build-run-radosgw-tests
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Build image ${{ matrix.dockerfile }}
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: 's3gw/${{ matrix.dockerfile }}'
+          tags: latest ${{ github.sha }}
+          containerfiles: 'tools/build/Dockerfile.${{ matrix.dockerfile }}'
+          context: 'tools/build'
+
+      - name: Push build-radosgw to quay.io
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
