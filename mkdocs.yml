@@ -31,3 +31,5 @@ nav:
       - SFS SAL Backend Design: "decisions/0003-sfs.md"
       - Release Captain: "decisions/0004-release-captain.md"
       - Project Labels: "decisions/0005-project-labels.md"
+      - Git branches tags: "decisions/0006-git-branches-tags.md"
+      - Release process: "decisions/0007-release-process.md"
