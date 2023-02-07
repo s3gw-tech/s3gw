@@ -134,7 +134,7 @@ build_radosgw() {
   fi
 
   podman run -it --replace --name s3gw-builder \
-    -e S3GW_CCACHE_DIR=/srv/ccache \
+    -e SFS_CCACHE_DIR=/srv/ccache \
     -e WITH_TESTS=${with_tests} \
     ${volumes[@]} \
     ${build_image}
