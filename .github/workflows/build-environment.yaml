@@ -39,8 +39,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags:
-            - quay.io/s3gw/${{ matrix.dockerfile }}:latest
-            - quay.io/s3gw/${{ matrix.dockerfile }}:${{ github.sha }}
+          tags: |
+            quay.io/s3gw/${{ matrix.dockerfile }}:latest
+            quay.io/s3gw/${{ matrix.dockerfile }}:${{ github.sha }}
           file: 'tools/build/Dockerfile.${{ matrix.dockerfile }}'
           context: 'tools/build'
