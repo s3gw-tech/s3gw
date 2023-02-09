@@ -9,8 +9,7 @@ on:
     paths:
       - "tools/build/*"
 
-    workflow_dispatch:  # Allow this workflow to be triggered manually
-
+  workflow_dispatch:  # Allow this workflow to be triggered manually
 
 jobs:
   build:
