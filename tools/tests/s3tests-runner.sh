@@ -54,8 +54,13 @@ _setup() {
       > "${OUTPUT_DIR}/logs/${test}/radosgw.log" 2>&1 &
     JOB="$!"
 
-    # sleep until s3gw has spun up
-    while ! curl -s localhost:7480 > /dev/null ; do sleep .1 ; done
+    # sleep until s3gw has spun up or at most 1 minute
+    for _ in {1..600} ; do
+      if curl -s localhost:7480 > /dev/null ; then
+        break
+      fi
+      sleep .1
+    done
   fi
 
   pushd "${S3TEST_REPO}" > /dev/null || exit 1
@@ -112,7 +117,7 @@ _main() {
   [ -d "${OUTPUT_DIR}" ] || mkdir -p "${OUTPUT_DIR}"
   [ -d "${OUTPUT_DIR}/logs" ] || mkdir -p "${OUTPUT_DIR}/logs"
 
-  TMPFILE="$(mktemp -q -p "${OUTPUT_DIR}" report.XXXXXX.ymal)"
+  TMPFILE="$(mktemp -q -p "${OUTPUT_DIR}" report.XXXXXX.yaml)"
   [ -f "${TMPFILE}" ] || echo "tests:" > "${TMPFILE}"
 
   if [ -n "$1" ] ; then
