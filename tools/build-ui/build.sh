@@ -4,7 +4,7 @@ set -e
 
 BUILDER_IMAGE_NAME=${BUILDER_IMAGE_NAME:-"s3gw-ui-builder"}
 IMAGE_NAME=${IMAGE_NAME:-"s3gw-ui"}
-S3GW_UI_DIR=$(realpath ${S3GW_UI_DIR:-"../../s3gw-ui/"})
+S3GW_UI_DIR=$(realpath ${S3GW_UI_DIR:-"../../../s3gw-ui/"})
 S3GW_UI_DIST_DIR=${S3GW_UI_DIST_DIR:-"${S3GW_UI_DIR}/dist/s3gw-ui/"}
 
 force=false
