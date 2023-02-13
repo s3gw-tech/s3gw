@@ -19,8 +19,8 @@ jobs:
       matrix:
         dockerfile:
           - build-radosgw
-          - build-run-radosgw
-          - build-run-radosgw-tests
+          - run-radosgw
+          - run-radosgw-tests
 
     steps:
       - name: Checkout
