@@ -40,9 +40,7 @@ COPY ./bin/unittest_rgw_sfs_sqlite_versioned_objects /radosgw/unittest_rgw_sfs_s
 COPY ./bin/unittest_rgw_sfs_sfs_bucket /radosgw/unittest_rgw_sfs_sfs_bucket
 COPY ./bin/unittest_rgw_sfs_metadata_compatibility /radosgw/unittest_rgw_sfs_metadata_compatibility
 COPY ./bin/unittest_rgw_sfs_gc /radosgw/unittest_rgw_sfs_gc
-COPY [ "./lib/libradosgw.so", \
-       "./lib/libradosgw.so.2", \
-       "./lib/libradosgw.so.2.0.0", \
+COPY [ \
        "./lib/librados.so", \
        "./lib/librados.so.2", \
        "./lib/librados.so.2.0.0", \
