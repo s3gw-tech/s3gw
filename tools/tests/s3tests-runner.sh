@@ -18,6 +18,17 @@ JOB=
 TMPFILE=
 TMPDIR=
 
+CONTAINER_CMD=
+_configure() {
+  if command -v podman ; then
+    CONTAINER_CMD=podman
+  elif command -v docker ; then
+    CONTAINER_CMD=docker
+  else
+    exit 2
+  fi
+}
+
 
 _setup() {
   local test="$1"
@@ -26,10 +37,10 @@ _setup() {
 
   if [ ! -d "${CEPH_DIR}/build/bin" ] ; then
     echo "Using s3gw container"
-    CONTAINER=$(podman run --rm -d -p 7480:7480 quay.io/s3gw/s3gw:latest)
+    CONTAINER=$("$CONTAINER_CMD" run --rm -d -p 7480:7480 quay.io/s3gw/s3gw:latest)
   elif ! grep -q -i suse /etc/os-release || [ "${FORCE_CONTAINER}" = "ON" ] ; then
     echo "Using runtime container"
-    CONTAINER=$(podman run \
+    CONTAINER=$("$CONTAINER_CMD" run \
       --rm \
       -d \
       -p 7480:7480 \
@@ -97,7 +108,7 @@ _run() {
 
 _teardown() {
   if [ -n "$CONTAINER" ] ; then
-    podman kill "$CONTAINER"
+    "$CONTAINER_CMD" kill "$CONTAINER"
   else
     kill "$JOB"
     rm -rf "${TMPDIR}"
@@ -114,6 +125,7 @@ _convert() {
 
 
 _main() {
+  _configure
   [ -d "${OUTPUT_DIR}" ] || mkdir -p "${OUTPUT_DIR}"
   [ -d "${OUTPUT_DIR}/logs" ] || mkdir -p "${OUTPUT_DIR}/logs"
 
