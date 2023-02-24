@@ -46,6 +46,7 @@ _setup() {
       -p 7480:7480 \
       -v "${CEPH_DIR}/build/bin":"/radosgw/bin" \
       -v "${CEPH_DIR}/build/lib":"/radosgw/lib" \
+      --log-opt=path="${OUTPUT_DIR}/logs/${test}/radosgw.log" \
       quay.io/s3gw/run-radosgw:latest
     )
   else
