@@ -76,12 +76,14 @@ _setup() {
   mkdir -p "${OUTPUT_DIR}/logs/${test}"
 
   if [ ! -d "${CEPH_DIR}/build/bin" ] ; then
-    echo "Using s3gw container"
-    CONTAINER=$("$CONTAINER_CMD" run --rm -d -p 7480:7480 "$S3GW_CONTAINER")
-  elif ! grep -q -i suse /etc/os-release || [ "${FORCE_CONTAINER}" = "ON" ] ; then
-    echo "Using runtime container"
     CONTAINER=$("$CONTAINER_CMD" run \
-      --rm \
+      -d \
+      -p 7480:7480 \
+      "${CONTAINER_CMD_LOG_OPTS[@]}" \
+      "$S3GW_CONTAINER"
+    )
+  elif ! grep -q -i suse /etc/os-release || [ "${FORCE_CONTAINER}" = "ON" ] ; then
+    CONTAINER=$("$CONTAINER_CMD" run \
       -d \
       -p 7480:7480 \
       -v "${CEPH_DIR}/build/bin":"/radosgw/bin" \
@@ -126,13 +128,11 @@ _run() {
 
   _setup "$test"
 
-  # this is needed for nosetests
   export S3TEST_CONF
-  if nosetests \
-      -c "${S3TEST_CONF}" \
-      -s \
-      -a '!fails_on_rgw,!lifecycle_expiration,!fails_strict_rfc2616' \
-      "$test" > "${OUTPUT_DIR}/logs/${test}/test.output" 2>&1 ; then
+  export S3_USE_SIGV4=ON
+  if python3 -m tox -- \
+    "s3tests_boto3/functional/test_s3.py::${name}" \
+    > "${OUTPUT_DIR}/logs/${test}/test.output" 2>&1 ; then
     result="success"
   else
     result="failure"
@@ -152,15 +152,20 @@ _teardown() {
 
   if [ "$CONTAINER_CMD" = "docker" ] ; then
     docker logs "$CONTAINER" > "${OUTPUT_DIR}/logs/${test}/radosgw.log" 2>&1
-  else
-    mv "${OUTPUT_DIR}/logs/radosgw.log" "${OUTPUT_DIR}/logs/${test}/radosgw.log"
   fi
 
   if [ -n "$CONTAINER" ] ; then
+    set +e
     "$CONTAINER_CMD" kill "$CONTAINER"
+    "$CONTAINER_CMD" rm "$CONTAINER"
+    set -e
   else
     kill "$JOB"
     rm -rf "${TMPDIR}"
+  fi
+
+  if [ ! "$CONTAINER_CMD" = "docker" ] ; then
+    mv "${OUTPUT_DIR}/logs/radosgw.log" "${OUTPUT_DIR}/logs/${test}/radosgw.log"
   fi
 
   popd > /dev/null || exit 1
@@ -187,8 +192,11 @@ _count_results_by_type() {
   _list_results_by_type "$type" | wc -l
 }
 
+# return 0 if there are no failed tests, return 1 otherwise
 _has_failed_tests() {
-  _list_results_by_type "failure" | grep -v -q -e ".*"
+  [ -z "$(jq \
+    ".tests[] | select( .result == \"failure\" ) | .name" \
+    "${OUTPUT_FILE}")" ]
 }
 
 
