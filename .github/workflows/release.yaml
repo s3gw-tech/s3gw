@@ -33,7 +33,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: quay.io/s3gw/build-radosgw:${{ env.GITHUB_REF_NAME }}
+          tags: quay.io/s3gw/build-radosgw:${{ github.ref_name }}
           file: tools/build/Dockerfile.build-radosgw
           context: tools/build
 
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: aquarist-labs/ceph
-          ref: s3gw-${{ env.GITHUB_REF_NAME }}
+          ref: s3gw-${{ github.ref_name }}
           submodules: recursive
           path: ceph
 
@@ -80,7 +80,7 @@ jobs:
             -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
             -e NPROC=4 \
             -e CMAKE_BUILD_TYPE=Release \
-            quay.io/s3gw/build--radosgw:${{ env.GITHUB_REF_NAME }}
+            quay.io/s3gw/build--radosgw:${{ github.ref_name }}
 
       - name: Test On-Disk Format
         run: |
@@ -102,7 +102,7 @@ jobs:
       - name: Generate Artifact Identifier
         id: artifact_id
         run: |
-          ARTIFACT_ID=radosgw-${{ env.GITHUB_REF_NAME }}
+          ARTIFACT_ID=radosgw-${{ github.ref_name }}
           echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v3
@@ -150,7 +150,7 @@ jobs:
         with:
           push: true
           tags: |
-            quay.io/s3gw/s3gw:${{ env.GITHUB_REF_NAME }}
+            quay.io/s3gw/s3gw:${{ github.ref_name }}
             quay.io/s3gw/s3gw:latest
           file: tools/build/Dockerfile.build-container
           context: ceph/build
@@ -177,7 +177,7 @@ jobs:
 
           CONTAINER=$(docker run --rm -d \
                         -p 7480:7480
-                        quay.io/s3gw/s3gw:${{ env.GITHUB_REF_NAME }})
+                        quay.io/s3gw/s3gw:${{ github.ref_name }})
 
           wait_for_http_200 "127.0.0.1:7480"
 
@@ -213,7 +213,7 @@ jobs:
         with:
           push: true
           tags: |
-            quay.io/s3gw/s3gw-ui:${{ env.GITHUB_REF_NAME }}
+            quay.io/s3gw/s3gw-ui:${{ github.ref_name }}
             quay.io/s3gw/s3gw-ui:latest
           file: ui/Dockerfile
           context: ui
