@@ -80,7 +80,7 @@ jobs:
             -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
             -e NPROC=4 \
             -e CMAKE_BUILD_TYPE=Release \
-            quay.io/s3gw/build--radosgw:${{ github.ref_name }}
+            quay.io/s3gw/build-radosgw:${{ github.ref_name }}
 
       - name: Test On-Disk Format
         run: |
