@@ -63,7 +63,7 @@ start_s3gw() {
     echo "Contents of lib dir: ----------------"
     ls -la ${CEPH_DIR}/build/lib
     echo "Vol is: ${VOL}"
-    #_podman run --rm -v "${VOL}:/data" -v "${CEPH_DIR}/build/bin:/radosgw/bin" -v "${CEPH_DIR}/build/lib:/radosgw/lib" -p 7480:7480 quay.io/s3gw/run-radosgw --rgw-backend-store sfs --debug-rgw 1
+    _podman run --rm -v "${VOL}:/data" -v "${CEPH_DIR}/build/bin:/radosgw/bin" -v "${CEPH_DIR}/build/lib:/radosgw/lib" -p 7480:7480 quay.io/s3gw/run-radosgw --rgw-backend-store sfs --debug-rgw 1
     CONTAINER=$(_podman run \
                   --rm -d \
                   -v "${VOL}:/data" \
