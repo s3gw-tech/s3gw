@@ -82,6 +82,11 @@ jobs:
             -e CMAKE_BUILD_TYPE=Release \
             quay.io/s3gw/build-radosgw:${{ github.ref_name }}
 
+      - name: Install S3cmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y s3cmd
+
       - name: Test On-Disk Format
         run: |
           # check if on-disk format changed. If it did, it must be mentioned in
