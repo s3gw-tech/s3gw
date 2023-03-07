@@ -87,16 +87,19 @@ start_s3gw() {
     fi
     sleep .1
   done
-  if [ "$container_started" = false ] ; then
+  if [ "$container_started" = false ]; then
     echo "Container failed to start or crashed"
     echo "Showing logs..."
+    echo "---------------------------------------------"
     _podman logs ${CONTAINER}
+    echo "---------------------------------------------"
     METADATA_ISSUE=$(_podman logs ${CONTAINER} | grep "ERROR ACCESSING SFS METADATA")
-    if [ "$?" -ne 1 ]; then
-      echo "Metadata breaking changes inconsitencies found"
+    if [ "$?" -eq 0 ]; then
+      echo "Format of metadata has changed. Breaking changes inconsitencies found."
       exit 0
     fi
   fi
+  echo "TEST"
 }
 
 stop_s3gw() {
