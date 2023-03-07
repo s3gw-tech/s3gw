@@ -58,12 +58,6 @@ start_s3gw() {
                   "quay.io/s3gw/s3gw:${version}")
   else
     echo "Running s3gw from ${CEPH_DIR}/build/bin"
-    echo "Contents of bin dir: ----------------"
-    ls -la ${CEPH_DIR}/build/bin
-    echo "Contents of lib dir: ----------------"
-    ls -la ${CEPH_DIR}/build/lib
-    echo "Vol is: ${VOL}"
-    #_podman run --rm -v "${VOL}:/data" -v "${CEPH_DIR}/build/bin:/radosgw/bin" -v "${CEPH_DIR}/build/lib:/radosgw/lib" -p 7480:7480 quay.io/s3gw/run-radosgw --rgw-backend-store sfs --debug-rgw 1
     # as this is the version we're trying to test
     # don't run with --rm to keep the container and its logs
     CONTAINER=$(_podman run \
@@ -77,7 +71,6 @@ start_s3gw() {
                     --debug-rgw 1)
   fi
 
-  echo "Container ${CONTAINER} started"
   container_started=false
   for _ in {1..600} ; do
     if curl -s "$S3GW_HOST" > /dev/null ; then
@@ -96,14 +89,17 @@ start_s3gw() {
     METADATA_ISSUE=$(_podman logs ${CONTAINER} | grep "ERROR ACCESSING SFS METADATA")
     if [ "$?" -eq 0 ]; then
       echo "Format of metadata has changed. Breaking changes inconsitencies found."
-      exit 0
+      exit 1
     fi
   fi
-  echo "TEST"
 }
 
 stop_s3gw() {
   _podman kill "$CONTAINER"
+}
+
+remove_s3gw_container() {
+  _podman rm "$CONTAINER"
 }
 
 setup() {
@@ -152,6 +148,7 @@ trap cleanup EXIT
 cleanup() {
   stop_s3gw
   echo "Cleaning up..."
+  remove_s3gw_container
   rm -rf "$VOL"
   rm -rf "$SRC"
   rm -rf "$DST"
@@ -160,8 +157,6 @@ cleanup() {
 
 
 test_put_more_objects() {
-  echo "putting more objects...."
-  _podman ps
   for i in {101..200} ; do
     dd if=/dev/random bs=1k count=5k of="${SRC}/obj-${i}.bin" status=none
   done
