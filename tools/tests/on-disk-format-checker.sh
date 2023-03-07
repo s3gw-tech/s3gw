@@ -89,8 +89,8 @@ start_s3gw() {
     METADATA_ISSUE=$(_podman logs ${CONTAINER} | grep "ERROR ACCESSING SFS METADATA")
     if [ "$?" -eq 0 ]; then
       echo "Format of metadata has changed. Breaking changes inconsitencies found."
-      exit 1
     fi
+    exit 1
   fi
 }
 
