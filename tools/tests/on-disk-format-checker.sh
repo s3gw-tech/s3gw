@@ -103,11 +103,7 @@ start_s3gw() {
 }
 
 stop_s3gw() {
-  echo "Stopping s3gw..."
-  _podman ps
   _podman kill "$CONTAINER"
-  echo "S3gw should be stopped"
-  _podman ps
 }
 
 setup() {
