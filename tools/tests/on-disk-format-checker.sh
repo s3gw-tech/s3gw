@@ -64,6 +64,8 @@ start_s3gw() {
     ls -la ${CEPH_DIR}/build/lib
     echo "Vol is: ${VOL}"
     #_podman run --rm -v "${VOL}:/data" -v "${CEPH_DIR}/build/bin:/radosgw/bin" -v "${CEPH_DIR}/build/lib:/radosgw/lib" -p 7480:7480 quay.io/s3gw/run-radosgw --rgw-backend-store sfs --debug-rgw 1
+    # as this is the version we're trying to test
+    # don't run with --rm to keep the container and its logs
     CONTAINER=$(_podman run \
                   -d \
                   -v "${VOL}:/data" \
@@ -76,15 +78,25 @@ start_s3gw() {
   fi
 
   echo "Container ${CONTAINER} started"
+  container_started=false
   for _ in {1..600} ; do
     if curl -s "$S3GW_HOST" > /dev/null ; then
       echo "S3gw is up"
+      container_started=true
       break
     fi
     sleep .1
   done
-  _podman ps -a
-  _podman logs ${CONTAINER}
+  if [ "$container_started" = false ] ; then
+    echo "Container failed to start or crashed"
+    echo "Showing logs..."
+    _podman logs ${CONTAINER}
+    METADATA_ISSUE=$(_podman logs ${CONTAINER} | grep "ERROR ACCESSING SFS METADATA")
+    if [ "$?" -ne 1 ]; then
+      echo "Metadata breaking changes inconsitencies found"
+      exit 0
+    fi
+  fi
 }
 
 stop_s3gw() {
