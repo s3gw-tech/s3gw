@@ -91,8 +91,8 @@ jobs:
           # the releaes notes under "breaking changes"
           VERSION_AFTER_V=$(cut -d "v" -f2 <<< v0.13.0-rc7)
           VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
-          ls -la $GITHUB_WORKSPACE/s3gw
-          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
+          ls -la $GITHUB_WORKSPACE/s3gw/docs/release-notes
+          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/s3gw/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
           if [ -f "$EXPECTED_RN_FILE" ]; then
             s3gw/tools/tests/on-disk-format-checker.sh || \
               grep -A 5 -i "breaking changes" ${EXPECTED_RN_FILE} | grep -i format
