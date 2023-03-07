@@ -71,14 +71,20 @@ start_s3gw() {
 
   for _ in {1..600} ; do
     if curl -s "$S3GW_HOST" > /dev/null ; then
+      echo "S3gw is up"
       break
     fi
     sleep .1
   done
+  _podman ps
 }
 
 stop_s3gw() {
+  echo "Stopping s3gw..."
+  _podman ps
   _podman kill "$CONTAINER"
+  echo "S3gw should be stopped"
+  _podman ps
 }
 
 setup() {
@@ -135,6 +141,8 @@ cleanup() {
 
 
 test_put_more_objects() {
+  echo "putting more objects...."
+  _podman ps
   for i in {101..200} ; do
     dd if=/dev/random bs=1k count=5k of="${SRC}/obj-${i}.bin" status=none
   done
