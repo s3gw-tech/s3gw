@@ -82,6 +82,7 @@ start_s3gw() {
     fi
     sleep .1
   done
+  _podman logs ${CONTAINER}
   _podman ps
 }
 
