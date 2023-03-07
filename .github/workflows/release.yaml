@@ -91,13 +91,14 @@ jobs:
           # the releaes notes under "breaking changes"
           VERSION_AFTER_V=$(cut -d "v" -f2 <<< v0.13.0-rc7)
           VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
+          ls -la EXPECTED_RN_FILE="$GITHUB_WORKSPACE/docs/release-notes/
           EXPECTED_RN_FILE="$GITHUB_WORKSPACE/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
           if [ -f "$EXPECTED_RN_FILE" ]; then
             s3gw/tools/tests/on-disk-format-checker.sh || \
               grep -A 5 -i "breaking changes" ${EXPECTED_RN_FILE} | grep -i format
           else
             echo "Expected release-notes file: ${EXPECTED_RN_FILE} was not found"
-            return 1
+            exit 1
           fi
 
       - name: Compress Build Results
