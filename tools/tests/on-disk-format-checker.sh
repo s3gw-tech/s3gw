@@ -58,6 +58,11 @@ start_s3gw() {
                   "quay.io/s3gw/s3gw:${version}")
   else
     echo "Running s3gw from ${CEPH_DIR}/build/bin"
+    echo "Contents of bin dir: ----------------"
+    ls -la ${CEPH_DIR}/build/bin
+    echo "Contents of lib dir: ----------------"
+    ls -la ${CEPH_DIR}/build/lib
+    echo "Vol is: ${VOL}"
     CONTAINER=$(_podman run \
                   --rm -d \
                   -v "${VOL}:/data" \
@@ -69,6 +74,7 @@ start_s3gw() {
                     --debug-rgw 1)
   fi
 
+  echo "Container ${CONTAINER} started"
   for _ in {1..600} ; do
     if curl -s "$S3GW_HOST" > /dev/null ; then
       echo "S3gw is up"
