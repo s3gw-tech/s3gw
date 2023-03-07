@@ -30,7 +30,7 @@ should feel encouraged to file an issue in our
 
 ## Breaking Changes
 
-- On-disk  for the metadata store changed
+- On-disk format for the metadata store changed
 
 ## Known Issues
 
