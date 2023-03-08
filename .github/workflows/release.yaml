@@ -188,6 +188,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Install S3cmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y s3cmd
+
       - name: Run Smoke Tests
         run: |
           ls -la ceph
