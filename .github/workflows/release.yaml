@@ -187,7 +187,7 @@ jobs:
 
       - name: Run Smoke Tests
         run: |
-          source ceph/qa/rgw/store/sfs/tests/helper.sh
+          source ceph/qa/rgw/store/sfs/tests/helpers.sh
 
           CONTAINER=$(docker run --rm -d \
                         -p 7480:7480
