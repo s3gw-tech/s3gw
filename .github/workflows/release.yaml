@@ -91,8 +91,17 @@ jobs:
         run: |
           # check if on-disk format changed. If it did, it must be mentioned in
           # the releaes notes under "breaking changes"
-          s3gw/tools/tests/on-disk-format-checker.sh || \
-            grep -A 5 -i "breaking changes" | grep -i format
+          VERSION_AFTER_V=$(cut -d "v" -f2 <<< ${{ github.ref_name }})
+          VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
+          ls -la $GITHUB_WORKSPACE/s3gw/docs/release-notes
+          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/s3gw/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
+          if [ -f "$EXPECTED_RN_FILE" ]; then
+            s3gw/tools/tests/on-disk-format-checker.sh || \
+              grep -A 5 -i "breaking changes" ${EXPECTED_RN_FILE} | grep -i format
+          else
+            echo "Expected release-notes file: ${EXPECTED_RN_FILE} was not found"
+            exit 1
+          fi
 
       - name: Compress Build Results
         run: |
