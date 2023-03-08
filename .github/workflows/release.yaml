@@ -195,7 +195,7 @@ jobs:
           source ceph/qa/rgw/store/sfs/tests/helpers.sh
 
           CONTAINER=$(docker run --rm -d \
-                        -p 7480:7480
+                        -p 7480:7480 \
                         quay.io/s3gw/s3gw:v0.13.0-rc9)
 
           wait_for_http_200 "127.0.0.1:7480"
