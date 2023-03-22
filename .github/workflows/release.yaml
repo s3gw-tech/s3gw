@@ -7,14 +7,14 @@ on:
 
 jobs:
   # Build the build-environment container, using it's workflow
-  build-env:
-    runs-on: ubuntu-latest
+  build-s3gw:
+    runs-on: self-hosted
     steps:
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: true
+          submodules: recursive
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -29,150 +29,40 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Build Buildenv Container
+      - name: Build Unittests
+        uses: docker/build-push-action@v4
+        with:
+          load: true
+          build-args: |
+            CMAKE_BUILD_TYPE=Release
+            NPROC=16
+          tags: |
+            s3gw-unittests
+          target: s3gw-unittests
+          file: Dockerfile
+          context: .
+
+      - name: Run Unittests
+        run: |
+          docker run --rm s3gw-unittests
+
+      - name: Build s3gw Container Image
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: quay.io/s3gw/build-radosgw:${{ github.ref_name }}
-          file: tools/build/Dockerfile.build-radosgw
-          context: tools/build
-
-  # Build the radosgw binary using the previously built container image
-  build-radosgw:
-    runs-on: ubuntu-latest
-    needs:
-      - build-env
-
-    outputs:
-      artifact_id: ${{ steps.artifact_id.outputs.artifact_id }}
-
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          path: s3gw
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: aquarist-labs/ceph
-          ref: s3gw-${{ github.ref_name }}
-          submodules: recursive
-          path: ceph
-
-      - name: Create CCache Timestamp
-        id: ccache_timestamp
-        run: |
-          echo "timestamp=$(date +%Y-%m-%d-%H:%M:%S)" >> $GITHUB_OUTPUT
-
-      - name: Cache CCache Files
-        uses: actions/cache@v3.0.4
-        with:
-          path: ceph/build.ccache
-          key: ccache-${{ steps.ccache_timestamp.outputs.timestamp }}
-          restore-keys: |
-            ccache-
-
-      - name: Build radosgw Binary
-        run: |
-          docker run --rm \
-            -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
-            -e NPROC=4 \
-            -e CMAKE_BUILD_TYPE=Release \
-            quay.io/s3gw/build-radosgw:${{ github.ref_name }}
-
-      - name: Install S3cmd
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y s3cmd
-
-      - name: Test On-Disk Format
-        run: |
-          # check if on-disk format changed. If it did, it must be mentioned in
-          # the releaes notes under "breaking changes"
-          VERSION_AFTER_V=$(cut -d "v" -f2 <<< ${{ github.ref_name }})
-          VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
-          ls -la $GITHUB_WORKSPACE/s3gw/docs/release-notes
-          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/s3gw/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
-          if [ -f "$EXPECTED_RN_FILE" ]; then
-            s3gw/tools/tests/on-disk-format-checker.sh || \
-              grep -A 5 -i "breaking changes" ${EXPECTED_RN_FILE} | grep -i format
-          else
-            echo "Expected release-notes file: ${EXPECTED_RN_FILE} was not found"
-            exit 1
-          fi
-
-      - name: Compress Build Results
-        run: |
-          tar -czvf build-results.tar.gz \
-            ceph/build/bin/radosgw \
-            ceph/build/lib/libceph-common.so \
-            ceph/build/lib/libceph-common.so.2 \
-            ceph/build/lib/librados.so \
-            ceph/build/lib/librados.so.2 \
-            ceph/build/lib/librados.so.2.0.0
-
-      - name: Generate Artifact Identifier
-        id: artifact_id
-        run: |
-          ARTIFACT_ID=radosgw-${{ github.ref_name }}
-          echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.artifact_id.outputs.artifact_id }}
-          path: build-results.tar.gz
-
-  # Build and push the radosgw container using the radosgw-binary
-  build-s3gw-container:
-    runs-on: ubuntu-latest
-    needs:
-      - build-radosgw
-
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Quay Login
-        uses: docker/login-action@v2
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Download Radogw Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ needs.build-radosgw.outputs.artifact_id }}
-
-      - name: Unpack Artifacts
-        run: |
-          tar -xvf build-results.tar.gz
-
-      - name: Build S3GW Container
-        uses: docker/build-push-action@v3
-        with:
-          push: true
+          build-args: |
+            CMAKE_BUILD_TYPE=Release
+            NPROC=16
           tags: |
-            quay.io/s3gw/s3gw:${{ github.ref_name }}
             quay.io/s3gw/s3gw:latest
-          file: tools/build/Dockerfile.build-container
-          context: ceph/build
+            quay.io/s3gw/s3gw:${{ github.ref_name }}
+          file: Dockerfile
+          context: .
 
-  pre-release-tests:
+  pre-release-smoke-tests:
     runs-on: ubuntu-latest
     needs:
-      - build-s3gw-container
+      - build-s3gw
 
     steps:
 
@@ -181,14 +71,8 @@ jobs:
         with:
           repository: aquarist-labs/ceph
           ref: s3gw-${{ github.ref_name }}
-          submodules: recursive
+          submodules: false
           path: ceph
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
 
       - name: Install S3cmd
         run: |
@@ -208,6 +92,41 @@ jobs:
           ceph/qa/rgw/store/sfs/tests/sfs-smoke-test.sh 127.0.0.1:7480
 
           docker kill "$CONTAINER"
+
+  pre-release-on-disk-format-test:
+    runs-on: ubuntu-latest
+    needs:
+      - build-s3gw
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install S3cmd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y s3cmd
+
+      - name: Run On-Disk Format Test
+        run: |
+          NEW_VERSION=${{ github.ref_name }}
+          OLD_VERSION=$(git describe --abbrev=0 --tags ${{ github.ref_name }}^)
+
+          VERSION_AFTER_V=$(cut -d "v" -f2 <<< ${{ github.ref_name }})
+          VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
+          ls -la $GITHUB_WORKSPACE/s3gw/docs/release-notes
+          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/s3gw/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
+
+          if [ -f "$EXPECTED_RN_FILE" ]; then
+            s3gw/tools/tests/on-disk-format-checker.sh || \
+              grep -A 5 -i "breaking changes" ${EXPECTED_RN_FILE} | grep -i format
+          else
+            echo "Expected release-notes file: ${EXPECTED_RN_FILE} was not found"
+            exit 1
+          fi
 
   # Build and push the ui container
   build-s3gw-ui-container:
@@ -245,8 +164,8 @@ jobs:
   draft-release:
     runs-on: ubuntu-latest
     needs:
-      - build-s3gw-container
-      - build-s3gw-ui-container
+      - pre-release-smoke-test
+      - pre-release-on-disk-format-test
 
     steps:
 
