@@ -5,6 +5,36 @@ RUN zypper ar \
   s3gw-deps \
  && zypper --gpg-auto-import-keys ref
 
+RUN zypper -n install \
+  libblkid1 \
+  libexpat1 \
+  libtcmalloc4 \
+  libfmt9 \
+  liboath0 \
+  libicu-suse65_1 \
+  libthrift-0_16_0 \
+  libboost_atomic1_80_0 \
+  libboost_chrono1_80_0 \
+  libboost_context1_80_0 \
+  libboost_coroutine1_80_0 \
+  libboost_date_time1_80_0 \
+  libboost_filesystem1_80_0 \
+  libboost_iostreams1_80_0 \
+  libboost_program_options1_80_0 \
+  libboost_random1_80_0 \
+  libboost_regex1_80_0 \
+  libboost_serialization1_80_0 \
+  libboost_system1_80_0 \
+  libboost_thread1_80_0 \
+ && zypper clean --all \
+ && mkdir -p \
+  /radosgw/bin \
+  /radosgw/lib \
+  /data
+
+ENV PATH=/radosgw/bin:$PATH
+ENV LD_LIBRARY_PATH=/radosgw/lib:$LD_LIBRARY_PATH
+
 FROM s3gw-base as buildenv
 
 ARG CMAKE_BUILD_TYPE=Debug
@@ -109,7 +139,22 @@ COPY $SRC_CEPH_DIR /srv/ceph
 
 WORKDIR /srv/ceph
 
+ENV WITH_TESTS=ON
 RUN /srv/ceph/qa/rgw/store/sfs/build-radosgw.sh
+
+FROM s3gw-base as s3gw-unittests
+
+COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_sfs* /radosgw/bin/
+COPY --from=buildenv [ \
+  "/srv/ceph/build/lib/librados.so", \
+  "/srv/ceph/build/lib/librados.so.2", \
+  "/srv/ceph/build/lib/librados.so.2.0.0", \
+  "/srv/ceph/build/lib/libceph-common.so", \
+  "/srv/ceph/build/lib/libceph-common.so.2", \
+  "/radosgw/lib/" ]
+
+ENTRYPOINT [ "bin/bash", "-x", "-c" ]
+CMD [ "find /radosgw/bin -name \"unittest_rgw_sfs*\" -print0 | xargs -0 -n1 bash -ec"]
 
 FROM s3gw-base as s3gw
 
@@ -121,35 +166,6 @@ ENV ID=${ID}
 LABEL Name=s3gw
 LABEL Version=${S3GW_VERSION}
 
-RUN zypper -n install \
-  libblkid1 \
-  libexpat1 \
-  libtcmalloc4 \
-  libfmt9 \
-  liboath0 \
-  libicu-suse65_1 \
-  libthrift-0_16_0 \
-  libboost_atomic1_80_0 \
-  libboost_chrono1_80_0 \
-  libboost_context1_80_0 \
-  libboost_coroutine1_80_0 \
-  libboost_date_time1_80_0 \
-  libboost_filesystem1_80_0 \
-  libboost_iostreams1_80_0 \
-  libboost_program_options1_80_0 \
-  libboost_random1_80_0 \
-  libboost_regex1_80_0 \
-  libboost_serialization1_80_0 \
-  libboost_system1_80_0 \
-  libboost_thread1_80_0 \
- && zypper clean --all \
- && mkdir -p \
-  /radosgw/bin \
-  /radosgw/lib \
-  /data
-
-ENV PATH=/radosgw/bin:$PATH
-ENV LD_LIBRARY_PATH=/radosgw/lib:$LD_LIBRARY_PATH
 VOLUME ["/data"]
 
 COPY --from=buildenv /srv/ceph/build/bin/radosgw /radosgw/bin

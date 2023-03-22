@@ -29,7 +29,24 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Build Buildenv Container
+      - name: Build Unittests
+        uses: docker/build-push-action@v4
+        with:
+          load: true
+          build-args: |
+            CMAKE_BUILD_TYPE=Release
+            NPROC=16
+          tags: |
+            s3gw-unittests
+          target: s3gw-unittests
+          file: Dockerfile
+          context: .
+
+      - name: Run Unittests
+        run: |
+          docker run --rm s3gw-unittests
+
+      - name: Build s3gw Container Image
         uses: docker/build-push-action@v4
         with:
           push: true
