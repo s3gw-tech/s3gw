@@ -50,18 +50,18 @@ The `s3gw` project is composed by multiple sub-projects:
 - [`s3gw-ui`][1]: The User Interface for `s3gw`.
 - [`s3gw-charts`][2]: Containing the Helm Chart to deploy `s3gw` in a Kubernetes
   context.
-- [`s3gw-tools`][3]: Where most of our tooling and infrastructure scripts live.
+- [`s3gw`][3]: Where most of our tooling and infrastructure scripts live.
 - [`ceph`][4]: Where the core backend of `s3gw` lives.
 
 [1]: https://github.com/aquarist-labs/s3gw-ui/
 [2]: https://github.com/aquarist-labs/s3gw-charts/
-[3]: https://github.com/aquarist-labs/s3gw-tools/
+[3]: https://github.com/aquarist-labs/s3gw/
 [4]: https://github.com/aquarist-labs/ceph/
 
 Releasing `s3gw` is essentially a coordinated process with all the sub-projects,
 which need to be prepared at different stages.
 
-For instance, while the `s3gw-ui`, `s3gw-tools`, and `ceph` sub-projects can be
+For instance, while the `s3gw-ui`, and `ceph` sub-projects can be
 prepared independently, the `s3gw-charts` sub-project requires all pieces to be
 in place before the final Release is performed. This stems from the Helm Chart
 we provide depending on the various containers being published to Quay;
@@ -73,9 +73,11 @@ Each release follows [Semantic Versioning][5], with versions being in the format
 `vX.Y.Z`.
 
 When dealing with the individual sub-projects' repositories, we use
-`s3gw-vX.Y` for release branches and `s3gw-vX.Y.Z` for version tags. It is
-particularly important to understand the difference between a release branch and
-a version tag.
+`s3gw-vX.Y` for release branches and `s3gw-vX.Y.Z` for version tags.
+The `s3gw-` prefix in the sub-projects is needed to avoid naming conflicts with
+existing tags in the `ceph` repo.
+It is particularly important to understand the difference between a release
+branch and a version tag.
 
 A release branch represents the tree upon which the release `vX.Y` is based on,
 and once created becomes immutable except for bug fixes (by backporting from the
@@ -177,7 +179,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
    UI[^1], or by pushing the new branch to the repository via the CLI[^2].
    Release branch names follow the `s3gw-vX.Y` convention.
 
-2. For sub-project `s3gw-ui`, `s3gw-tools`, and `ceph`, tag the release branch
+2. For sub-project `s3gw-ui` and `ceph`, tag the release branch
    as a release candidate[^3]. We do not tag the `s3gw-charts` repository
    because that would trigger a release workflow that we don't want to trigger
    at this time[^4]. The following example assumes `upstream` as the source remote
@@ -211,9 +213,10 @@ release candidate was properly validated, version `vX.Y.1` was released.
    ```
 
 4. Tag the `s3gw` repository with the appropriate release candidate tag.
+   It is important, that this tag contains only the `vX.Y.Z` version.
 
    ```shell
-   git tag --annotate --sign -m "Release Candidate 1 for v0.11.0" s3gw-v0.11.0-rc1
+   git tag --annotate --sign -m "Release Candidate 1 for v0.11.0" v0.11.0-rc1
    ```
 
 5. Push the release branch and tag. This will trigger the release pipeline,
@@ -238,7 +241,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
    release version.
 
    ```shell
-   git tag --annotate --sign -m "Release v0.11.0" s3gw-v0.11.0
+   git tag --annotate --sign -m "Release v0.11.0" v0.11.0
    git push upstream s3gw-v0.11
    ```
 
