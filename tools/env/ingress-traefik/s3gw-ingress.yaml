@@ -17,7 +17,7 @@ spec:
     accessControlAllowHeaders:
       - "*"
     accessControlExposeHeaders:
-      - "ETag"
+      - "*"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
