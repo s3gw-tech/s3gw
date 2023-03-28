@@ -35,7 +35,7 @@ should feel encouraged to file an issue in our
 - Charts
   - Properly label all components of the chart to give helm hints about what is part
     of the chart.
-  - Redesing registry access variables to be usable with private registries
+  - Redesign registry access variables to be usable with private registries
   - Improve rancher questions to guide the installation in a more user friendly form
 
 ## Breaking Changes

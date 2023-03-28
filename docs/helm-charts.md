@@ -149,7 +149,7 @@ defaultUserCredentialsSecret: "my-secret"
 
 There are two possible ways to access the s3gw: from inside the Kubernetes
 cluster and from the outside. For both, the s3gw must be configured with the
-correct service and domain name. Use the `publicDomtain` and the
+correct service and domain name. Use the `publicDomain` and the
 `ui.publicDomain` setting to configure the domain under which the s3gw and the
 UI respectively be available to the outside of the Kubernetes cluster. Use the
 `privateDomain` setting to set the cluster's internal domain and make the s3gw

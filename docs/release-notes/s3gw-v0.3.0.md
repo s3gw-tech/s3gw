@@ -51,7 +51,7 @@ will not work and will need to be redeployed.**
 
 #### Changed
 
-- rgw/sfs: no longer create directory hierarchy when initing the store; instead,
+- rgw/sfs: no longer create directory hierarchy when initializing the store; instead,
   ensure the sfs path exists by creating its directory if missing.
 
 #### Removed
