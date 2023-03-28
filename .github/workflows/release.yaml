@@ -111,15 +111,20 @@ jobs:
         with:
           submodules: true
 
-      - name: Install S3cmd
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y s3cmd
+          sudo apt-get install -y s3cmd curl jq
 
       - name: Run On-Disk Format Test
         run: |
           NEW_VERSION=${{ github.ref_name }}
-          OLD_VERSION=$(git describe --abbrev=0 --tags ${{ github.ref_name }}^)
+          OLD_VERSION_RAW="$(curl -L \
+                              -H 'Accept: application/vnd.github+json' \
+                              -H 'X-GitHub-Api-Version: 2022-11-28' \
+                              'https://api.github.com/repos/aquarist-labs/s3gw/releases/latest' \
+                             | jq -r .name)"
+          OLD_VERSION="${OLD_VERSION_RAW//[^v0-9.]/}"
 
           VERSION_AFTER_V=$(cut -d "v" -f2 <<< ${{ github.ref_name }})
           VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
