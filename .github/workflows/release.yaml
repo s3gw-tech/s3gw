@@ -75,10 +75,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: aquarist-labs/ceph
-          ref: s3gw-${{ github.ref_name }}
-          submodules: false
-          path: ceph
+          submodules: true
 
       - name: Install S3cmd
         run: |
@@ -109,7 +106,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: true
+          submodules: false
 
       - name: Install dependencies
         run: |
@@ -118,6 +115,8 @@ jobs:
 
       - name: Run On-Disk Format Test
         run: |
+          set -x
+
           NEW_VERSION=${{ github.ref_name }}
           OLD_VERSION_RAW="$(curl -L \
                               -H 'Accept: application/vnd.github+json' \
@@ -128,14 +127,16 @@ jobs:
 
           VERSION_AFTER_V=$(cut -d "v" -f2 <<< ${{ github.ref_name }})
           VERSION_AFTER_RC=$(cut -d "-" -f1 <<< ${VERSION_AFTER_V})
-          ls -la $GITHUB_WORKSPACE/s3gw/docs/release-notes
-          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/s3gw/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
+          ls -la $GITHUB_WORKSPACE/docs/release-notes
+          EXPECTED_RN_FILE="$GITHUB_WORKSPACE/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
 
           if [ -f "$EXPECTED_RN_FILE" ]; then
-            s3gw/tools/tests/on-disk-format-checker.sh || \
-              grep -A 5 -i "breaking changes" ${EXPECTED_RN_FILE} | grep -i format
+            tools/tests/on-disk-format-checker.sh || \
+              sed -n '/## Breaking Changes/,/## Known Issues/p' \
+                  "${EXPECTED_RN_FILE}" | grep -i "format"
           else
-            echo "Expected release-notes file: ${EXPECTED_RN_FILE} was not found"
+            echo \
+              "Expected release-notes file: ${EXPECTED_RN_FILE} was not found"
             exit 1
           fi
 
