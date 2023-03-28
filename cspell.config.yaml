@@ -1,0 +1,10 @@
+dictionaryDefinitions:
+  - name: s3gw
+    path: docs/dicts/s3gw.dict
+    addWords: true
+  - name: errno
+    path: docs/dicts/errno.dict
+    addWords: true
+dictionaries:
+  - s3gw
+  - errno

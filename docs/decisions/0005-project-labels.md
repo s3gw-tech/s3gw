@@ -70,7 +70,7 @@ across SUSE Rancher projects.
 #### `kind/bug`
 
 This issue describes a defect in the software. Sometimes it requires a judgement
-call, but in general, incomplete functionality, or different behaviour from a
+call, but in general, incomplete functionality, or different behavior from a
 similar project should be labelled as `kind/enhancement` instead.
 
 #### `kind/enhancement`

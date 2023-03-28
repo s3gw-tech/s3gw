@@ -89,7 +89,7 @@ Exception: Draft PRs to receive early feedback.
 ### Size
 
 As small as possible. As big as necessary.
-Should capture a meanigful change.
+Should capture a meaningful change.
 
 ### Individual Commits
 

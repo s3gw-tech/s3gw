@@ -1,4 +1,4 @@
-# Release Notest - v0.12.0
+# Release Notes - v0.12.0
 
 This release contains a bunch of stability fixes in the backend, but also some
 new features in the UI. Most notably, the UI can now display prefixes as

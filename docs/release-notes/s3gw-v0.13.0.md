@@ -1,4 +1,4 @@
-# Release Notest - v0.13.0
+# Release Notes - v0.13.0
 
 This release contains a few new features in the backend an in the UI, including
 object locking.
