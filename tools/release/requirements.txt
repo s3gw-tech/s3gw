@@ -1,0 +1,7 @@
+PyGithub
+GitPython
+requests
+rich
+click
+python-dateutil
+packaging
