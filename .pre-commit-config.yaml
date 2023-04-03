@@ -47,3 +47,42 @@ repos:
     rev: v0.4.0
     hooks:
       - id: markdownlint-cli2
+
+  - repo: https://github.com/ambv/black
+    rev: 23.3.0
+    hooks:
+    - id: black
+      language_version: python3.10
+      files: (?x)^tools/release/releasetool\.py$
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        files: (?x)^tools/release/releasetool\.py$
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-bugbear
+          - flake8-comprehensions
+          - flake8-simplify
+        files: (?x)^tools/release/releasetool\.py$
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.1.1'
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-python-dateutil
+    files: (?x)^tools/release/releasetool\.py$
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.10.0
+    hooks:
+      - id: pyupgrade
+        args: [--py36-plus]
+        files: (?x)^tools/release/releasetool\.py$
