@@ -152,20 +152,19 @@ _teardown() {
 
   if [ "$CONTAINER_CMD" = "docker" ] ; then
     docker logs "$CONTAINER" > "${OUTPUT_DIR}/logs/${test}/radosgw.log" 2>&1
+  elif [ -n "$CONTAINER" ] ; then
+    mv "${OUTPUT_DIR}/logs/radosgw.log" "${OUTPUT_DIR}/logs/${test}/radosgw.log"
   fi
 
   if [ -n "$CONTAINER" ] ; then
     set +e
     "$CONTAINER_CMD" kill "$CONTAINER"
     "$CONTAINER_CMD" rm "$CONTAINER"
+    CONTAINER=
     set -e
   else
     kill "$JOB"
     rm -rf "${TMPDIR}"
-  fi
-
-  if [ ! "$CONTAINER_CMD" = "docker" ] ; then
-    mv "${OUTPUT_DIR}/logs/radosgw.log" "${OUTPUT_DIR}/logs/${test}/radosgw.log"
   fi
 
   popd > /dev/null || exit 1
