@@ -11,5 +11,4 @@ data:
   RGW_DEFAULT_USER_DISPLAY_NAME: "M. Tester"
   RGW_DEFAULT_USER_EMAIL: "tester@ceph.com"
   RGW_DEFAULT_USER_CAPS: "usage=read,write;users=read,write"
-  RGW_DEFAULT_USER_SYSTEM: "1"
   RGW_DEFAULT_USER_ASSUMED_ROLE_ARN: ""
