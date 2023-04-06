@@ -84,7 +84,6 @@ data:
   RGW_BACKEND_STORE: "sfs"
   DEBUG_RGW: "1"
   RGW_SERVICE_URL: "https://s3gw.local"
-  RGW_DEFAULT_USER_SYSTEM: "1"
 ---
 apiVersion: apps/v1
 kind: Deployment
