@@ -41,8 +41,13 @@ S3TEST_REPO=${S3TEST_REPO:-"$(pwd)"}
 S3TEST_CONF=${S3TEST_CONF:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3tests.conf"}
 S3TEST_LIST=${S3TEST_LIST:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3-tests.txt"}
 
+DEFAULT_S3GW_CONTAINER_CMD=${DEFAULT_S3GW_CONTAINER_CMD:-"--rgw-backend-store sfs --debug-rgw 1"}
+
 FORCE_CONTAINER=${FORCE_CONTAINER:-"OFF"}
 FORCE_DOCKER=${FORCE_DOCKER:-"OFF"}
+
+S3TEST_LIFECYCLE=${S3TEST_LIFECYCLE:-"ON"}
+S3TEST_LIFECYCLE_INTERVAL=${S3TEST_LIFECYCLE_INTERVAL:-"10"}
 
 CONTAINER=
 JOB=
@@ -51,6 +56,10 @@ TMPDIR=
 
 CONTAINER_CMD=
 CONTAINER_CMD_LOG_OPTS=()
+
+LIFE_CYCLE_INTERVAL_PARAM=
+CONTAINER_EXTRA_PARAMS=
+
 _configure() {
   if [ ! "$FORCE_DOCKER" == "ON" ] && command -v podman ; then
     CONTAINER_CMD=podman
@@ -67,6 +76,11 @@ _configure() {
   else
     exit 2
   fi
+
+  if [ "$S3TEST_LIFECYCLE" == "ON" ] ; then
+    LIFE_CYCLE_INTERVAL_PARAM="--rgw-lc-debug-interval ${S3TEST_LIFECYCLE_INTERVAL}"
+    CONTAINER_EXTRA_PARAMS="${DEFAULT_S3GW_CONTAINER_CMD} ${LIFE_CYCLE_INTERVAL_PARAM}"
+  fi
 }
 
 
@@ -80,7 +94,8 @@ _setup() {
       -d \
       -p 7480:7480 \
       "${CONTAINER_CMD_LOG_OPTS[@]}" \
-      "$S3GW_CONTAINER"
+      "$S3GW_CONTAINER" \
+      ${CONTAINER_EXTRA_PARAMS}
     )
   elif ! grep -q -i suse /etc/os-release || [ "${FORCE_CONTAINER}" = "ON" ] ; then
     CONTAINER=$("$CONTAINER_CMD" run \
@@ -89,7 +104,8 @@ _setup() {
       -v "${CEPH_DIR}/build/bin":"/radosgw/bin" \
       -v "${CEPH_DIR}/build/lib":"/radosgw/lib" \
       "${CONTAINER_CMD_LOG_OPTS[@]}" \
-      quay.io/s3gw/run-radosgw:latest
+      quay.io/s3gw/run-radosgw:latest \
+      ${CONTAINER_EXTRA_PARAMS}
     )
   else
     echo "Using host runtime"
@@ -105,6 +121,7 @@ _setup() {
       --rgw-sfs-data-path "${TMPDIR}/data" \
       --rgw-backend-store sfs \
       --debug-rgw 1 \
+      ${LIFE_CYCLE_INTERVAL_PARAM} \
       > "${OUTPUT_DIR}/logs/${test}/radosgw.log" 2>&1 &
     JOB="$!"
 
