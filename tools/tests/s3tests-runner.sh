@@ -54,6 +54,8 @@ JOB=
 TMPFILE=
 TMPDIR=
 
+NPROC=${NPROC:-"$(nproc --ignore=2)"}  # Used to run tests in parallel
+
 CONTAINER_CMD=
 CONTAINER_CMD_LOG_OPTS=()
 
@@ -85,22 +87,36 @@ _configure() {
 
 
 _setup() {
-  local test="$1"
+  local slot="$1"
+  local test="$2"
+
+  local port=$(( 7480 + slot ))
+  TMPDIR=$(mktemp -q -d -p "${OUTPUT_DIR}" data.XXXXXX.dir)
+
+  sed -e "s/^port.*/port = $port/g" "$S3TEST_CONF" > "${TMPDIR}/s3tests.conf"
 
   mkdir -p "${OUTPUT_DIR}/logs/${test}"
+
+  # sleep until the port is not used by another daemon
+  for _ in {1..60} ; do
+    if ! nc -z localhost "$port" > /dev/null ; then
+      break
+    fi
+    sleep .1
+  done
 
   if [ ! -d "${CEPH_DIR}/build/bin" ] ; then
     CONTAINER=$("$CONTAINER_CMD" run \
       -d \
-      -p 7480:7480 \
+      -p "$port":7480 \
       "${CONTAINER_CMD_LOG_OPTS[@]}" \
       "$S3GW_CONTAINER" \
       ${CONTAINER_EXTRA_PARAMS}
     )
-  elif ! grep -q -i suse /etc/os-release || [ "${FORCE_CONTAINER}" = "ON" ] ; then
+  elif [ "${FORCE_CONTAINER}" = "ON" ] ; then
     CONTAINER=$("$CONTAINER_CMD" run \
       -d \
-      -p 7480:7480 \
+      -p "$port":7480 \
       -v "${CEPH_DIR}/build/bin":"/radosgw/bin" \
       -v "${CEPH_DIR}/build/lib":"/radosgw/lib" \
       "${CONTAINER_CMD_LOG_OPTS[@]}" \
@@ -108,8 +124,7 @@ _setup() {
       ${CONTAINER_EXTRA_PARAMS}
     )
   else
-    echo "Using host runtime"
-    TMPDIR=$(mktemp -q -d -p "${OUTPUT_DIR}" data.XXXXXX.dir)
+    echo "Using host runtime with port $port"
     mkdir -p "${TMPDIR}/data" "${TMPDIR}/run"
 
     "${CEPH_DIR}/build/bin/radosgw" \
@@ -120,46 +135,55 @@ _setup() {
       --run-dir "${TMPDIR}/run" \
       --rgw-sfs-data-path "${TMPDIR}/data" \
       --rgw-backend-store sfs \
+      --rgw_frontends "beast port=$port" \
+      --rgw-lc-debug-interval 10 \
       --debug-rgw 1 \
       ${LIFE_CYCLE_INTERVAL_PARAM} \
       > "${OUTPUT_DIR}/logs/${test}/radosgw.log" 2>&1 &
     JOB="$!"
 
-    # sleep until s3gw has spun up or at most 1 minute
-    for _ in {1..600} ; do
-      if curl -s localhost:7480 > /dev/null ; then
-        break
-      fi
-      sleep .1
-    done
   fi
+
+  # sleep until s3gw has spun up or at most 1 minute
+  for _ in {1..600} ; do
+    if curl -s "localhost:$port" > /dev/null ; then
+      break
+    fi
+    sleep .1
+  done
 
   pushd "${S3TEST_REPO}" > /dev/null || exit 1
 }
 
 
 _run() {
-  local test="$1"
+  local slot="$1"
+  local test="$2"
+
   local result=
   local name ; name="$(echo "$test" | cut -d ':' -f 2)"
 
-  _setup "$test"
+  _setup "$slot" "$test"
 
-  export S3TEST_CONF
+  starttime=$(date "+%s.N")
+
+  export S3TEST_CONF="${TMPDIR}/s3tests.conf"
   export S3_USE_SIGV4=ON
-  if python3 -m tox -- \
+  if pytest \
     "s3tests_boto3/functional/test_s3.py::${name}" \
     > "${OUTPUT_DIR}/logs/${test}/test.output" 2>&1 ; then
     result="success"
   else
     result="failure"
   fi
+  endtime=$(date "+%s.%N")
+  runtime=$(echo "${endtime} - ${starttime}" | bc)
 
   echo "$test : $result"
 
-  yq -i \
-    ".tests += [{\"name\": \"${name}\", \"result\": \"${result}\"}]" \
-    "${TMPFILE}"
+  ( flock -w 5 255 ; yq -i \
+    ".tests += [{\"name\": \"${name}\", \"result\": \"${result}\", \"slot\": \"${slot}\", \"time\": \"$runtime\"}]" \
+    "${TMPFILE}" ; ) 255>"${TMPFILE}.lock"
   _teardown "$test"
 }
 
@@ -181,9 +205,9 @@ _teardown() {
     set -e
   else
     kill "$JOB"
-    rm -rf "${TMPDIR}"
   fi
 
+  rm -rf "${TMPDIR}"
   popd > /dev/null || exit 1
 }
 
@@ -225,11 +249,23 @@ _main() {
   [ -f "${TMPFILE}" ] || echo "tests:" > "${TMPFILE}"
 
   if [ -n "$1" ] ; then
-    _run "$1"
+    _run 1 "$1"
   else
-    while read -r test ; do
-      _run "$test"
-    done < <( grep -v '#' "$S3TEST_LIST" )
+    export -f _setup
+    export -f _run
+    export -f _teardown
+    export S3GW_CONTAINER
+    export S3TEST_CONF
+    export S3TEST_REPO
+    export FORCE_CONTAINER
+    export FORCE_DOCKER
+    export CONTAINER_CMD
+    export CONTAINER_CMD_LOG_OPTS
+    export TMPFILE
+    export OUTPUT_DIR
+
+    parallel --record-env
+    grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
   fi
 
   _convert
