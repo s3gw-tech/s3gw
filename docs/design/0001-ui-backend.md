@@ -8,8 +8,8 @@ client-side, which directly speaks to the s3gw service (RGW, henceforth known as
 
 ```mermaid
 flowchart LR
-    user(browser) == 1 ==> traefik(traefik) == 2 ==> s3gwui(s3gw-ui)
-    s3gwui == 3 ==> traefik == 4 ==> user
+    user(browser) == 1 ==> traefik(traefik) == 2 ==> ui(s3gw-ui)
+    ui == 3 ==> traefik == 4 ==> user
     user == 5 ==> traefik == 6 ==> s3gw
     s3gw == 7 ==> traefik == 8 ==> user
     linkStyle 0,1 stroke: green
@@ -46,9 +46,9 @@ in the client refusing to allow the `s3gw-ui` from loading resources from the
 `s3gw` host, culminating in a non-working (or misbehaving) `s3gw-ui`.
 
 We have employed mitigation strategies to address this behavior. For
-development purposes, we use a local webserver that both serves the frontend
+development purposes, we use a local web server that both serves the frontend
 and at the same time acts as a proxy to `s3gw`; resources are thus served
-through this webserver, and, from the client's point of view, their origin is
+through this web server, and, from the client's point of view, their origin is
 in practice the same host the `s3gw-ui`'s application is being served from --
 CORS does not apply in this case. For production systems, we have instead
 opted to have a middleware, `traefik`, that rewrites request response headers
@@ -92,7 +92,7 @@ requests to the `s3gw` service then.
 
 ```mermaid
 flowchart LR
-    user(browser) == 1 ==> s3gwui(s3gw-ui) == 2 ==> user
+    user(browser) == 1 ==> ui(s3gw-ui) == 2 ==> user
     user == 3 ==> proxy((proxy)) == 4 ==> s3gw == 5 ==> proxy == 6 ==> user
 
     linkStyle 0 stroke: green
@@ -169,10 +169,10 @@ which will then reply back to the frontend (`6`).
 ```mermaid
 flowchart LR
     %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-    browser == 1 ==> s3gwui
+    browser == 1 ==> container
     subgraph cluster
         direction TB
-        subgraph s3gwui[s3gw-ui]
+        subgraph container[s3gw-ui]
             direction TB
             ui(Frontend)
             backend(Backend)
@@ -204,10 +204,10 @@ as they interact with the `s3gw-ui` backend).
 ```mermaid
 flowchart LR
     %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-    browser == 1 ==> s3gwui
+    browser == 1 ==> container
     subgraph cluster
         direction TB
-        subgraph s3gwui[s3gw-ui]
+        subgraph container[s3gw-ui]
             direction TB
             ui(Frontend)
             backend(Backend)
@@ -271,7 +271,7 @@ backend that will communicate with `s3gw` using the S3 dialect, via REST, while
 the `s3gw-ui` frontend will communicate with the `s3gw-ui` backend using a
 specific REST API dialect, tailored to the frontend's needs.
 
-For example, lets assume the `s3gw-ui` frotend desires to know all buckets in
+For example, lets assume the `s3gw-ui` frontend desires to know all buckets in
 the system, the number of objects, and each bucket's total size. Currently,
 this means performing several different operations to `s3gw`, and processing
 the results in the frontend. With the new approach, the `s3gw-ui` frontend
