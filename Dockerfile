@@ -158,13 +158,15 @@ CMD [ "find /radosgw/bin -name \"unittest_rgw_sfs*\" -print0 | xargs -0 -n1 bash
 
 FROM s3gw-base as s3gw
 
-ARG S3GW_VERSION
+ARG QUAY_EXPIRATION=Never
+ARG S3GW_VERSION=Development
 ARG ID=s3gw
 
 ENV ID=${ID}
 
 LABEL Name=s3gw
 LABEL Version=${S3GW_VERSION}
+LABEL quay.expires-after=${QUAY_EXPIRATION}
 
 VOLUME ["/data"]
 

@@ -10,11 +10,7 @@ on:
 jobs:
   # Build the build-environment container, using it's workflow
   build-env:
-    runs-on: ubuntu-latest
-
-    outputs:
-      tag: ${{ steps.date.outputs.tag }}
-
+    runs-on: self-hosted
     steps:
 
       - name: Checkout
@@ -41,113 +37,17 @@ jobs:
           DATE="$(date +%Y-%m-%d)"
           echo "tag=nightly-${DATE}" >> $GITHUB_OUTPUT
 
-      - name: Build Buildenv Container
+      - name: Build Nightly Container
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: quay.io/s3gw/build-radosgw:${{ steps.date.outputs.tag }}
-          file: tools/build/Dockerfile.build-radosgw
-          context: tools/build
-
-  # Build the radosgw binary using the previously built container image
-  build-radosgw:
-    runs-on: ubuntu-latest
-    needs:
-      - build-env
-
-    outputs:
-      artifact_id: ${{ steps.artifact_id.outputs.artifact_id }}
-
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          repository: aquarist-labs/ceph
-          ref: s3gw
-          submodules: recursive
-          path: ceph
-
-      - name: Cache CCache Files
-        uses: actions/cache@v3.0.4
-        with:
-          path: ceph/build.ccache
-          key: ccache-${{ needs.build-env.outputs.tag }}
-          restore-keys: |
-            ccache-
-
-      - name: Build radosgw Binary
-        run: |
-          TAG=nightly-${{ needs.build-env.outputs.tag }}
-          docker run --rm \
-            -v $GITHUB_WORKSPACE/ceph:/srv/ceph \
-            -e NPROC=4 \
-            -e CMAKE_BUILD_TYPE=Release \
-            quay.io/s3gw/build-radosgw:${{ needs.build-env.outputs.tag }}
-
-      - name: Compress Build Results
-        run: |
-          tar -czvf build-results.tar.gz \
-            ceph/build/bin/radosgw \
-            ceph/build/lib/libceph-common.so \
-            ceph/build/lib/libceph-common.so.2 \
-            ceph/build/lib/librados.so \
-            ceph/build/lib/librados.so.2 \
-            ceph/build/lib/librados.so.2.0.0
-
-      - name: Generate Artifact Identifier
-        id: artifact_id
-        run: |
-          ARTIFACT_ID=radosgw-${{ needs.build-env.outputs.tag }}
-          echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ steps.artifact_id.outputs.artifact_id }}
-          path: build-results.tar.gz
-
-  # Build and push the radosgw container using the radosgw-binary
-  build-s3gw-container:
-    runs-on: ubuntu-latest
-    needs:
-      - build-env
-      - build-radosgw
-
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Quay Login
-        uses: docker/login-action@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: Download Radogw Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ needs.build-radosgw.outputs.artifact_id }}
-
-      - name: Unpack Artifacts
-        run: |
-          tar -xvf build-results.tar.gz
-
-      - name: Build S3GW Container
-        uses: docker/build-push-action@v3
-        with:
-          push: true
+          build-args: |
+            CMAKE_BUILD_TYPE=Release
+            S3GW_VERSION=${{ steps.date.outputs.tag }}
+            NPROC=16
+            QUAY_EXPIRATION=1w
           tags: |
-            quay.io/s3gw/s3gw:${{ needs.build-env.outputs.tag }}
+            quay.io/s3gw/s3gw:${{ steps.date.outputs.tag }}
             quay.io/s3gw/s3gw:nightly-latest
-          file: tools/build/Dockerfile.build-container
-          context: ceph/build
+          file: Dockerfile
+          context: .

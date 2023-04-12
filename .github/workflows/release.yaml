@@ -58,7 +58,9 @@ jobs:
           push: true
           build-args: |
             CMAKE_BUILD_TYPE=Release
+            S3GW_VERSION=${{ github.ref_name }}
             NPROC=16
+            QUAY_EXPIRATION=Never
           tags: |
             quay.io/s3gw/s3gw:latest
             quay.io/s3gw/s3gw:${{ github.ref_name }}
