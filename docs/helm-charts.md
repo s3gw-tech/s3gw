@@ -8,14 +8,14 @@ helm install $RELEASE_NAME s3gw/s3gw --namespace $S3GW_NAMESPACE \
   --create-namespace -f /path/to/your/custom/values.yaml
 ```
 
-The chart can also be installed directly from the git repository. To do so, the
-repository must be cloned first:
+The chart can also be installed directly from the git repository. To do so, clone
+the repository:
 
 ```bash
 git clone https://github.com/aquarist-labs/s3gw-charts.git
 ```
 
-And then the chart can be installed from within the repository directory:
+The chart can then be installed from within the repository directory:
 
 ```bash
 cd s3gw-charts
@@ -23,13 +23,12 @@ helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE \
   --create-namespace -f /path/to/your/custom/values.yaml
 ```
 
-Before installing, familiarize yourself with the options, if necessary provide
+Before installing, familiarize yourself with the options. If necessary, provide
 your own `values.yaml` file.
 
 ## Rancher
 
-Installing s3gw via the Rancher App Catalog is made easy, the steps are as
-follow
+You can install the s3gw via the Rancher App Catalog. The steps are as follows:
 
 - Cluster -> Projects/Namespaces - create the `s3gw` namespace.
 - Apps -> Repositories -> Create `s3gw` using the s3gw-charts Web URL
@@ -46,17 +45,17 @@ If you intend to install s3gw with an ingress resource, you must ensure your
 environment is equipped with a [Traefik](https://helm.traefik.io/traefik)
 ingress controller.
 
-You may also use a different ingress controller, but then you will have to
+You can use a different ingress controller, but note you will have to
 create your own ingress resource.
 
-### Cert Manager
+### Certificate manager
 
-If you wish, you can automate the TLS certificate management.
+If you want, you can automate the TLS certificate management.
 s3gw can use [cert-manager](https://cert-manager.io/) in order to create TLS
-certificates for the various Ingresses and internal ClusterIP resources.
+certificates for the various ingresses and internal ClusterIP resources.
 
 If cert-manager is not already installed on the cluster,
-it can be installed like this:
+it can be installed as follows:
 
 ```shell
 $ kubectl create namespace cert-manager
@@ -67,17 +66,17 @@ $ helm install cert-manager --namespace cert-manager jetstack/cert-manager \
     --set extraArgs[0]=--enable-certificate-owner-ref=true
 ```
 
-> **WARNING**: if cert-manager isn't installed in the namespace `cert-manager`,
+> **WARNING**: If the cert-manager is not installed in the namespace `cert-manager`,
 > you have to set `.Values.certManagerNamespace` accordingly,
-otherwise s3gw installation will fail.
+otherwise the s3gw installation fails.
 
 ## Options
 
-The helm chart can be customized for your Kubernetes environment. To do so,
+Helm charts can be customized for your Kubernetes environment. To do so,
 either provide a `values.yaml` file with your settings, or set the options on
 the command line directly using `helm --set key=value`.
 
-### Access Credentials
+### Access credentials
 
 It is strongly advisable to customize the initial access credentials.
 These can be used to access the admin UI, as well as the S3 endpoint. Additional
@@ -105,9 +104,9 @@ secretKey:
 ```
 
 The chart then computes a random alphanumeric string of 32 characters
-for the field(s).
-The generated values are printed to the console after the installation completes
-successfully. They can also be retrieved later.
+for the field(s). The generated values are printed to the console
+after the installation completes successfully. They can also be
+retrieved later.
 
 To obtain the access key:
 
@@ -117,7 +116,7 @@ kubectl --namespace $S3GW_NAMESPACE get secret \
   -o yaml | yq .data.RGW_DEFAULT_USER_ACCESS_KEY | base64 -d
 ```
 
-and to obtain the secret key:
+To obtain the secret key:
 
 ```bash
 kubectl --namespace $S3GW_NAMESPACE get secret \
@@ -127,7 +126,7 @@ kubectl --namespace $S3GW_NAMESPACE get secret \
 
 - **Existing secret**
 
-You provide an existing secret containing the S3 credentials
+You can provide an existing secret containing the S3 credentials
 for the default user. This secret must contain 2 keys:
 
 - `RGW_DEFAULT_USER_ACCESS_KEY`: the S3 Access Key for the default user.
@@ -164,7 +163,7 @@ ui:
   publicDomain: "be.127.0.0.1.omg.howdoi.website"
 ```
 
-### Ingress Options
+### Ingress options
 
 The chart can install an ingress resource for a Traefik ingress controller:
 
@@ -173,9 +172,9 @@ ingress:
   enabled: true
 ```
 
-### TLS Certificate Management
+### TLS certificate management
 
-When not using cert-manager, you have to manually specify
+If you are not using the cert-manager, you have to manually specify
 the TLS certificates in the `values.yaml` file to enable TLS
 at the various Ingresses and ClusterIP resources.
 Note that the connection between the Ingress and the s3gw's ClusterIP
@@ -195,13 +194,13 @@ tls:
       key: CERTIFICATE_KEY_FOR_UI
 ```
 
-Note that the certificates must be provided as base64 encoded PEM in one long
-string without line breaks. You can create them from a PEM file:
+The certificates must be provided as base64 encoded PEM in one long
+string without line breaks. You can create them from a PEM file.
 
-When using self-signed certificates, you may encounter CORS issues accessing the
-UI. This can be worked around by first accessing the S3 endpoint itself
-`https://hostname` with the browser and accepting that certificate, before
-accessing the UI via `https://ui.hostname`
+**NOTE::** When using self-signed certificates, you may encounter CORS issues
+accessing the UI. This can be worked around by first accessing the S3 endpoint
+itself `https://hostname` with the browser and accepting that certificate,
+before accessing the UI via `https://ui.hostname`
 
 ```bash
 cat certificate.pem | base64 -w 0
@@ -209,8 +208,8 @@ cat certificate.pem | base64 -w 0
 
 ### Storage
 
-The s3gw is best deployed on top of a [longhorn](https://longhorn.io) volume. If
-you have longhorn installed in your cluster, all appropriate resources will be
+The s3gw is best deployed on top of a [Longhorn](https://longhorn.io) volume. If
+you have Longhorn installed in your cluster, all appropriate resources are
 automatically deployed for you.
 
 The size of the volume can be controlled with `storageSize`:
@@ -229,16 +228,16 @@ storageClass:
   create: false
 ```
 
-#### Local Storage
+#### Local storage
 
 You can use the `storageClass.local` and `storageClass.localPath` variables to
-set up a node-local volume for testing, if you don't have longhorn. This is an
+set up a node-local volume for testing if you don not have Longhorn. This is an
 experimental feature for development use only.
 
-### Image Settings
+### Image settings
 
-In some cases, custom image settings are needed, e.g. in an air-gapped
-environment, or for developers. In that case, you can modify the registry and
+In some cases, custom image settings are needed, for example in an air-gapped
+environment or for developers. In that case, you can modify the registry and
 image settings:
 
 ```yaml
@@ -257,7 +256,7 @@ ui.imagePullPolicy: "Always"
 ui.imageTag: "latest"
 ```
 
-### Other Settings
+### Other settings
 
 The log verbosity can also be configured for the s3gw pod. Set the `logLevel`
 property to a number, with `"0"` being the least verbose and higher numbers

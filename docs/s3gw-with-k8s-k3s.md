@@ -3,9 +3,9 @@
 
 ## K8s
 
-Follow this guide if you wish to run an `s3gw` image on the latest stable
+This guide details running an `s3gw` image on the latest stable
 Kubernetes release. You will be able to quickly build a cluster installed on a
-set of virtual machines. You will have a certain degree of choice in terms of
+set of virtual machines and have a certain degree of choice in terms of
 customization options. If you are looking for a more lightweight environment
 running directly on bare metal, refer to our [K3s section](#k3s-with-longhorn).
 
@@ -92,14 +92,14 @@ S3GW_UI_VERSION             : A S3GW_UI_REPO's branch to be used
 SCENARIO                    : An optional scenario to be loaded in the cluster
 ```
 
-So, you could start a more specialized build with:
+For example, you could start a more specialized build with:
 
 ```bash
 $ IMAGE_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./setup-k8s.sh build
 Building environment ...
 ```
 
-You create a mono virtual machine cluster with the lone `admin` node with:
+Or create a mono virtual machine cluster with the lone `admin` node with:
 
 ```bash
 $ WORKER_COUNT=0 ./setup-k8s.sh build
@@ -110,7 +110,7 @@ In this case, the node will be able to schedule pods as a `worker` node.
 
 ### Destroying the environment
 
-You can destroy a previously built environment with:
+You can destroy a previously built environment with the following command:
 
 ```bash
 $ ./setup-k8s.sh destroy
@@ -120,7 +120,7 @@ Destroying environment ...
 Be sure to match the `WORKER_COUNT` value with the one you used in the build
 phase.
 
-Providing a lower value instead of the actual one will cause some allocated vm
+Providing a lower value instead of the actual one will cause some allocated VM
 not to be released by Vagrant.
 
 ### Starting the environment
@@ -135,7 +135,7 @@ Starting environment ...
 Be sure to match the `WORKER_COUNT` value with the one you used in the build
 phase.
 
-Providing a lower value instead of the actual one will cause some allocated vm
+Providing a lower value instead of the actual one will cause some allocated VM
 not to start.
 
 ### Accessing the environment
@@ -206,20 +206,20 @@ https://s3gw-ui.local
 http://s3gw-ui-no-tls.local
 ```
 
-### K3s on Bare Metal
+### K3s on bare metal
 
-This README will guide you through the setup of a K3s cluster on bare metal. If
+This document guides you through the setup of a K3s cluster on bare metal. If
 you are looking for K3s cluster running on virtual machines, refer to
 [K3s on virtual machines](#k3s-on-virtual-machines).
 
-#### Minimum Free Disk Space
+#### Minimum free disk space
 
 Longhorn requires a `minimal available storage percentage` on the root disk,
 which is `25%` by default. Check [Longhorn Docs] for details.
 
 #### Disabling firewalld
 
-In some host systems, including OpenSUSE Tumbleweed, one will need to disable
+In some host systems, including OpenSUSE Tumbleweed, you need to disable
 firewalld to ensure proper functioning of k3s and its pods:
 
 ```shell
@@ -230,7 +230,8 @@ This is something we intend figuring out in the near future.
 
 #### From the internet
 
-One can easily set up k3s with s3gw from the internet, by running
+You can easily set up k3s with s3gw from the internet, by running the following
+command:
 
 ```shell
 curl -sfL \
@@ -240,7 +241,7 @@ curl -sfL \
 
 #### From source repository
 
-To install a lightweight Kubernetes cluster for development purpose run the
+To install a lightweight Kubernetes cluster for development purposes, run the
 following commands. It will install open-iscsi and K3s on your local system.
 Additionally, it will deploy Longhorn and the s3gw in the cluster.
 
@@ -266,7 +267,7 @@ s3cmd -c ./s3cmd.cfg mb s3://foo
 s3cmd -c ./s3cmd.cfg ls s3://
 ```
 
-Please adapt the `host_base` and `host_bucket` properties in the `s3cmd.cfg`
+Adapt the `host_base` and `host_bucket` properties in the `s3cmd.cfg`
 configuration file if your K3s cluster is not accessible via localhost.
 
 #### Configure s3gw as Longhorn backup target
@@ -277,7 +278,7 @@ target.
 Backup Target: `s3://<BUCKET_NAME>@us/` Backup Target Credential Secret:
 `s3gw-secret`
 
-### K3s on Virtual Machines
+### K3s on virtual machines
 
 Follow this guide if you wish to run a K3s cluster installed on virtual
 machines. You will have a certain degree of choice in terms of customization
@@ -288,7 +289,7 @@ on bare metal, refer to [K3s on bare metal](#k3s-on-bare-metal).
 
 The entire environment build process is automated by a set of Ansible playbooks.
 The cluster is created with one `admin` node and an arbitrary number of `worker`
-nodes. A single virtual machine acting as an `admin` node is also possible; in
+nodes. A single virtual machine acting as an `admin` node is also possible. In
 this case, it will be able to schedule pods as a `worker` node. Name topology of
 nodes is the following:
 
@@ -380,14 +381,14 @@ SCENARIO                    : An optional scenario to be loaded in the cluster
 K3S_VERSION                 : The K3s version to be used (default: v1.23.6+k3s1)
 ```
 
-So, you could start a more specialized build with:
+For example, you could start a more specialized build with:
 
 ```bash
 $ BOX_NAME=generic/ubuntu1804 WORKER_COUNT=4 ./setup-vm.sh build
 Building environment ...
 ```
 
-You create a mono virtual machine cluster with the lone `admin` node with:
+Or create a mono virtual machine cluster with the lone `admin` node with:
 
 ```bash
 $ WORKER_COUNT=0 ./setup-vm.sh build
@@ -407,7 +408,7 @@ Destroying environment ...
 
 Be sure to match the `WORKER_COUNT` value with the one you used in the build
 phase. Providing a lower value instead of the actual one will cause some
-allocated vm not to be released by Vagrant.
+allocated VM not to be released by Vagrant.
 
 #### Starting the environment
 
@@ -420,7 +421,7 @@ Starting environment ...
 
 Be sure to match the `WORKER_COUNT` value with the one you used in the build
 phase. Providing a lower value instead of the actual one will cause some
-allocated vm not to start.
+allocated VM not to start.
 
 #### Accessing the environment
 
