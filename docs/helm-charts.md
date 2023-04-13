@@ -68,7 +68,7 @@ $ helm install cert-manager --namespace cert-manager jetstack/cert-manager \
 
 > **WARNING**: If the cert-manager is not installed in the namespace `cert-manager`,
 > you have to set `.Values.certManagerNamespace` accordingly,
-otherwise tje s3gw installation fails.
+otherwise the s3gw installation fails.
 
 ## Options
 

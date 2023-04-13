@@ -25,7 +25,7 @@ there are two key options available:
 1. Containers to build these sources
 2. Local OS
 
-If you is new to Ceph development, the best way to find out how to build these
+If you are new to Ceph development, the best way to find out how to build these
 sources is to refer to the [original Ceph documentation][3].
 
 The `aquarist-labs/ceph` repository  is a requirement for this project.
@@ -34,7 +34,7 @@ will work flawlessly with the original Ceph project from `ceph/ceph`.
 
 The team is in a fast development effort at the moment, patches to the
 Ceph code are made against our own fork of the Ceph repository, allowing
-us to experiement with the Ceph source and not pollute the upstream Ceph
+us to experiment with the Ceph source and not pollute the upstream Ceph
 repository. We do intend to upstream any patches that make sense though.
 
 We rely on `s3cmd`, which can be found on [Github][4] or obtained through `pip`.
@@ -44,7 +44,6 @@ first running `s3cmd -c $(pwd)/.s3cfg --configure`. By default, the
 configuration file is put under the user's home directory, but for our
 testing purposes we recommend to place it somewhere less intrusive.
 
-
 ## Running the Gateway
 
 To get a standalone Gateway running, follow these steps:
@@ -53,13 +52,13 @@ To get a standalone Gateway running, follow these steps:
 cd build/
 mkdir -p dev/rgw.foo
 bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
-  --rgw-backend-store dbstore \
+  --rgw-backend-store dbstore \gem install mdl -v 0.11.0
   --rgw-data $(pwd)/dev/rgw.foo \
   --run-dir $(pwd)/dev/rgw.foo
 ```
 
 Once the daemon is running and outputting its logs to the terminal,
-start issuing commands to the daemon. 
+start issuing commands to the daemon.
 
 During the interactive configuration there are prompts with questions. We
 recommend using the following answers unless the deployment differs significantly.
