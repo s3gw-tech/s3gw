@@ -29,7 +29,7 @@ In order to run the Docker container:
 docker run -p 7480:7480 quay.io/s3gw/s3gw:latest
 ```
 
-For more information on building and running a container, please read our
+For more information on building and running a container, read our
 [guide](../developing/#how-to-build-your-own-containers/).
 
 [1]: https://github.com/aquarist-labs/s3gw/blob/main/docs/helm-charts.md#options

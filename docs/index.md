@@ -17,7 +17,7 @@ S3 service, which is easy to deploy in a Cloud Native world.
 ### Why are we doing it?
 
 We have identified a need for making cluster data backups easily available for
-apps that don't require petabyte-scale storage.
+apps that do not require petabyte-scale storage.
 
 ### Features
 

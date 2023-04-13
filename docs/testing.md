@@ -1,13 +1,12 @@
 # Testing s3gw
 
-In this directory one can find scripts to test `s3gw` in several different
+In this directory you can find scripts to test `s3gw` in several different
 ways. Below is a description of each type of test.
 
-However, please note a commonality between the various tests: they require an
-existing gateway running somewhere accessible by the tests. This may be an
-`s3gw` container, or a `radosgw` running from a source repository. It doesn't
-matter whether these running on the local machine or on a remote host, as long
-as they are accessible to the tests.
+However, note that each test requires an existing gateway running somewhere
+accessible by the tests. This may be an `s3gw` container, or a `radosgw` running
+from a source repository. It doesn't matter whether these running on the local
+machine or on a remote host, as long as they are accessible to the tests.
 
 ## Smoke tests
 
@@ -45,13 +44,13 @@ is meant to be shared via the
 repository (see more information on the [project's README
 file](https://github.com/aquarist-labs/s3gw-status#readme).)
 
-Please check `create-s3tests-report.sh --help` for more information.
+Check `create-s3tests-report.sh --help` for more information.
 
 ## Benchmarking
 
-With tracking our improvement over time in mind, we should be benchmarking
-`radosgw` with the file based backend `simplefile` we have been developing.
-This will allow us to identify early on potential performance regressions, as
+With tracking our improvement over time in mind, we are benchmarking
+`radosgw` with the file based backend `simplefile`.
+This allows us to identify potential performance regressions, as
 well as understand whether the changes we're making are actually having an
 impact, and at the desired scale.
 
@@ -60,8 +59,8 @@ run it will need this tool to be available on the user's `PATH`. That means
 having it installed with `go install github.com/minio/warp@latest`, and have
 the `GOPATH` (by default it should be `~/go/bin`) in the user's `PATH`.
 
-Again, this script will require a `HOST[:PORT]` parameter, similarly to the
-other tests, so `warp` knows where to find the `radosgw` being benchmarked.
+This script also requires a `HOST[:PORT]` parameter, similarly to the
+other tests so that `warp` knows where to find the `radosgw` being benchmarked.
 
 Additionally, this script takes one of three options: `--large`, writing 6000
 objects for 10 minutes; `--medium`, writing 1000 objects for 5 minutes; and
@@ -71,15 +70,15 @@ The test will run `wrap` 3 times, for object sizes of 1MiB, 10MiB, and 100MiB.
 
 Each time `wrap` is run, a file will be created containing the results of
 the benchmark. This file can later on be used to compare results between runs.
-For more information, please check `warp`'s help.
+For more information, check `warp`'s help.
 
 ## Stress testing
 
 For the purpose of stress testing `s3gw`, you can rely on
 [fio](https://github.com/axboe/fio).
-The tool is equipped with an http client that can also act as an
+The tool is equipped with an HTTP client that can also act as an
 `S3` client.
-You can therefore use the tool to issue concurrent and/or serial operations against
+You can therefore use the tool to issue concurrent and serial operations against
 `s3gw`.
 For a basic stress testing activity you should normally want to shot a series
 of `PUT`(s), `GET`(s) and `DELETE`(s).
@@ -118,7 +117,7 @@ size=16m
 bs=16m
 ```
 
-Once you have created your _jobfile_: `s3gw.fio` you can simply launch
+Once you have created your _jobfile_: `s3gw.fio` you can launch
 the workload with:
 
 ```shell
@@ -129,26 +128,24 @@ Starting 9 processes
 ```
 
 This _jobfile_ connects to an S3 gateway listening on `localhost:7480`
-and operates on a object `obj`
-which resides inside an existing `foo` bucket.
+and operates on a object `obj` which resides inside an existing `foo` bucket.
 This example launches 3 types of jobs: `s3-write` (PUT), `s3-read`
-(GET) and `s3-trim` (DELETE);
-the actual operation verb is defined by `rw` property.
-The actual number of processes performing the same operation is controlled by
-`numjobs` property.
+(GET) and `s3-trim` (DELETE); the actual operation verb is defined by `rw`
+property. The actual number of processes performing the same operation is
+controlled by `numjobs` property.
 `global` section is inherited from all defined jobs.
+
 For this specific example the I/O activity is defined by: `size=16m bs=16m`
 meaning that, a 16mb file will be `write`, `read` and `trim` with a single
-16mb weighting I/O operation.
-As result of this, supposing that no `trim` job has been defined, you would
-find in the bucket a 16mb object:
+16mb weighting I/O operation. As result of this, supposing that no `trim`
+job has been defined, you would find in the bucket a 16mb object:
 
 ```shell
 $ s3cmd ls s3://foo
 2022-07-19 13:14     16777216  s3://foo/obj_0_16777216
 ```
 
-Modifying the `bs` property to the value of `4m` you are diminishing
+By modifying the `bs` property to the value of `4m`, you are diminishing
 the weight of a single I/O operation over an overall `16m` size.
 As result of this, you would find 4 (16mb/4mb) single objects in the bucket:
 
@@ -160,5 +157,5 @@ $ s3cmd ls s3://foo
 2022-07-19 13:21      4194304  s3://foo/obj_8388608_4194304
 ```
 
-To build more complex`fio` workloads, refer to its
+To build more complex `fio` workloads, refer to the
 [documentation](https://fio.readthedocs.io/en/latest/index.html).

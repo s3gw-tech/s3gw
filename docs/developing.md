@@ -2,18 +2,15 @@
 
 ## Introduction
 
-Given we are still setting up the project, figuring out requirements, and
-specific details about direction, we are dedicating most of our efforts to
-testing Ceph's RGW as a standalone daemon using a non-RADOS storage backend.
+This project is exploring the use of Ceph's Rados Gateway (RGW) as a standalone
+daemon with a non-RADOS storage backend. The backend, `dbstore`, is
+backed by a SQLite database and is currently provided by RGW.
 
-The backend in question is called `dbstore`, backed by a SQLite database, and is
-currently provided by RGW.
+In order to ensure tests are conducted from the same point in time, a forked
+version of the latest development version of Ceph is available [here][1].
+The team uses the [`s3gw` branch][2] as our base of reference.
 
-In order to ensure we all test from the same point in time, we have a forked
-version of the latest development version of Ceph, which can be found [here][1].
-We are working using the [`s3gw` branch][2] as our base of reference.
-
-Keep in mind that this development branch will likely closely follow Ceph's
+Keep in mind that this development branch will closely follow Ceph's
 upstream main development branch, and is bound to change over time. We intend to
 contribute whatever patches we come up with to the original project, thus we
 need to keep up with its ever evolving state.
@@ -21,27 +18,36 @@ need to keep up with its ever evolving state.
 ## Requirements
 
 We are relying on built Ceph sources to test RGW. We don't have a particular
-preference on how one achieves this. Some of us rely on containers to build
-these sources, while others rely on whatever OS they have on their local
-machines to do so. Eventually we intend to standardize how we obtain the RGW
-binary, but that's not in our immediate plans.
+preference on how to achieve this. The team intends to standardize how
+to obtain the RGW binary, but that's not in the immediate plans. For now,
+there are two key options available:
 
-If one is new to Ceph development, the best way to find out how to build these
-sources is to refer to the [original documentation][3].
+1. Containers to build these sources
+2. Local OS
 
-Because we are in a fast development effort at the moment, we have chosen to
-apply patches needed to make our endeavour work on our own fork of the Ceph
-repository. This allows us fiddle with the Ceph source while experimenting,
-without polluting the upstream Ceph repository. We do intend to upstream any
-patches that make sense though.
+If you is new to Ceph development, the best way to find out how to build these
+sources is to refer to the [original Ceph documentation][3].
 
-That said, we have the `aquarist-labs/ceph` repository as a requirement for this
-project. We can't guarantee that our instructions, or the project as a whole,
+The `aquarist-labs/ceph` repository  is a requirement for this project.
+We can't guarantee that our instructions, or the project as a whole,
 will work flawlessly with the original Ceph project from `ceph/ceph`.
+
+The team is in a fast development effort at the moment, patches to the
+Ceph code are made against our own fork of the Ceph repository, allowing
+us to experiement with the Ceph source and not pollute the upstream Ceph
+repository. We do intend to upstream any patches that make sense though.
+
+We rely on `s3cmd`, which can be found on [Github][4] or obtained through `pip`.
+
+`s3cmd` needs to be configured to talk to RGW. This can be achieved by
+first running `s3cmd -c $(pwd)/.s3cfg --configure`. By default, the
+configuration file is put under the user's home directory, but for our
+testing purposes we recommend to place it somewhere less intrusive.
+
 
 ## Running the Gateway
 
-One should be able to get a standalone Gateway running following these steps:
+To get a standalone Gateway running, follow these steps:
 
 ```shell
 cd build/
@@ -52,18 +58,11 @@ bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
   --run-dir $(pwd)/dev/rgw.foo
 ```
 
-Once the daemon is running, and outputting its logs to the terminal, one can
-start issuing commands to the daemon. We rely on `s3cmd`, which can be found on
-[Github][4] or obtained through `pip`.
+Once the daemon is running and outputting its logs to the terminal,
+start issuing commands to the daemon. 
 
-`s3cmd` will require to be configured to talk to RGW. This can be achieved by
-first running `s3cmd -c $(pwd)/.s3cfg --configure`. By default, the
-configuration file would be put under the user's home directory, but for our
-testing purposes it might be better to place it somewhere less intrusive.
-
-During the interactive configuration a few things will be asked, and we
-recommend using these answers unless one's deployment is different, in which
-case these will need to be properly adapted.
+During the interactive configuration there are prompts with questions. We
+recommend using the following answers unless the deployment differs significantly.
 
 ```text
   Access Key: 0555b35654ad1656d804
@@ -78,12 +77,14 @@ case these will need to be properly adapted.
   HTTP Proxy server port: 0
 ```
 
-Please note that both the `Access Key` and the `Secret Key` need to be copied
-verbatim. Unfortunately, at this time, the `dbstore` backend statically creates
+Note that both the `Access Key` and the `Secret Key` need to be copied
+verbatim. At this time, the `dbstore` backend statically creates
 an initial user using these values.
 
-Should the configuration be correct, one will then be able to issue commands
+Should the configuration be correct, you should be able to issue commands
 against the running RGW. E.g., `s3cmd mb s3://foo`, to create a new bucket.
+
+<!--- Probably should think about some troubleshooting docs for the above (A.S) -->
 
 [1]: https://github.com/aquarist-labs/ceph.git
 [2]: https://github.com/aquarist-labs/ceph/tree/s3gw
@@ -94,8 +95,7 @@ against the running RGW. E.g., `s3cmd mb s3://foo`, to create a new bucket.
 
 ### Building the s3gw container image
 
-This documentation will guide you through the several steps to build the `s3gw`
-container image.
+This documentation guides you through the steps to build the `s3gw` container image.
 
 > **NOTE:** The absolute paths mentioned in this document may be different on
 > your system.
@@ -139,8 +139,8 @@ If you experience connection issues while downloading the packages to be
 installed in the build environment, try using the `--net=host` command line
 argument.
 
-After the build environment container image has been build once, the `radosgw`
-binary will be build automatically when the container is started. Make sure the
+After the build environment container image has been built, the `radosgw`
+binary can be built automatically anytime the container is started. Make sure the
 path to the Ceph Git repository in the host file system is correct, e.g.
 `../../ceph`, `~/git/ceph`, ...
 
@@ -152,8 +152,8 @@ podman run \
   localhost/build-radosgw
 ```
 
-By default, the `radosgw` binary file will be build in `Debug` mode. For
-production builds set the environment variable `CMAKE_BUILD_TYPE` to `Release`,
+By default, the `radosgw` binary file is built in `Debug` mode. For
+production builds, set the environment variable `CMAKE_BUILD_TYPE` to `Release`,
 `RelWithDebInfo` or `MinSizeRel`. Check the [CMAKE_BUILD_TYPE documentation][5]
 for more information.
 
@@ -176,7 +176,7 @@ cd ~/git/s3gw-tools/build
 ./build-container.sh
 ```
 
-By default, this will build an `s3gw` image using podman. In order to build an
+By default, this builds an `s3gw` image using podman. In order to build an
 `s3gw` image with Docker, you can run:
 
 ```shell
@@ -193,7 +193,7 @@ environment variable `IMAGE_NAME`.
 
 ### Running the s3gw container
 
-Finally, you can run the `s3gw` container with the following command:
+Finally, run the `s3gw` container with the following command:
 
 ```shell
 podman run --replace --name=s3gw -it -p 7480:7480 localhost/s3gw
@@ -205,7 +205,7 @@ or, when using Docker:
 docker run -p 7480:7480 localhost/s3gw
 ```
 
-By default, the container will run with the following arguments:
+By default, the container runs with the following arguments:
 
 ```text
 --rgw-backend-store dbstore
@@ -240,7 +240,7 @@ podman run \
 
 ### Build the s3gw-test container image
 
-If the test binaries are compiled, a container image can be build with
+If the test binaries are compiled, a container image can be built with
 the following commands:
 
 ```shell
@@ -248,7 +248,7 @@ cd ~/git/s3gw-tools/build
 ./build-radosgw-test-container.sh
 ```
 
-By default, this will build an `s3gw-test` image using podman.
+By default, this builds an `s3gw-test` image using podman.
 In order to build an `s3gw-test` image with Docker, you can run:
 
 ```shell
@@ -279,15 +279,15 @@ docker run -p 7480:7480 localhost/s3gw-test
 
 ## Building a s3gw-ui application image
 
-This documentation will guide you through the several steps to build a `s3gw-ui`
+This documentation guides you through the several steps to build a `s3gw-ui`
 application image. With `s3gw-ui` image, we are referring at a generic term
 indicating an image containing an application used to provide a UI related with
 the `s3gw` project.
 
 ### Conventions
 
-The `s3gw-ui` application is associated with a `Dockerfile` and adheres to some
-conventions:
+The `s3gw-ui` application is associated with a `Dockerfile` and adheres to the
+following conventions:
 
 - Dockerfile build context must be placed inside a directory placed alongside to
   the `s3gw-ui` project.
@@ -298,8 +298,7 @@ npm install
 npm run build
 ```
 
-In other words, an `s3gw-ui` application should be consumable by `node` after it
-has been built.
+The `s3gw-ui` application should be consumable by `node` after it has been built.
 
 <!-- markdownlint-disable-next-line no-duplicate-heading -->
 ### Prerequisites
@@ -324,7 +323,7 @@ The build script expects the following directory hierarchy.
 ### Build the application
 
 Before building the `s3gw-ui` image you need to build the container image that
-is used to compile the Angular based application. To do so, simply run:
+is used to compile the Angular based application. To do so, run:
 
 ```shell
 cd ~/git/s3gw-tools/build-ui
@@ -332,7 +331,7 @@ cd ~/git/s3gw-tools/build-ui
 ```
 
 This needs to be done once. After that you can build a `s3gw-ui` image by
-running the commands:
+running the following commands:
 
 ```shell
 cd ~/git/s3gw-tools/build-ui
@@ -363,7 +362,7 @@ available:
   podman run --name=s3gw-ui ... -e RGW_SERVICE_URL=https://foo.bar:7480 localhost/s3gw-ui
   ```
 
-  Please keep in mind that the browser will report errors related to CORS if the
+  Keep in mind that the browser will report errors related to CORS if the
   RGW is running on a different URL or port and self-signed SSL certificates are
-  used. In most cases this can be fixed by visiting the URL of the RGW to accept
+  used. In most cases, this can be fixed by visiting the URL of the RGW to accept
   the SSL certificate.
