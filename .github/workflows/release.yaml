@@ -171,8 +171,8 @@ jobs:
           tags: |
             quay.io/s3gw/s3gw-ui:${{ github.ref_name }}
             quay.io/s3gw/s3gw-ui:latest
-          file: ui/Dockerfile
-          context: ui
+          file: ui/src/frontend/Dockerfile
+          context: ui/src/frontend
 
   draft-release:
     runs-on: ubuntu-latest
