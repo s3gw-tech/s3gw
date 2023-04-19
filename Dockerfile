@@ -144,7 +144,7 @@ RUN /srv/ceph/qa/rgw/store/sfs/build-radosgw.sh
 
 FROM s3gw-base as s3gw-unittests
 
-COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_sfs* /radosgw/bin/
+COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_* /radosgw/bin/
 COPY --from=buildenv [ \
   "/srv/ceph/build/lib/librados.so", \
   "/srv/ceph/build/lib/librados.so.2", \
@@ -154,7 +154,7 @@ COPY --from=buildenv [ \
   "/radosgw/lib/" ]
 
 ENTRYPOINT [ "bin/bash", "-x", "-c" ]
-CMD [ "find /radosgw/bin -name \"unittest_rgw_sfs*\" -print0 | xargs -0 -n1 bash -ec"]
+CMD [ "find /radosgw/bin -name \"unittest_rgw_*\" -print0 | xargs -0 -n1 bash -ec"]
 
 FROM s3gw-base as s3gw
 
