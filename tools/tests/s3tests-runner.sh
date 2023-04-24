@@ -62,6 +62,11 @@ CONTAINER_CMD_LOG_OPTS=()
 LIFE_CYCLE_INTERVAL_PARAM=
 CONTAINER_EXTRA_PARAMS=
 
+# if running in a github worker, the home directory can't be accessed, so the
+# configuration must be stored elsewhere.
+PARALLEL_HOME=${PARALLEL_HOME:-"${GITHUB_WORKSPACE:-"$HOME"}/.parallel"}
+
+
 _configure() {
   if [ ! "$FORCE_DOCKER" == "ON" ] && command -v podman ; then
     CONTAINER_CMD=podman
@@ -78,10 +83,6 @@ _configure() {
   else
     exit 2
   fi
-
-  # if running in a github worker, the home directory can't be accessed, so the
-  # configuration must be stored elsewhere.
-  export PARALLEL_HOME=${GITHUB_WORKSPACE:-"${PARALLEL_HOME:-"$HOME"}"}
 
   if [ "$S3TEST_LIFECYCLE" == "ON" ] ; then
     LIFE_CYCLE_INTERVAL_PARAM="--rgw-lc-debug-interval ${S3TEST_LIFECYCLE_INTERVAL}"
@@ -225,7 +226,7 @@ _convert() {
 _list_results_by_type() {
   local type="$1"
 
-  jq \
+  jq -r \
     ".tests[] | select( .result == \"$type\" ) | .name" \
     "${OUTPUT_FILE}"
 }
@@ -234,6 +235,16 @@ _count_results_by_type() {
   local type="$1"
 
   _list_results_by_type "$type" | wc -l
+}
+
+_show_failure_logs() {
+  while read -r test ; do
+    echo "logs for: $test"
+    echo "s3gw logs:"
+    cat "${OUTPUT_DIR}/logs/${test}/radosgw.log"
+    echo "s3test logs"
+    cat "${OUTPUT_DIR}/logs/${test}/test.output"
+  done < <(_list_results_by_type "failure")
 }
 
 # return 0 if there are no failed tests, return 1 otherwise
@@ -267,13 +278,16 @@ _main() {
     export CONTAINER_CMD_LOG_OPTS
     export TMPFILE
     export OUTPUT_DIR
+    export PARALLEL_HOME
 
+    mkdir -p "$PARALLEL_HOME"
     parallel --record-env
     grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
   fi
 
   _convert
 
+  _show_failure_logs
   echo "$(_count_results_by_type "success") Successful Tests:"
   _list_results_by_type "success"
   echo "$(_count_results_by_type "failure") Failed Tests:"

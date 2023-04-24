@@ -1,0 +1,82 @@
+---
+name: Test S3Tests Runner
+on:
+
+  pull_request:
+    paths:
+      - "tools/tests/s3tests-runner.sh"
+
+jobs:
+  test-s3tests-runner:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout s3gw
+        uses: actions/checkout@v3
+        with:
+          path: s3gw
+          submodules: true
+
+      - name: Checkout s3tests
+        uses: actions/checkout@v3
+        with:
+          repository: ceph/s3-tests
+          path: s3tests
+
+      - name: Checkout s3gw-status
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.repository_owner }}/s3gw-status
+          path: s3gw-status
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@users.noreply.github.com"
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Install Dependencies
+        run: |
+          YQ_GH_URL=https://github.com/mikefarah/yq/releases/download
+          YQ_VERSION=v4.31.1
+          YQ_CHECKSUM=1aef844cbecbbf81036449ea5e7dfcdf19d2d374fab6303fdb8f849d04275d76
+
+          sudo apt-get update
+          sudo apt-get install -y \
+            wget \
+            s3cmd
+
+          # Unfortunately, since yq is only available through snap on Ubuntu and
+          # that doesn't work in docker containers (at least not out of the
+          # box), this abomination is the way to go to install yq.
+          echo "${YQ_CHECKSUM}  yq" >> checksum
+          wget -O yq "${YQ_GH_URL}/${YQ_VERSION}/yq_linux_amd64"
+          sha256sum -c checksum \
+            && sudo mv yq /usr/bin/yq \
+            && sudo chmod +x /usr/bin/yq
+
+          python3 -m pip install -r s3tests/requirements.txt
+          python3 -m pip install -r \
+            s3gw/ceph/qa/rgw/store/sfs/tests/requirements.txt
+
+      - name: Run S3tests
+        run: |
+          set -x
+
+          export CEPH_DIR="${GITHUB_WORKSPACE}/s3gw/ceph"
+          export OUTPUT_DIR="${GITHUB_WORKSPACE}/s3test-results"
+          export FORCE_CONTAINER=ON
+          export FORCE_DOCKER=ON
+          export \
+            FIXTURES="${GITHUB_WORKSPACE}/s3gw/ceph/qa/rgw/store/sfs/tests/fixtures"
+
+          export S3TEST_REPO="${GITHUB_WORKSPACE}/s3tests"
+          export S3TEST_CONF="${FIXTURES}/s3tests.conf"
+          export S3TEST_LIST="${FIXTURES}/s3-tests.txt"
+          pushd s3tests
+          ${GITHUB_WORKSPACE}/s3gw/tools/tests/s3tests-runner.sh
