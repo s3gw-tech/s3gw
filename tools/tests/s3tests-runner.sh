@@ -79,6 +79,10 @@ _configure() {
     exit 2
   fi
 
+  # if running in a github worker, the home directory can't be accessed, so the
+  # configuration must be stored elsewhere.
+  export PARALLEL_HOME=${GITHUB_WORKSPACE:-"${PARALLEL_HOME:-"$HOME"}"}
+
   if [ "$S3TEST_LIFECYCLE" == "ON" ] ; then
     LIFE_CYCLE_INTERVAL_PARAM="--rgw-lc-debug-interval ${S3TEST_LIFECYCLE_INTERVAL}"
     CONTAINER_EXTRA_PARAMS="${DEFAULT_S3GW_CONTAINER_CMD} ${LIFE_CYCLE_INTERVAL_PARAM}"
