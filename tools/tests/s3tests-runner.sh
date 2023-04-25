@@ -279,6 +279,8 @@ _main() {
     export TMPFILE
     export OUTPUT_DIR
     export PARALLEL_HOME
+    export CONTAINER_EXTRA_PARAMS
+    export LIFE_CYCLE_INTERVAL_PARAM
 
     mkdir -p "$PARALLEL_HOME"
     parallel --record-env
