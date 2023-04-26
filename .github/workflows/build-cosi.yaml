@@ -1,0 +1,68 @@
+---
+name: COSI Builds
+
+on:
+  push:
+    paths:
+      - "cosi-*"
+      - ".github/workflows/build-cosi.yaml"
+  workflow_dispatch:
+
+jobs:
+  build-cosi:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: quay.io Login
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Generate Tag based on Date
+        id: date
+        run: |
+          DATE="$(date +%Y-%m-%d)"
+          echo "tag=${DATE}" >> $GITHUB_OUTPUT
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
+      - name: Build s3gw-cosi-sidecar
+        working-directory: cosi-sidecar
+        run: |
+          make build
+
+      - name: Build s3gw-cosi-sidecar Container
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            quay.io/s3gw/s3gw-cosi-sidecar:latest
+          file: Dockerfile
+          context: cosi-sidecar
+
+      - name: Build s3gw-cosi-driver
+        working-directory: cosi-driver
+        run: |
+          make build
+
+      - name: Build s3gw-cosi-driver Container
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          build-args: |
+            S3GW_VERSION=${{ steps.date.outputs.tag }}
+          tags: |
+            quay.io/s3gw/s3gw-cosi-driver:latest
+          file: Dockerfile
+          context: cosi-driver

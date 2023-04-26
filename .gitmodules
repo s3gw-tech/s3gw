@@ -10,3 +10,9 @@
 [submodule "k3s-ansible"]
 	path = tools/env/playbooks/k3s-ansible
 	url = https://github.com/k3s-io/k3s-ansible.git
+[submodule "cosi-driver"]
+	path = cosi-driver
+	url = https://github.com/aquarist-labs/s3gw-cosi-driver.git
+[submodule "cosi-sidecar"]
+	path = cosi-sidecar
+	url = https://github.com/kubernetes-sigs/container-object-storage-interface-provisioner-sidecar.git
