@@ -40,6 +40,7 @@ OUTPUT_FILE=${OUTPUT_FILE:-"${OUTPUT_DIR}/report.json"}
 S3TEST_REPO=${S3TEST_REPO:-"$(pwd)"}
 S3TEST_CONF=${S3TEST_CONF:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3tests.conf"}
 S3TEST_LIST=${S3TEST_LIST:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3-tests.txt"}
+S3TEST_PARALLEL=${S3TEST_PARALLEL:-"OFF"}
 
 DEFAULT_S3GW_CONTAINER_CMD=${DEFAULT_S3GW_CONTAINER_CMD:-"--rgw-backend-store sfs --debug-rgw 1"}
 
@@ -266,23 +267,29 @@ _main() {
   if [ -n "$1" ] ; then
     _run 1 "$1"
   else
-    export -f _setup
-    export -f _run
-    export -f _teardown
-    export S3GW_CONTAINER
-    export S3TEST_CONF
-    export S3TEST_REPO
-    export FORCE_CONTAINER
-    export FORCE_DOCKER
-    export CONTAINER_CMD
-    export CONTAINER_CMD_LOG_OPTS
-    export TMPFILE
-    export OUTPUT_DIR
-    export PARALLEL_HOME
+    if [ "${S3TEST_PARALLEL}" = "ON" ] ; then
+      export -f _setup
+      export -f _run
+      export -f _teardown
+      export S3GW_CONTAINER
+      export S3TEST_CONF
+      export S3TEST_REPO
+      export FORCE_CONTAINER
+      export FORCE_DOCKER
+      export CONTAINER_CMD
+      export CONTAINER_CMD_LOG_OPTS
+      export TMPFILE
+      export OUTPUT_DIR
+      export PARALLEL_HOME
 
-    mkdir -p "$PARALLEL_HOME"
-    parallel --record-env
-    grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
+      mkdir -p "$PARALLEL_HOME"
+      parallel --record-env
+      grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
+    else
+      while read -r test ; do
+        _run "$test"
+      done < <( grep -v '#' "$S3TEST_LIST" )
+    fi
   fi
 
   _convert
