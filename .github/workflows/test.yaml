@@ -16,7 +16,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: s3gw
-          submodules: true
+          submodules: false
+
+      - name: Checkout ceph
+        uses: actions/checkout@v3
+        with:
+          repository: aquarist-labs/ceph
+          path: s3gw/ceph
 
       - name: Checkout s3tests
         uses: actions/checkout@v3

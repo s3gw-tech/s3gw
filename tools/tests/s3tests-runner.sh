@@ -267,27 +267,30 @@ _main() {
   if [ -n "$1" ] ; then
     _run 1 "$1"
   else
-    if [ "${S3TEST_PARALLEL}" = "ON" ] ; then
-      export -f _setup
-      export -f _run
-      export -f _teardown
-      export S3GW_CONTAINER
-      export S3TEST_CONF
-      export S3TEST_REPO
-      export FORCE_CONTAINER
-      export FORCE_DOCKER
-      export CONTAINER_CMD
-      export CONTAINER_CMD_LOG_OPTS
-      export TMPFILE
-      export OUTPUT_DIR
-      export PARALLEL_HOME
+    export -f _setup
+    export -f _run
+    export -f _teardown
+    export S3GW_CONTAINER
+    export S3TEST_CONF
+    export S3TEST_REPO
+    export FORCE_CONTAINER
+    export FORCE_DOCKER
+    export CONTAINER_CMD
+    export CONTAINER_CMD_LOG_OPTS
+    export TMPFILE
+    export OUTPUT_DIR
+    export PARALLEL_HOME
+    export CONTAINER_EXTRA_PARAMS
+    export LIFE_CYCLE_INTERVAL_PARAM
 
+    if [ "${S3TEST_PARALLEL}" = "ON" ] ; then
       mkdir -p "$PARALLEL_HOME"
       parallel --record-env
       grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
     else
       while read -r test ; do
-        _run "$test"
+        # run in a subshell to avoid poisoning the environment
+        ( _run "1" "$test" )
       done < <( grep -v '#' "$S3TEST_LIST" )
     fi
   fi
