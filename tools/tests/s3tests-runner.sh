@@ -40,6 +40,7 @@ OUTPUT_FILE=${OUTPUT_FILE:-"${OUTPUT_DIR}/report.json"}
 S3TEST_REPO=${S3TEST_REPO:-"$(pwd)"}
 S3TEST_CONF=${S3TEST_CONF:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3tests.conf"}
 S3TEST_LIST=${S3TEST_LIST:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3-tests.txt"}
+S3TEST_PARALLEL=${S3TEST_PARALLEL:-"OFF"}
 
 DEFAULT_S3GW_CONTAINER_CMD=${DEFAULT_S3GW_CONTAINER_CMD:-"--rgw-backend-store sfs --debug-rgw 1"}
 
@@ -282,9 +283,16 @@ _main() {
     export CONTAINER_EXTRA_PARAMS
     export LIFE_CYCLE_INTERVAL_PARAM
 
-    mkdir -p "$PARALLEL_HOME"
-    parallel --record-env
-    grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
+    if [ "${S3TEST_PARALLEL}" = "ON" ] ; then
+      mkdir -p "$PARALLEL_HOME"
+      parallel --record-env
+      grep -v '#' "$S3TEST_LIST" | parallel --env _ -j "${NPROC}" "_run {%} {}"
+    else
+      while read -r test ; do
+        # run in a subshell to avoid poisoning the environment
+        ( _run "1" "$test" )
+      done < <( grep -v '#' "$S3TEST_LIST" )
+    fi
   fi
 
   _convert
