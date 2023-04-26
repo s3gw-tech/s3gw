@@ -48,7 +48,7 @@ jobs:
           push: true
           tags: |
             quay.io/s3gw/s3gw-cosi-sidecar:latest
-          file: Dockerfile
+          file: cosi-sidecar/Dockerfile
           context: cosi-sidecar
 
       - name: Build s3gw-cosi-driver
@@ -64,5 +64,5 @@ jobs:
             S3GW_VERSION=${{ steps.date.outputs.tag }}
           tags: |
             quay.io/s3gw/s3gw-cosi-driver:latest
-          file: Dockerfile
+          file: cosi-driver/Dockerfile
           context: cosi-driver
