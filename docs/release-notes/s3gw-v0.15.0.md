@@ -4,12 +4,11 @@ This release focuses on stabilizing our continuous integration and release proce
 In this context, we have also addressed a number of issues that was affecting our
 testing framework when automatically triggered by CI.
 
-This activity, although not introducing a direct improvement consumable by the user,
-is crucial to ensure a proper and stable environment for the upcoming major
-enhancements the s3gw's team is currently working on.
+Although this activity may not result in any direct user-facing improvements,
+it plays a crucial role in maintaining a stable environment for the upcoming major
+enhancements that the s3gw team is currently developing.
 
-Obviously, we still continued to address regular issues affecting all the s3gw's
-components.
+We continue to address the regular issues that affect all of s3gw's components.
 
 This release is meant for testing and feedback gathering. It is not recommended
 for production use.
