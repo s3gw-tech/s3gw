@@ -133,6 +133,8 @@ jobs:
           EXPECTED_RN_FILE="$GITHUB_WORKSPACE/docs/release-notes/s3gw-v${VERSION_AFTER_RC}.md"
 
           if [ -f "$EXPECTED_RN_FILE" ]; then
+            export NEW_VERSION
+            export OLD_VERSION
             tools/tests/on-disk-format-checker.sh || \
               sed -n '/## Breaking Changes/,/## Known Issues/p' \
                   "${EXPECTED_RN_FILE}" | grep -i "format"
