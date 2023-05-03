@@ -41,6 +41,7 @@ S3TEST_REPO=${S3TEST_REPO:-"$(pwd)"}
 S3TEST_CONF=${S3TEST_CONF:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3tests.conf"}
 S3TEST_LIST=${S3TEST_LIST:-"${CEPH_DIR}/qa/rgw/store/sfs/tests/fixtures/s3-tests.txt"}
 S3TEST_PARALLEL=${S3TEST_PARALLEL:-"OFF"}
+S3TEST_TIMEOUT=${S3TEST_TIMEOUT:-"3m"}
 
 DEFAULT_S3GW_CONTAINER_CMD=${DEFAULT_S3GW_CONTAINER_CMD:-"--rgw-backend-store sfs --debug-rgw 1"}
 
@@ -52,7 +53,6 @@ S3TEST_LIFECYCLE_INTERVAL=${S3TEST_LIFECYCLE_INTERVAL:-"10"}
 
 CONTAINER=
 JOB=
-TMPFILE=
 TMPDIR=
 
 NPROC=${NPROC:-"$(nproc --ignore=2)"}  # Used to run tests in parallel
@@ -97,7 +97,8 @@ _setup() {
   local test="$2"
 
   local port=$(( 7480 + slot ))
-  TMPDIR=$(mktemp -q -d -p "${OUTPUT_DIR}" data.XXXXXX.dir)
+  TMPDIR="${OUTPUT_DIR}/${test}.tmp"
+  mkdir -p "$TMPDIR"
 
   sed -e "s/^port.*/port = $port/g" "$S3TEST_CONF" > "${TMPDIR}/s3tests.conf"
 
@@ -175,27 +176,31 @@ _run() {
 
   export S3TEST_CONF="${TMPDIR}/s3tests.conf"
   export S3_USE_SIGV4=ON
-  if pytest \
+  if timeout "${S3TEST_TIMEOUT}" pytest \
     "s3tests_boto3/functional/test_s3.py::${name}" \
     > "${OUTPUT_DIR}/logs/${test}/test.output" 2>&1 ; then
     result="success"
   else
-    result="failure"
+    if [ "$?" = "124" ] ; then
+      result="timeout"
+    else
+      result="failure"
+    fi
   fi
   endtime=$(date "+%s.%N")
   runtime=$(echo "${endtime} - ${starttime}" | bc)
 
-  echo "$test : $result"
-
-  ( flock -w 5 255 ; yq -i \
-    ".tests += [{\"name\": \"${name}\", \"result\": \"${result}\", \"slot\": \"${slot}\", \"time\": \"$runtime\"}]" \
-    "${TMPFILE}" ; ) 255>"${TMPFILE}.lock"
-  _teardown "$test"
+  _teardown "$slot" "$test" "$result" "$runtime"
 }
 
 
 _teardown() {
-  local test="$1"
+  local slot="$1"
+  local test="$2"
+  local result="$3"
+  local runtime="$4"
+
+  echo "$test : $result"
 
   if [ "$CONTAINER_CMD" = "docker" ] ; then
     docker logs "$CONTAINER" > "${OUTPUT_DIR}/logs/${test}/radosgw.log" 2>&1
@@ -203,10 +208,32 @@ _teardown() {
     mv "${OUTPUT_DIR}/logs/radosgw.log" "${OUTPUT_DIR}/logs/${test}/radosgw.log"
   fi
 
+  # set +e
+  # IFS= read -rd '' radosgwlog < <(cat "${OUTPUT_DIR}/logs/${test}/radosgw.log")
+  # IFS= read -rd '' s3testlog < <(cat "${OUTPUT_DIR}/logs/${test}/test.output")
+  # set -e
+  touch "${OUTPUT_DIR}/${test}.yaml"
+
+  export name
+  export result
+  export slot
+  export runtime
+  export radosgwlog
+  export s3testlog
+  yq -i \
+    ".tests += [{ \"name\": strenv(name), \
+                  \"result\": strenv(result), \
+                  \"slot\": strenv(slot), \
+                  \"time\": strenv(runtime) \
+                }]" \
+    "${OUTPUT_DIR}/${test}.yaml"
+                  # \"s3gw_log\": strenv(radosgwlog), \
+                  # \"s3test_log\": strenv(s3testlog) \
+
   if [ -n "$CONTAINER" ] ; then
     set +e
-    "$CONTAINER_CMD" kill "$CONTAINER"
-    "$CONTAINER_CMD" rm "$CONTAINER"
+    "$CONTAINER_CMD" kill "$CONTAINER" > /dev/null 2>&1
+    "$CONTAINER_CMD" rm "$CONTAINER" > /dev/null 2>&1
     CONTAINER=
     set -e
   else
@@ -219,8 +246,20 @@ _teardown() {
 
 
 _convert() {
+  TMPFILE="$(mktemp -q -p "$(pwd)" report.XXXXXX.yaml)"
+  [ -f "${TMPFILE}" ] || echo "tests:" > "${TMPFILE}"
+
+  for file in "${OUTPUT_DIR}"/*.yaml ; do
+    yq -i ".tests += [$(yq .tests[] "$file" -ojson)]" "${TMPFILE}"
+  done
+
   yq -o=json '.' "${TMPFILE}" > "${OUTPUT_FILE}"
   rm "${TMPFILE}"
+
+  jq ".date |=\"$(date +%Y-%m-%d)\"" "${OUTPUT_FILE}"
+  jq ".time |=\"$(date +%H:%M:%S)\"" "${OUTPUT_FILE}"
+  jq ".user |= \"$(git config --get user.name)\"" "${OUTPUT_FILE}"
+  jq ".git_ref |= \"$(cd "${CEPH_DIR}" ; git rev-parse HEAD)\"" "${OUTPUT_FILE}"
 }
 
 
@@ -261,9 +300,6 @@ _main() {
   [ -d "${OUTPUT_DIR}" ] || mkdir -p "${OUTPUT_DIR}"
   [ -d "${OUTPUT_DIR}/logs" ] || mkdir -p "${OUTPUT_DIR}/logs"
 
-  TMPFILE="$(mktemp -q -p "${OUTPUT_DIR}" report.XXXXXX.yaml)"
-  [ -f "${TMPFILE}" ] || echo "tests:" > "${TMPFILE}"
-
   if [ -n "$1" ] ; then
     _run 1 "$1"
   else
@@ -273,11 +309,11 @@ _main() {
     export S3GW_CONTAINER
     export S3TEST_CONF
     export S3TEST_REPO
+    export S3TEST_TIMEOUT
     export FORCE_CONTAINER
     export FORCE_DOCKER
     export CONTAINER_CMD
     export CONTAINER_CMD_LOG_OPTS
-    export TMPFILE
     export OUTPUT_DIR
     export PARALLEL_HOME
     export CONTAINER_EXTRA_PARAMS

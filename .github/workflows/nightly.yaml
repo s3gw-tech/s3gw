@@ -130,21 +130,25 @@ jobs:
           export S3TEST_CONF="${FIXTURES}/s3tests.conf"
           export S3TEST_LIST="${FIXTURES}/s3-tests.txt"
 
-          # There are some s3tests that don't finish at all. Only run
-          # known-to-pass tests for now. TODO: fix inifite looping tests
-          # sed -r -i 's/^# //' "${S3TEST_LIST}"
+          sed -r -i 's/^# //' "${S3TEST_LIST}"
 
           pushd s3tests
           ${GITHUB_WORKSPACE}/s3gw/tools/tests/s3tests-runner.sh
           popd
 
+          git config --global user.name "Github Nightly Bot"
+          git config --global user.email "bot@github.com"
           git clone \
             https://user:${GITHUB_TOKEN}@github.com/aquarist-labs/s3gw-status
           pushd s3gw-status
-          git config user.name "github nightly bot"
-          git config user.email "bot@github.com"
           cp \
             "${OUTPUT_DIR}/report.json" \
+            results/s3tests/${{ steps.date.outputs.tag }}.json
+
+          jq \
+            ".description |= \"Nightly $(date +%Y-%m-%d)\"" \
+            ".user |= \"$(git config --get user.name)\"" \
+            ".git_ref |= \"$(cd ${CEPH_DIR} ; git rev-parse HEAD)\"" \
             results/s3tests/${{ steps.date.outputs.tag }}.json
 
           git add results/s3tests/${{ steps.date.outputs.tag }}.json
