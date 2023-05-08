@@ -177,6 +177,66 @@ jobs:
           file: ui/src/frontend/Dockerfile
           context: ui/src/frontend
 
+  # Build and push the COSI sidecar and driver
+  build-s3gw-cosi-sidecar-and-driver:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Quay Login
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
+      - name: Build s3gw-cosi-sidecar
+        working-directory: cosi-sidecar
+        run: |
+          make build
+
+      - name: Build s3gw-cosi-driver
+        working-directory: cosi-driver
+        run: |
+          make build
+
+      - name: Build s3gw-cosi-sidecar Container
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            quay.io/s3gw/s3gw-cosi-sidecar:${{ github.ref_name }}
+            quay.io/s3gw/s3gw-cosi-sidecar:latest
+          file: cosi-sidecar/Dockerfile
+          context: cosi-sidecar
+
+      - name: Build s3gw-cosi-driver Container
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          build-args: |
+            S3GW_VERSION=${{ github.ref_name }}
+          tags: |
+            quay.io/s3gw/s3gw-cosi-driver:${{ github.ref_name }}
+            quay.io/s3gw/s3gw-cosi-driver:latest
+          file: cosi-driver/Dockerfile
+          context: cosi-driver
+
   draft-release:
     runs-on: ubuntu-latest
     needs:
