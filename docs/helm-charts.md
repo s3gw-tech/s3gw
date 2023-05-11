@@ -265,3 +265,85 @@ being more verbose:
 ```yaml
 logLevel: "1"
 ```
+
+### Container Object Storage Interface (COSI)
+
+> **WARNING**: Be advised that COSI standard is currently in **alpha** state.
+> The COSI implementation provided by s3gw is considered an experimental feature
+> and changes to the COSI standard are expected in this phase.
+> The s3gw team does not control the upstream development of COSI.
+
+#### Prerequisites
+
+If you are going to use COSI, ensure some resources are pre-deployed on the cluster.
+
+COSI requirements:
+
+- COSI CRDs
+
+To deploy COSI CRDs, run:
+
+```bash
+kubectl create -k github.com/kubernetes-sigs/container-object-storage-interface-api
+```
+
+- COSI Controller
+
+To deploy the COSI Controller, run:
+
+```bash
+kubectl create -k github.com/kubernetes-sigs/container-object-storage-interface-controller
+```
+
+Check if the controller pod is in the default namespace:
+
+```shell
+NAME                                        READY   STATUS    RESTARTS   AGE
+objectstorage-controller-6fc5f89444-4ws72   1/1     Running   0          2d6h
+```
+
+#### Installation
+
+COSI support is disabled by default in s3gw. To enable it, set:
+
+```yaml
+cosi.enabled: true
+```
+
+Normally, you don't need to change the chart's defaults for the COSI related fields.
+
+However, the following fields can be customized:
+
+```yaml
+
+cosi.driver.imageName: # It specifies a custom image name for the COSI driver.
+                       # Default: s3gw-cosi-driver
+
+cosi.driver.imageTag: # It specifies a custom image tag for the COSI driver.
+                      # Default: the current chart version.
+
+cosi.driver.imageRegistry: #It specifies a custom image registry for the COSI driver.
+                           #Default: quay.io/s3gw
+
+cosi.driver.imagePullPolicy: # It specifies the pull policy for the COSI driver.
+                             # Default: IfNotPresent
+
+cosi.driver.name: # It specifies the name of the COSI driver.
+                  # Default: {Release.Name}.{Release.Namespace}.objectstorage.k8s.io
+
+cosi.sidecar.imageName: # It specifies a custom image name for the COSI sidecar.
+                        # Default: s3gw-cosi-sidecar
+
+cosi.sidecar.imageTag: # It specifies a custom image tag for the COSI sidecar.
+                       # Default: the current chart version.
+
+cosi.sidecar.imageRegistry: # It specifies a custom image registry for the COSI sidecar.
+                            # Default: quay.io/s3gw
+
+cosi.sidecar.imagePullPolicy: # It specifies the pull policy for the COSI sidecar.
+                              # Default: IfNotPresent
+
+cosi.sidecar.logLevel: # It specifies the log verbosity of the COSI sidecar.
+                       # Higher values are more verbose.
+                       # Default: 5
+```
