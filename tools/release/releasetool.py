@@ -77,7 +77,7 @@ class GitBranchName(GitRefName):
     pass
 
 
-def guess_next_version(api) -> str:
+def guess_next_version(api: Github) -> str:
     """
     Make a guess what the next version number will be
     """
@@ -107,7 +107,7 @@ def guess_next_version(api) -> str:
     ),
     required=True,
 )
-def release(ctx, state: Path):
+def release(ctx: click.Context, state: Path):
     ctx.ensure_object(dict)
     loglevel = logging.INFO
     logging.basicConfig(
@@ -128,7 +128,7 @@ def release(ctx, state: Path):
         ctx.obj = {"fn": str(state.absolute())}
 
 
-def save_ctx(ctx):
+def save_ctx(ctx: click.Context):
     """
     Write context object data to state file
     """
@@ -198,7 +198,7 @@ def save_ctx(ctx):
     "/ Personal access tokens (classic)). Written to state file.",
 )
 def start(
-    ctx,
+    ctx: click.Context,
     s3gw: Path,
     s3gw_ceph: Path,
     s3gw_ui: Path,
@@ -224,7 +224,7 @@ def start(
     branch_name = GitBranchName(f"s3gw-v{version}")
     version = f"{version}.{patch}"
 
-    ctx.obj["wd"] = {k: str(v.working_dir) for k, v in repos.items()}
+    ctx.obj["wd"] = {k: str(v.working_dir) for k, v in repos.items()}  # type: ignore
     ctx.obj["version"] = version
     ctx.obj["release_branch"] = str(branch_name)
     ctx.obj["github_token"] = github_token
@@ -236,7 +236,7 @@ def start(
 
 @release.command()
 @click.pass_context
-def branch(ctx):
+def branch(ctx: click.Context):
     """
     Create release branches (interactive). Do this once. (ex: s3gw-v0.42)
     """
@@ -249,7 +249,7 @@ def branch(ctx):
     assert ctx.obj.get(["wd"], False)
 
     github_api = Github(ctx.obj["github_token"])
-    refspecs = {}
+    refspecs: dict[str, str] = {}
 
     actions_table = Table(box=rich.box.SIMPLE)
     actions_table.add_column("Repo")
@@ -303,7 +303,7 @@ def branch(ctx):
 
 @release.command()
 @click.pass_context
-def increment_patch_version(ctx):
+def increment_patch_version(ctx: click.Context):
     """
     (major.minor.patch++)
     """
@@ -324,7 +324,7 @@ def collect_repo_tag_information(
     Collect latest $release_branch commit data for $repos into
     a dict indexed by repos and a rich table for printing.
     """
-    tags = {}
+    tags: dict[str, github.Commit.Commit] = {}
     table = Table(box=rich.box.SIMPLE)
 
     table.add_column("Repo")
@@ -356,14 +356,17 @@ def collect_repo_tag_information(
 
 
 def tag_and_push(
-    git_r: Repo, tag_name: GitTagName, commit: github.Commit.Commit, message: str
+    git_r: Repo,
+    tag_name: GitTagName,
+    commit: github.Commit.Commit,
+    message: str,
 ) -> None:
     """
     Add tag to git repo $git_r with $tag_name pointing to commit $commit.
     Use annotated tags with $message
     """
     try:
-        new_tag = git_r.create_tag(
+        new_tag = git_r.create_tag(  # pyright: ignore[reportUnknownMemberType]
             tag_name.name,
             ref=commit.sha,
             message=message,
@@ -372,7 +375,7 @@ def tag_and_push(
         git_r.remote("aquarist").push(new_tag.name)
         LOG.info(f"Tagged and pushed: {str(git_r)} {str(tag_name)} {str(commit)}")
     except git.GitCommandError as e:
-        if "already exists" in e.stderr:
+        if "already exists" in e.stderr:  # pyright: ignore[reportUnknownMemberType]
             LOG.error(f"Repo {str(git_r)}: tag {str(tag_name)} already exists")
         else:
             raise e
@@ -394,7 +397,9 @@ def update_s3gw_submodules(
             f"branch {str(release_branch)} to {td}"
         )
 
-        tmp_r = Repo.clone_from(gh_r.ssh_url, td, branch=release_branch.name, depth=1)
+        tmp_r = Repo.clone_from(  # pyright: ignore[reportUnknownMemberType]
+            gh_r.ssh_url, td, branch=release_branch.name, depth=1
+        )
         with tmp_r.config_writer() as cw:
             email = git_r.config_reader().get_value("user", "email")
             signingkey = git_r.config_reader().get_value("user", "signingkey")
@@ -412,9 +417,9 @@ def update_s3gw_submodules(
         for name in tags.keys():
             submod = tmp_r.submodule(name)
             submod.binsha = binascii.a2b_hex(tags[name].sha)
-            tmp_r.index.add([submod])
+            tmp_r.index.add([submod])  # pyright: ignore[reportUnknownMemberType]
 
-        tmp_r.index.write()
+        tmp_r.index.write()  # pyright: ignore[reportUnknownMemberType]
         try:
             tmp_r.git.commit(
                 "-S",
@@ -424,7 +429,10 @@ def update_s3gw_submodules(
             )
         except git.GitCommandError as e:
             LOG.exception("committing submodule update failed")
-            if "Your branch is up to date with 'origin/s3gw" in e.stdout:
+            if (
+                "Your branch is up to date with 'origin/s3gw"
+                in e.stdout  # pyright: ignore[reportUnknownMemberType]
+            ):
                 if (
                     Prompt.ask(
                         "No submodule changes. Continue with tag and push?",
@@ -438,7 +446,7 @@ def update_s3gw_submodules(
                 raise e
 
         head = tmp_r.head.commit
-        tag = tmp_r.create_tag(
+        tag = tmp_r.create_tag(  # pyright: ignore[reportUnknownMemberType]
             release_tag.name,
             ref=head.hexsha,
             message=commit_message,
@@ -447,7 +455,10 @@ def update_s3gw_submodules(
 
         table = Table(box=rich.box.SIMPLE, title="Submodule Update Commit")
         table.add_row("sha", head.hexsha)
-        table.add_row("parent", repr(head.parents))
+        table.add_row(
+            "parent",
+            repr(head.parents),  # type: ignore
+        )
         table.add_row("summary", str(head.summary))
         table.add_row("author", repr(head.author))
         table.add_row("committer", repr(head.committer))
@@ -470,7 +481,7 @@ def update_s3gw_submodules(
 
 @release.command()
 @click.pass_context
-def create_candidate(ctx):
+def create_candidate(ctx: click.Context):
     """
     Create release candidate (interactive). Repos affected: ceph, s3gw-ui, s3gw
     """
@@ -523,7 +534,7 @@ def create_candidate(ctx):
 
 @release.command()
 @click.pass_context
-def create_release(ctx):
+def create_release(ctx: click.Context):
     """
     Create release (interactive). Repos affected: ceph, s3gw-ui, s3gw-charts, s3gw
     """
@@ -573,7 +584,7 @@ def create_release(ctx):
         save_ctx(ctx)
 
 
-def list_quay_tags(repo):
+def list_quay_tags(repo: str):
     return requests.get(
         f"https://quay.io/api/v1/repository/s3gw/{repo}"
         f"/tag/?limit=100&page=1&onlyActiveTags=true"
@@ -586,7 +597,7 @@ def list_artifacthub_repo():
 
 @release.command()
 @click.pass_context
-def sanity_checks(ctx):
+def sanity_checks(ctx: click.Context):
     """
     Is everything released properly?
     """
@@ -631,7 +642,8 @@ def sanity_checks(ctx):
 
         if not indexed.get(version_tag):
             console.print(
-                f":warning:  No release version tag {version_tag}", style="magenta"
+                f":warning:  No release version tag {version_tag}",
+                style="magenta",
             )
         try:
             if (
@@ -639,7 +651,8 @@ def sanity_checks(ctx):
                 != indexed[version_tag]["manifest_digest"]
             ):
                 console.print(
-                    ":warning:  Latest digest != release digest", style="magenta"
+                    ":warning:  Latest digest != release digest",
+                    style="magenta",
                 )
         except Exception:
             LOG.exception("things we need to check dont exists. :(")
