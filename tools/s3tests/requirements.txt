@@ -1,0 +1,10 @@
+pytest-json-report
+click
+sqlite-utils
+radosgw-admin
+docker
+requests
+rich
+datasette
+uvicorn
+pyyaml

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+set -x
+
+SCRIPTPATH="$(dirname "$0")"
+
+: $S3TESTS
+
+if [[ ! -d "$S3TESTS" ]]; then
+    echo "Please set S3TESTS to s3-tests directory"
+    exit 1
+fi
+
+if [[ ! -d "$SCRIPTPATH/venv" ]]; then
+   (
+       cd $SCRIPTPATH
+       python3 -m venv venv
+       source venv/bin/activate
+       pip install -r "$S3TESTS/requirements.txt"
+       pip install -r "requirements.txt"
+   )
+fi
