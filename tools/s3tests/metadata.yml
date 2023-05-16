@@ -1,0 +1,59 @@
+databases:
+  title: "S3GW S3 Test Results"
+  results:
+    tables:
+      results:
+        columns:
+          out: S3 Test output
+          log_container: s3gw radosgw container log
+        label_column: test
+        facets:
+          - result
+      results_keywords:
+        facets:
+          - keyword
+      results_with_keywords:
+        label_column: test
+        facets:
+          - array: keywords
+          - result
+    queries:
+      not-supported-errors:
+        title: Container Log - Not Supported Errors
+        label_column: test
+        sql: |-
+          select test, result, out, log_container
+          from results where rowid in
+             (select rowid from results_fts
+              where results_fts
+              match 'err_no*95 OR ENOTSUP OR ret*95 OR status*95')
+          order by test
+      todo-log-messages:
+        title: Container Log - TODOs
+        sql: |-
+          select test, result, out, log_container
+          from results where rowid in
+             (select rowid from results_fts
+              where results_fts
+              match 'log_container:TODO')
+          order by test
+      summary:
+        title: Summary
+        sql: |-
+          select result, count(*) as count from results group by result
+          union
+          select 'total', count(*) from results
+          union
+          select 'total failed', count(*) from results where result != 'success'
+      fail:
+        title: Failures by group
+        sql: |-
+          select
+            keyword,
+            count(case when result == 'success' then 1 end) as success,
+            count(case when result != 'success' then 1 end) as fail
+          from
+            results
+            inner join results_keywords on results.test = results_keywords.test
+          group by
+            keyword
