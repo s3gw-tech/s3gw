@@ -7,7 +7,7 @@ on:
 
   # This workflow needs to pass if there is a PR changing it.
   pull_request:
-    path:
+    paths:
       - ".github/workflows/nightly.yaml"
 
   workflow_dispatch:   # Or manually - for testing
