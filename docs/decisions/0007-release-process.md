@@ -196,7 +196,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
    sub-projects' state to reflect the now existing tags. This can be achieved in
    by checking out the appropriate tag on each individual sub-project's
    submodule directory. A commit will be necessary to persist the
-   changes. The following shows an trimmed example of what to do.
+   changes. The following shows a trimmed example of what to do.
 
    ```shell
    # in the root of the s3gw repo, branch s3gw-v0.11
@@ -246,7 +246,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
    ```
 
 9. At this point we will need to update the Helm Chart to reflect the release
-   version. This becomes bit tricky, because we want the change to be reflected
+   version. This becomes a bit tricky, because we want the change to be reflected
    in both the `main` branch and the `s3gw-vX.Y` branch on the `s3gw-charts`
    repository. To do this, we will apply a patch to the `main` branch, and then
    backport the change to the release branch.
@@ -353,3 +353,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
 ## [Testing](testing)
 
 To be expanded in the future, or maybe link to a proper testing document.
+
+- [ ] Install the `s3gw-ui` container and sign-in. Perform some actions like
+      creating/update/delete users and buckets. Also try uploading/deleting
+      objects in buckets.
