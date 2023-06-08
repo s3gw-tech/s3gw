@@ -5,3 +5,5 @@ rich
 click
 python-dateutil
 packaging
+pydantic
+gql[requests]
