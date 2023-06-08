@@ -1,31 +1,25 @@
 # S3 API compatibility
 
-The following table describes the support status for current Amazon S3
-functional features:
+The following table represents the support status for current Amazon S3
+functional features, and our forward-looking plans for upcoming releases.
 
-| Feature                   | Status |
-| ------------------------- | ------ |
-| List Buckets              | ✅     |
-| Delete Bucket             | ✅     |
-| Create Bucket             | ✅     |
-| Put Object                | ✅     |
-| Delete Object             | ✅     |
-| Get Object                | ✅     |
-| Bucket ACLs (Get, Put)    | ✅     |
-| Bucket Object Versions    | ✅     |
-| Get Bucket Info (HEAD)    | ✅     |
-| Multipart uploads         | ✅     |
-| Copy Object               | ✅     |
-| Bucket Lifecycle          |        |
-| Bucket Replication        |        |
-| Policy (Buckets, Objects) |        |
-| Bucket Website            |        |
-| Bucket Location           |        |
-| Bucket Notification       |        |
-| Bucket Request Payment    |        |
-| Object ACLs (Get, Put)    |        |
-| Get Object Info (HEAD)    |        |
-| POST Object               |        |
-| Object Tagging            |        |
-| Bucket Tagging            |        |
-| Storage Class             |        |
+|                        | v0.24.0 | v1.0.0 | v1.x.0 |
+| ---------------------- | ------- | ------ | ------ |
+| GET/PUT/DELETE         | ✅      | ✅     | ✅     |
+| Multipart Uploads      | ✅      | ✅     | ✅     |
+| Bucket/Object ACLs     | ✅      | ✅     | ✅     |
+| Bucket Object Versions | ✅      | ✅     | ✅     |
+| Bucket/Object Tagging  | ✅      | ✅     | ✅     |
+| Bucket Lifecycle       | ✅      | ✅     | ✅     |
+| Object Locking         | 🟨      | ✅     | ✅     |
+| Bucket/User Quotas     | ✅      | ✅     | ✅     |
+| Server Side Encryption | 🟥      | ✅     | ✅     |
+| Bucket Website         | 🟥      | ✅     | ✅     |
+| Bucket Notifications   | 🟥      | ✳️     | ✅     |
+| Bucket Request Payment | 🟥      | 🟥     | ✳️️    |
+| S3 Storage Classes     | 🟥      | 🟥     | ✳️️    |
+| Bucket Policy          | 🟥      | 🟥️    | ✳️️    |
+| IAM / STS              | 🟥      | 🟥     | ✳️     |
+| Bucket Replication     | 🟥      | 🟥     | 🟥     |
+
+✳️ - maybe / 🟥 - not planned / 🟨 - partial support / ✅ - expected support
