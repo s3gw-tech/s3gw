@@ -10,8 +10,8 @@ functional features, and our forward-looking plans for upcoming releases.
 | Bucket/Object ACLs     | ✅      | ✅     | ✅     |
 | Bucket Object Versions | ✅      | ✅     | ✅     |
 | Bucket/Object Tagging  | ✅      | ✅     | ✅     |
-| Bucket Lifecycle       | ✅      | ✅     | ✅     |
-| Object Locking         | 🟨      | ✅     | ✅     |
+| Bucket Lifecycle       | 🟨      | ✅     | ✅     |
+| Object Locking         | ✅      | ✅     | ✅     |
 | Bucket/User Quotas     | ✅      | ✅     | ✅     |
 | Server Side Encryption | 🟥      | ✅     | ✅     |
 | Bucket Website         | 🟥      | ✅     | ✅     |
