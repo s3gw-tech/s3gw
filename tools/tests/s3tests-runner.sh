@@ -89,6 +89,14 @@ _configure() {
     LIFE_CYCLE_INTERVAL_PARAM="--rgw-lc-debug-interval ${S3TEST_LIFECYCLE_INTERVAL}"
     CONTAINER_EXTRA_PARAMS="${DEFAULT_S3GW_CONTAINER_CMD} ${LIFE_CYCLE_INTERVAL_PARAM}"
   fi
+
+  CONTAINER_EXTRA_PARAMS+=" --rgw_crypt_require_ssl=false"
+  CONTAINER_EXTRA_PARAMS+=" --rgw_crypt_s3_kms_backend testing"
+  CONTAINER_EXTRA_PARAMS+=" --rgw_crypt_s3_kms_encryption_keys \
+	\"testkey-1=YmluCmJvb3N0CmJvb3N0LWJ1aWxkCmNlcGguY29uZgo= \
+	testkey-2=aWIKTWFrZWZpbGUKbWFuCm91dApzcmMKVGVzdGluZwo=\""
+  CONTAINER_EXTRA_PARAMS+=" --rgw_crypt_default_encryption_key \
+	\"4YSmvJtBv0aZ7geVgAsdpRnLBEwWSWlMIGnRS8a9TSA=\""
 }
 
 
