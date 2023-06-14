@@ -47,6 +47,11 @@ COPY [ \
        "./lib/libceph-common.so.2", \
        "/radosgw/" ]
 
+COPY [ \
+  "./lib/libceph_crypto_isal.so", \
+  "./lib/libceph_crypto_openssl.so", \
+  "/usr/local/lib64/ceph/crypto/" ]
+
 EXPOSE 7480
 
 VOLUME ["/data"]
