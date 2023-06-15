@@ -15,11 +15,12 @@ functional features, and our forward-looking plans for upcoming releases.
 | Bucket/User Quotas     | ✅      | ✅     | ✅     |
 | Server Side Encryption | 🟥      | ✅     | ✅     |
 | Bucket Website         | 🟥      | ✅     | ✅     |
-| Bucket Notifications   | 🟥      | ✳️     | ✅     |
-| Bucket Request Payment | 🟥      | 🟥     | ✳️️    |
-| S3 Storage Classes     | 🟥      | 🟥     | ✳️️    |
-| Bucket Policy          | 🟥      | 🟥️    | ✳️️    |
-| IAM / STS              | 🟥      | 🟥     | ✳️     |
+| Bucket Notifications   | 🟥      | 🔹     | ✅     |
+| Bucket Request Payment | 🟥      | 🟥     | 🔹     |
+| S3 Storage Classes     | 🟥      | 🟥     | 🔹     |
+| Bucket Policy          | 🟥      | 🟥️     | 🔹     |
+| IAM / STS              | 🟥      | 🟥     | 🔹     |
 | Bucket Replication     | 🟥      | 🟥     | 🟥     |
 
-✳️ - maybe / 🟥 - not planned / 🟨 - partial support / ✅ - expected support
+🔹 - under consideration / 🟥 - not planned / 🟨 - partial support /
+✅ - expected support
