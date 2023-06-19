@@ -1,9 +1,9 @@
 
-# Installing k3s for s3gw
+# Installing K3s for s3gw
 
 The following document describes the prerequisite installations to run the
-S3 Gateway (s3gw), an S3 object storage service, on top of a Kubernetes (k8s)
-distribution, k3s.
+S3 Gateway (s3gw), an S3 object storage service, on top of a Kubernetes (K8s)
+distribution, K3s.
 
 ## Before you begin
 
@@ -14,7 +14,7 @@ firewalld to ensure k3s runs with full functionality. To do so, run:
 systemctl stop firewalld.service
 ```
 
-For more information on k3s and firewalld, see the
+For more information on K3s and firewalld, see the
 [k3s documentation](https://docs.k3s.io/advanced#red-hat-enterprise-linux--centos).
 
 You can install the s3gw for test purposes locally, on baremetal hardware,
@@ -33,14 +33,14 @@ create your own ingress resource.
 
 ## Installing k3s
 
-Before you begin, ensure you install k3s. You can find the installation
+Before you begin, ensure you install K3s. You can find the installation
 instructions [here](https://k3s.io/) or, run:
 
 ```bash
 curl -sfL https://get.k3s.io | sh -.
 ```
 
-Ensure you move the k3s.yaml file, usually hosted in
+Ensure you move the `k3s.yaml` file, usually hosted in
 `/etc/rancher/k3s/k3s.yaml`, to `~/.kube/config` to access the
 certificates.
 

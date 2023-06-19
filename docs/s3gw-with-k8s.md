@@ -1,8 +1,8 @@
 <!-- markdownlint-disable no-duplicate-heading -->
-# Installing k8s for s3gw
+# Installing K8s for s3gw
 
 The following document describes the prerequisite installations to run the
-S3 Gateway (s3gw), an S3 object storage service, on top of a vanilla k8s
+S3 Gateway (s3gw), an S3 object storage service, on top of a vanilla K8s
 installation.
 
 ## Before you begin
@@ -15,7 +15,7 @@ which is 25% by default.
 ## Installing CNI plugin
 
 Kubernetes supports a Container Network Interface (CNI) plugins for cluster
-networking and is required to implement the k8s networking model.
+networking and is required to implement the K8s networking model.
 See the installation instructions [here](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/).
 
 ## Installing ingress controller

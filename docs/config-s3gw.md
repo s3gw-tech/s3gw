@@ -133,7 +133,7 @@ string without line breaks. You can create them from a PEM file.
 
 ## s3gw user interface
 
-`ui.enabled` is by default set to `true`, but can be set to false to use
+`ui.enabled` is by default set to `true`, but can be set to `false` to use
 the s3gw standalone.
 
 `ui.serviceName` and `ui.publicDomain` are the hostname and domain name
