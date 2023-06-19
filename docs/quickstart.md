@@ -1,5 +1,16 @@
 # Quickstart
 
+## Rancher
+
+You can install the s3gw via the Rancher App Catalog. The steps are as follows:
+
+- Cluster -> Projects/Namespaces - create the `s3gw` namespace.
+- Apps -> Repositories -> Create `s3gw` using the s3gw-charts Web URL
+  <https://aquarist-labs.github.io/s3gw-charts/> and the main branch.
+- Apps -> Charts -> Install Traefik.
+- Apps -> Charts -> Install `s3gw`.
+  Select the `s3gw` namespace previously created.
+
 ## Helm chart
 
 Add the helm chart to your helm repos and install from there. There are [several

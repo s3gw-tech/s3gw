@@ -17,9 +17,11 @@ nav:
   - Introduction: "index.md"
   - Quickstart: "quickstart.md"
   - Roadmap: "roadmap.md"
-  - "Installation & setup":
-      - Using a Helm chart: "helm-charts.md"
-      - K8s & K3s setup: "s3gw-with-k8s-k3s.md"
+  - "Installing the s3gw":
+      - Installing k8s for s3gw: "s3gw-with-k8s-k3s.md"
+      - Installing s3gw with helm charts: "helm-charts.md"
+  - "Configuring the s3gw":
+      - Configuration options: "config-s3gw.md"
   - "Contributing":
       - Contributing: "contributing.md"
   - "Development manual":

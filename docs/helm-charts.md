@@ -1,21 +1,34 @@
-# Installation and options
+# Installing s3gw with helm charts
 
-The canonical way to install the helm chart is via a helm repository:
+Before you begin, ensure you install helm. To install, see the [documentaiton](https://helm.sh/docs/intro/install/)
+or run the following:
 
-```bash
-helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
-helm install $RELEASE_NAME s3gw/s3gw --namespace $S3GW_NAMESPACE \
-  --create-namespace -f /path/to/your/custom/values.yaml
+```shell
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
 ```
 
-The chart can also be installed directly from the git repository. To do so, clone
-the repository:
+Clone the s3gw-charts repo and change directory:
 
-```bash
-git clone https://github.com/aquarist-labs/s3gw-charts.git
+```shell
+git clone https://aquarist-labs.github.io/s3gw-charts/
+cd s3gw-charts
 ```
 
-The chart can then be installed from within the repository directory:
+## Configuring values.yaml
+
+Helm charts can be customized for your Kubernetes environment. For a
+default installation, the only option you are required to update is
+the domain and then set the options on the command line directly using
+`helm --set key=value`.
+
+**Note:** We do recommend at least updating the default access credenitals,
+but it is not necessary for a test installation. See below for more
+information.
+
+Once the domain has been configured, the chart can then be installed from
+within the repository directory:
 
 ```bash
 cd s3gw-charts
@@ -23,71 +36,20 @@ helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE \
   --create-namespace -f /path/to/your/custom/values.yaml
 ```
 
-Before installing, familiarize yourself with the options. If necessary, provide
-your own `values.yaml` file.
+### Options
 
-## Rancher
-
-You can install the s3gw via the Rancher App Catalog. The steps are as follows:
-
-- Cluster -> Projects/Namespaces - create the `s3gw` namespace.
-- Apps -> Repositories -> Create `s3gw` using the s3gw-charts Web URL
-  <https://aquarist-labs.github.io/s3gw-charts/> and the main branch.
-- Apps -> Charts -> Install Traefik.
-- Apps -> Charts -> Install `s3gw`.
-  Select the `s3gw` namespace previously created.
-
-## Dependencies
-
-### Traefik
-
-If you intend to install s3gw with an ingress resource, you must ensure your
-environment is equipped with a [Traefik](https://helm.traefik.io/traefik)
-ingress controller.
-
-You can use a different ingress controller, but note you will have to
-create your own ingress resource.
-
-### Certificate manager
-
-If you want, you can automate the TLS certificate management.
-s3gw can use [cert-manager](https://cert-manager.io/) in order to create TLS
-certificates for the various ingresses and internal ClusterIP resources.
-
-If cert-manager is not already installed on the cluster,
-it can be installed as follows:
-
-```shell
-$ kubectl create namespace cert-manager
-$ helm repo add jetstack https://charts.jetstack.io
-$ helm repo update
-$ helm install cert-manager --namespace cert-manager jetstack/cert-manager \
-    --set installCRDs=true \
-    --set extraArgs[0]=--enable-certificate-owner-ref=true
-```
-
-> **WARNING**: If the cert-manager is not installed in the namespace `cert-manager`,
-> you have to set `.Values.certManagerNamespace` accordingly,
-otherwise the s3gw installation fails.
-
-## Options
-
-Helm charts can be customized for your Kubernetes environment. To do so,
-either provide a `values.yaml` file with your settings, or set the options on
-the command line directly using `helm --set key=value`.
-
-### Access credentials
+#### Access credentials
 
 It is strongly advisable to customize the initial access credentials.
-These can be used to access the admin UI, as well as the S3 endpoint. Additional
-credentials can be created using the admin UI.
+These can be used to access the admin UI, as well as the S3 endpoint.
+Additional credentials can be created using the admin UI.
 
 Initial credentials for the default user can be provided in different ways:
 
 - **Explicit values**
 
-This is the default mode. You provide explicit values for both the S3 Access Key
-and the S3 Secret Key.
+This is the default mode. You provide explicit values for both the S3 Access
+Key and the S3 Secret Key.
 
 ```yaml
 accessKey: admin
@@ -144,7 +106,7 @@ You can set the name of the existing secret with:
 defaultUserCredentialsSecret: "my-secret"
 ```
 
-### Service name
+#### Service name
 
 There are two possible ways to access the s3gw: from inside the Kubernetes
 cluster and from the outside. For both, the s3gw must be configured with the
@@ -206,10 +168,10 @@ before accessing the UI via `https://ui.hostname`
 cat certificate.pem | base64 -w 0
 ```
 
-### Storage
+#### Storage
 
-The s3gw is best deployed on top of a [Longhorn](https://longhorn.io) volume. If
-you have Longhorn installed in your cluster, all appropriate resources are
+The s3gw is best deployed on top of a [Longhorn](https://longhorn.io) volume.
+If you have Longhorn installed in your cluster, all appropriate resources are
 automatically deployed for you.
 
 The size of the volume can be controlled with `storageSize`:
@@ -228,13 +190,13 @@ storageClass:
   create: false
 ```
 
-#### Local storage
+##### Local storage
 
 You can use the `storageClass.local` and `storageClass.localPath` variables to
 set up a node-local volume for testing if you don not have Longhorn. This is an
 experimental feature for development use only.
 
-### Image settings
+#### Image settings
 
 In some cases, custom image settings are needed, for example in an air-gapped
 environment or for developers. In that case, you can modify the registry and
@@ -266,16 +228,17 @@ being more verbose:
 logLevel: "1"
 ```
 
-### Container Object Storage Interface (COSI)
+#### Container Object Storage Interface (COSI)
 
 > **WARNING**: Be advised that COSI standard is currently in **alpha** state.
-> The COSI implementation provided by s3gw is considered an experimental feature
-> and changes to the COSI standard are expected in this phase.
+> The COSI implementation provided by s3gw is considered an experimental
+> feature and changes to the COSI standard are expected in this phase.
 > The s3gw team does not control the upstream development of COSI.
 
-#### Prerequisites
+##### Prerequisites
 
-If you are going to use COSI, ensure some resources are pre-deployed on the cluster.
+If you are going to use COSI, ensure some resources are pre-deployed on the
+cluster.
 
 COSI requirements:
 
@@ -302,7 +265,7 @@ NAME                                        READY   STATUS    RESTARTS   AGE
 objectstorage-controller-6fc5f89444-4ws72   1/1     Running   0          2d6h
 ```
 
-#### Installation
+##### Installation
 
 COSI support is disabled by default in s3gw. To enable it, set:
 
