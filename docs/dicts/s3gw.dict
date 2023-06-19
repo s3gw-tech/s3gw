@@ -59,3 +59,5 @@ chrono
 prerequisite
 baremetal
 open-iscsi
+letsencrypt
+certmanager
