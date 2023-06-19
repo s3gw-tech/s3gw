@@ -1,6 +1,6 @@
-# Installing s3gw with helm charts
+# Installing s3gw with Helm charts
 
-Before you begin, ensure you install helm. To install, see the [documentaiton](https://helm.sh/docs/intro/install/)
+Before you begin, ensure you install Helm. To install, see the [documentation](https://helm.sh/docs/intro/install/)
 or run the following:
 
 ```shell
@@ -23,7 +23,7 @@ default installation, the only option you are required to update is
 the domain and then set the options on the command line directly using
 `helm --set key=value`.
 
-**Note:** We do recommend at least updating the default access credenitals,
+**Note:** We do recommend at least updating the default access credentials,
 but it is not necessary for a test installation. See below for more
 information.
 

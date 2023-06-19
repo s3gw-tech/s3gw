@@ -1,7 +1,7 @@
 <!-- markdownlint-disable no-duplicate-heading -->
 # Installing k8s for s3gw
 
-The following document describes the prerequsite installations to run the
+The following document describes the prerequisite installations to run the
 S3 Gateway (s3gw): an S3 object storage service.
 
 To install the s3gw, a Kubernetes (k8s) distribution is required.
@@ -13,7 +13,7 @@ be referenced continuously throughout this document.
 
 ## Prerequisites
 
-If using openSUSE Tumeleweed, we recommend stopping
+If using openSUSE Tumbleweed, we recommend stopping
 firewalld to ensure k3s runs with full functionality. To do so, run:
 
 ```shell
@@ -47,7 +47,7 @@ certificates.
 ## Installing Longhorn
 
 **Important:** As part of the Longhorn installation, it is required that
-`openiscsi` is installed *before* running the Longhorn installation script.
+`open-iscsi` is installed *before* running the Longhorn installation script.
 Ensure this is done so before continuing.
 
 You can install Longhorn either via the `Rancher Apps and Marketplace`,
@@ -63,9 +63,9 @@ kubectl get pods -w -n longhorn-system
 ### Access the Longhorn UI
 
 Now that you have installed Longhorn, access the localhost UI:
-`http://longhorn.local`.
+`http://longhorn.<LOCAL-ADDRESS>`.
 
-You should now be able to see longhorn running and there are no volumes.
+You should now be able to see Longhorn running and there are no volumes.
 
 ## Install certification manager
 
