@@ -213,6 +213,9 @@ being more verbose:
 logLevel: "1"
 ```
 
+The highest `logLevel` that we recommend is 10, however, any integer required
+is valid.
+
 ## Developer options
 
 In some cases, custom image settings are needed, for example in an air-gapped

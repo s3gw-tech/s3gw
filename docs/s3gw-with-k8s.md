@@ -51,7 +51,7 @@ Now that you have installed Longhorn, access the localhost UI:
 You should now be able to see Longhorn running and there should be no volumes
 present.
 
-## Install certification manager
+## Install certificate manager
 
 s3gw uses a [cert-manager](https://cert-manager.io/) in order to create TLS
 certificates for the various ingresses and internal ClusterIP resources.

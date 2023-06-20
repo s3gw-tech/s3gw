@@ -1,5 +1,5 @@
 
-# Troubleshooting the s3w
+# Troubleshooting the s3gw
 
 When using self-signed certificates, you may encounter CORS issues
 accessing the UI. This can be worked around by first accessing the S3 endpoint
