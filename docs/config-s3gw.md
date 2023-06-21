@@ -168,11 +168,11 @@ available inside the cluster to other deployments.
 
 ```yaml
 serviceName: s3gw
-publicDomain: "fe.127.0.0.1.omg.howdoi.website"
+publicDomain: "fe.127.0.0.1.example.com"
 privateDomain: "s3gw-namespace.svc.cluster.local"
 ui:
   serviceName: s3gw-ui
-  publicDomain: "be.127.0.0.1.omg.howdoi.website"
+  publicDomain: "be.127.0.0.1.example.com"
 ```
 
 ## Storage
@@ -200,8 +200,9 @@ storageClass:
 ### Local storage
 
 You can use the `storageClass.local` and `storageClass.localPath` variables to
-set up a node-local volume for testing if you don not have Longhorn. This is an
-experimental feature for development use only.
+set up a node-local volume for testing if you do not have Longhorn.
+
+> **Note:** This is an experimental feature for development use only.
 
 ## Log settings
 
