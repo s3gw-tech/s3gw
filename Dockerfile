@@ -3,6 +3,9 @@ FROM opensuse/leap:15.4 as s3gw-base
 RUN zypper ar \
   https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
   s3gw-deps \
+ && zypper ar \
+  https://download.opensuse.org/repositories/Cloud:/Tools/15.4/ \
+  cloud-tools \
  && zypper --gpg-auto-import-keys ref
 
 RUN zypper -n install \
@@ -40,6 +43,9 @@ FROM s3gw-base as buildenv
 ARG CMAKE_BUILD_TYPE=Debug
 
 ENV SRC_CEPH_DIR="${SRC_CEPH_DIR:-"./ceph"}"
+ENV SFS_CCACHE_DIR="/srv/ccache"
+ENV SFS_BUILD_DIR="/srv/build"
+ENV CCACHE_DIR="${SFS_CCACHE_DIR}"
 ENV ENABLE_GIT_VERSION=OFF
 
 # Add OBS repository for additional dependencies necessary on Leap 15.4
@@ -122,10 +128,12 @@ RUN zypper -n install --no-recommends \
       python3-PyYAML \
       python3-Sphinx \
       python3-devel \
+      python3-python-magic \
       python3-setuptools \
       rdma-core-devel \
       re2-devel \
       rpm-build \
+      s3cmd \
       snappy-devel \
       sqlite-devel \
       systemd-rpm-macros \
@@ -135,22 +143,40 @@ RUN zypper -n install --no-recommends \
       xmlstarlet \
  && zypper clean --all
 
-COPY $SRC_CEPH_DIR /srv/ceph
 
 WORKDIR /srv/ceph
 
 ENV WITH_TESTS=ON
-RUN /srv/ceph/qa/rgw/store/sfs/build-radosgw.sh
+
+SHELL [ "bash", "-e", "-x", "-c" ]
+
+RUN \
+  --mount=type=bind,source=$SRC_CEPH_DIR,target=/srv/ceph,readwrite \
+  if [ -f /srv/ceph/s3cmd.cfg ] ; then \
+    pushd /srv ; \
+    s3cmd -c /srv/ceph/s3cmd.cfg get s3://s3gw-cache/ccache.tar ccache.tar ; \
+    tar -xf ccache.tar ; \
+    popd ; \
+  fi \
+  && ccache --show-stats \
+  && /srv/ceph/qa/rgw/store/sfs/build-radosgw.sh \
+  && ccache --show-stats \
+  && if [ -f /srv/ceph/s3cmd.cfg ] ; then \
+    pushd /srv ; \
+    tar -uf /srv/ccache.tar ccache ; \
+    s3cmd -c /srv/ceph/s3cmd.cfg put ccache.tar s3://s3gw-cache/ccache.tar ; \
+    popd ; \
+  fi
 
 FROM s3gw-base as s3gw-unittests
 
-COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_* /radosgw/bin/
+COPY --from=buildenv /srv/build/bin/unittest_rgw_* /radosgw/bin/
 COPY --from=buildenv [ \
-  "/srv/ceph/build/lib/librados.so", \
-  "/srv/ceph/build/lib/librados.so.2", \
-  "/srv/ceph/build/lib/librados.so.2.0.0", \
-  "/srv/ceph/build/lib/libceph-common.so", \
-  "/srv/ceph/build/lib/libceph-common.so.2", \
+  "/srv/build/lib/librados.so", \
+  "/srv/build/lib/librados.so.2", \
+  "/srv/build/lib/librados.so.2.0.0", \
+  "/srv/build/lib/libceph-common.so", \
+  "/srv/build/lib/libceph-common.so.2", \
   "/radosgw/lib/" ]
 
 ENTRYPOINT [ "bin/bash", "-x", "-c" ]
@@ -170,13 +196,13 @@ LABEL quay.expires-after=${QUAY_EXPIRATION}
 
 VOLUME ["/data"]
 
-COPY --from=buildenv /srv/ceph/build/bin/radosgw /radosgw/bin
+COPY --from=buildenv /srv/build/bin/radosgw /radosgw/bin
 COPY --from=buildenv [ \
-  "/srv/ceph/build/lib/librados.so", \
-  "/srv/ceph/build/lib/librados.so.2", \
-  "/srv/ceph/build/lib/librados.so.2.0.0", \
-  "/srv/ceph/build/lib/libceph-common.so", \
-  "/srv/ceph/build/lib/libceph-common.so.2", \
+  "/srv/build/lib/librados.so", \
+  "/srv/build/lib/librados.so.2", \
+  "/srv/build/lib/librados.so.2.0.0", \
+  "/srv/build/lib/libceph-common.so", \
+  "/srv/build/lib/libceph-common.so.2", \
   "/radosgw/lib/" ]
 
 EXPOSE 7480
