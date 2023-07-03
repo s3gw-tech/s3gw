@@ -37,7 +37,7 @@ Before you begin, ensure you install K3s. You can find the installation
 instructions [here](https://k3s.io/) or, run:
 
 ```bash
-curl -sfL https://get.k3s.io | sh -.
+curl -sfL https://get.k3s.io | sh -
 ```
 
 Ensure you move the `k3s.yaml` file, usually hosted in

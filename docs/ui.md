@@ -15,8 +15,7 @@ installation.
 
 ### Connect to a K3s setup
 
-If you want to connect the user interface to a
-[K3s setup](../s3gw-with-k8s-k3s/#k3s-with-longhorn), use the following
+If you want to connect the user interface to a K3s setup, use the following
 `proxy.conf.json` file.
 
 ```json
