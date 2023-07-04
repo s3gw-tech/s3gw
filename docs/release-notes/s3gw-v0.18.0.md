@@ -1,7 +1,7 @@
 # Release Notes - v0.18.0
 
 This release contains numerous fixes for the UI and a refactoring of the object
-versioning implementation. 
+versioning implementation.
 
 This release is meant for testing and feedback gathering. It is not recommended
 for production use.
@@ -23,7 +23,7 @@ should feel encouraged to file an issue in our
 - UI: Prevent the restoring of the deleted object version (#583)
 - UI: Creating an enabled lifecycle rule is not working (#587)
 - UI: Disable download button for deleted objects (#595)
-- UI: Do not close datatable column menu on inside clicks (#599)
+- UI: Do not close data table column menu on inside clicks (#599)
 - Chart: Update logo and source URLs (#570)
 - Chart: Validate email for tls issuer (#596)
 - Chart: Fix installation failure when publicDomain is empty (#602)
