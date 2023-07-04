@@ -56,3 +56,8 @@ objectstorage
 bufferlist
 ETag
 chrono
+prerequisite
+baremetal
+open-iscsi
+letsencrypt
+certmanager
