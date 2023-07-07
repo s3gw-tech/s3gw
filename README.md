@@ -6,7 +6,7 @@
 [![Documentation][docs-badge]][docs-link]
 [![Issues][issues-badge]][issues-link]
 [![Lint][linter-badge]][linter-link]
-[![Build][build-badge]][build-link]
+[![Release][release-badge]][release-link]
 [![Artifact Hub][chart-badge]][chart-link]
 [![Slack][slack-badge]][slack-link]
 
@@ -79,8 +79,6 @@ limitations under the License.
 
 [s3gw]: https://s3gw.io
 [longhorn]: https://longhorn.io
-[build-badge]: https://github.com/aquarist-labs/s3gw/actions/workflows/release.yaml/badge.svg
-[build-link]: https://github.com/aquarist-labs/s3gw/releases
 [chart-badge]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/s3gw
 [chart-link]: https://artifacthub.io/packages/search?repo=s3gw
 [docs-badge]: https://readthedocs.org/projects/s3gw-docs/badge/?version=latest
@@ -91,6 +89,8 @@ limitations under the License.
 [license-link]: https://github.com/aquarist-labs/s3gw/blob/main/LICENSE
 [linter-badge]: https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml/badge.svg
 [linter-link]: https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml
+[release-badge]: https://img.shields.io/github/v/release/aquarist-labs/s3gw
+[release-link]: https://github.com/aquarist-labs/s3gw/releases/latest
 [slack-badge]: https://img.shields.io/badge/slack-s3gw-brightgreen.svg?logo=slack
 [slack-link]: https://slack.com/app_redirect?channel=C04DCMUV8SE
 [helm-docs]: https://s3gw-docs.readthedocs.io/en/latest/helm-charts/
