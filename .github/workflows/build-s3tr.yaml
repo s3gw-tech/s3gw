@@ -13,23 +13,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-  steps:
+    steps:
 
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
-    - name: Set up Buildx
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Build
-      uses: docker/build-push-action@v4
-      with:
-        push: true
-        tags: |
-          ghcr.io/aquarist-labs/s3tr:latest
-          ghcr.io/aquarist-labs/s3tr:${{ github.sha }}
-        file: 'tools/s3tests/Dockerfile'
-        context: 'tools/s3tests'
+      - name: Build
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: |
+            ghcr.io/aquarist-labs/s3tr:latest
+            ghcr.io/aquarist-labs/s3tr:${{ github.sha }}
+          file: 'tools/s3tests/Dockerfile'
+          context: 'tools/s3tests'
