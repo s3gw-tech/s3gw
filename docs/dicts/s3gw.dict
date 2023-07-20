@@ -61,3 +61,4 @@ baremetal
 open-iscsi
 letsencrypt
 certmanager
+errno
