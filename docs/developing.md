@@ -171,7 +171,7 @@ If the Ceph `radosgw` binary is compiled, the container image can be build with
 the following commands:
 
 ```shell
-cd ~/git/s3gw-tools/build
+cd ~/git/s3gw/tools/build
 ./build-container.sh
 ```
 
@@ -179,7 +179,7 @@ By default, this builds an `s3gw` image using podman. In order to build an
 `s3gw` image with Docker, you can run:
 
 ```shell
-cd ~/git/s3gw-tools/build
+cd ~/git/s3gw/tools/build
 CONTAINER_ENGINE=docker ./build-container.sh
 ```
 
@@ -243,7 +243,7 @@ If the test binaries are compiled, a container image can be built with
 the following commands:
 
 ```shell
-cd ~/git/s3gw-tools/build
+cd ~/git/s3gw/tools/build
 ./build-radosgw-test-container.sh
 ```
 
@@ -251,7 +251,7 @@ By default, this builds an `s3gw-test` image using podman.
 In order to build an `s3gw-test` image with Docker, you can run:
 
 ```shell
-cd ~/git/s3gw-tools/build
+cd ~/git/s3gw/tools/build
 CONTAINER_ENGINE=docker ./build-radosgw-test-container.sh
 ```
 
@@ -314,7 +314,7 @@ The build script expects the following directory hierarchy.
 |  |- package.json
 |  ...
 |
-|- s3gw-tools/
+|- s3gw/tools/
    |- build-ui/
    ...
 ```
@@ -325,7 +325,7 @@ Before building the `s3gw-ui` image you need to build the container image that
 is used to compile the Angular based application. To do so, run:
 
 ```shell
-cd ~/git/s3gw-tools/build-ui
+cd ~/git/s3gw/tools/build-ui
 ./build.sh builder-image
 ```
 
@@ -333,7 +333,7 @@ This needs to be done once. After that you can build a `s3gw-ui` image by
 running the following commands:
 
 ```shell
-cd ~/git/s3gw-tools/build-ui
+cd ~/git/s3gw/tools/build-ui
 ./build.sh app
 ./build.sh app-image
 ```

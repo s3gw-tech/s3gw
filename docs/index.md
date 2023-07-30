@@ -3,7 +3,7 @@
 ## About the project
 
 The s3gw project is split into 4 work streams: [rgw/sfs-ceph][1] (backend),
-[s3gw-tools][2] (tooling), [s3gw-charts][3] (helm charts) and [s3gw-ui][4]
+[s3gw][2] (tooling), [s3gw-charts][3] (helm charts) and [s3gw-ui][4]
 (frontend).
 
 ## Project vision
@@ -44,7 +44,7 @@ apps that do not require petabyte-scale storage.
 - Open source licensing (Apache 2.0)
 
 [1]: https://github.com/aquarist-labs/ceph
-[2]: https://github.com/aquarist-labs/s3gw-tools
+[2]: https://github.com/aquarist-labs/s3gw
 [3]: https://github.com/aquarist-labs/s3gw-charts
 [4]: https://github.com/aquarist-labs/s3gw-ui
 [5]: https://longhorn.io/
