@@ -168,11 +168,11 @@ available inside the cluster to other deployments.
 
 ```yaml
 serviceName: s3gw
-publicDomain: "fe.127.0.0.1.example.com"
+publicDomain: "be.127.0.0.1.example.com"
 privateDomain: "s3gw-namespace.svc.cluster.local"
 ui:
   serviceName: s3gw-ui
-  publicDomain: "be.127.0.0.1.example.com"
+  publicDomain: "fe.127.0.0.1.example.com"
 ```
 
 ## Storage
