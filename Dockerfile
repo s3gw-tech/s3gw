@@ -57,14 +57,14 @@ RUN zypper -n install --no-recommends \
       binutils \
       ccache \
       cmake \
-      cpp11 \
+      cpp12 \
       cryptsetup-devel \
       cunit-devel \
       fdupes \
       fuse-devel \
       gcc-c++ \
-      gcc11 \
-      gcc11-c++ \
+      gcc12 \
+      gcc12-c++ \
       git \
       gperf \
       jq \
@@ -96,7 +96,7 @@ RUN zypper -n install --no-recommends \
       librabbitmq-devel \
       librdkafka-devel \
       libsqliteorm \
-      libstdc++6-devel-gcc11 \
+      libstdc++6-devel-gcc12 \
       libtool \
       libtsan0 \
       libxml2-devel \
