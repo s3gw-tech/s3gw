@@ -7,6 +7,7 @@ organization.
 - Ceph: <https://github.com/aquarist-labs/ceph>
 - UI: <https://github.com/aquarist-labs/s3gw-ui>
 - Charts: <https://github.com/aquarist-labs/s3gw-charts>
+- COSI: <https://github.com/aquarist-labs/s3gw-cosi-driver>
 
 We welcome new feature implementations, patches that fix bugs or code cleanup.
 
