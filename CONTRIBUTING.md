@@ -5,9 +5,9 @@ organization.
 
 - Main: <https://github.com/aquarist-labs/s3gw>
 - Ceph: <https://github.com/aquarist-labs/ceph>
-- Tools: <https://github.com/aquarist-labs/s3gw-tools>
 - UI: <https://github.com/aquarist-labs/s3gw-ui>
 - Charts: <https://github.com/aquarist-labs/s3gw-charts>
+- COSI: <https://github.com/aquarist-labs/s3gw-cosi-driver>
 
 We welcome new feature implementations, patches that fix bugs or code cleanup.
 
@@ -16,13 +16,7 @@ We welcome new feature implementations, patches that fix bugs or code cleanup.
 You can clone from GitHub with:
 
 ```bash
-git clone git@github.com:aquarist-labs/s3gw-tools
-```
-
-Or:
-
-```bash
-git clone git://github.com/aquarist-labs/s3gw-tools
+git clone https://github.com/aquarist-labs/s3gw
 ```
 
 This applies to all the repositories.

@@ -334,7 +334,7 @@ if $install_s3gw ; then
   else
     echo "Installing s3gw..."
     k3s kubectl apply \
-      -f ${ghraw}/aquarist-labs/s3gw-tools/main/env/s3gw.yaml || (
+      -f ${ghraw}/aquarist-labs/s3gw/main/tools/env/s3gw.yaml || (
       error "Failed to install s3gw."
       exit 1
     )
