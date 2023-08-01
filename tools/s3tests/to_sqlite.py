@@ -187,6 +187,14 @@ def serve(pytest_ini, datasette_metadata, input):
 
 
 @to_sqlite.command()
+@click.option(
+    "--pytest-ini",
+    envvar="PYTEST_INI",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=False, path_type=pathlib.Path
+    ),
+    required=True,
+)
 @click.argument(
     "db_path",
     type=click.Path(
