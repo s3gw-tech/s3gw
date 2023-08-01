@@ -83,18 +83,18 @@ def make_comparison_database(results_by_versions, db_path):
     db = sqlite_utils.Database(db_path)
     db["versions"].insert_all(
         [
-            {"name": version, "id": result["index"]}
-            for version, result in results_by_versions.items()
+            {"name": version, "id": index}
+            for (version, index), result in results_by_versions.items()
         ],
         pk="id",
     )
-    for results in results_by_versions.values():
+    for (_, index), results in results_by_versions.items():
         for result in results:
             db["results"].insert(
                 {
                     "test": result["test"].split("::")[1],
                     "result": get_test_result(result),
-                    "version_id": result["index"],
+                    "version_id": index,
                 },
                 pk="id",
                 foreign_keys=("version_id", "versions"),
@@ -218,8 +218,7 @@ def comparison(pytest_ini, db_path, input_files):
     for i, file in enumerate(input_files):
         with open(file) as fp:
             results = json.load(fp)
-        results["index"] = i
-        results_by_versions[file.name] = results
+        results_by_versions[(file.name, i)] = results
 
     make_comparison_database(results_by_versions, db_path)
 
