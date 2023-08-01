@@ -146,6 +146,11 @@ RUN /srv/ceph/qa/rgw/store/sfs/build-radosgw.sh
 
 FROM s3gw-base as s3gw-unittests
 
+RUN zypper -n install --no-recommends \
+      gtest \
+      gmock \
+ && zypper clean --all
+
 COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_* /radosgw/bin/
 COPY --from=buildenv [ \
   "/srv/ceph/build/lib/librados.so", \
