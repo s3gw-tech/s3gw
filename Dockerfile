@@ -67,6 +67,8 @@ RUN zypper -n install --no-recommends \
       gcc12-c++ \
       git \
       gperf \
+      gtest \
+      gmock \
       jq \
       keyutils-devel \
       libaio-devel \
