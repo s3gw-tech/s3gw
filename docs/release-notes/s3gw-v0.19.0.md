@@ -29,6 +29,7 @@ should feel encouraged to file an issue in our
 - rgw/sfs: Various fixes to object state transitions
 - ui frontend: Fix table header on zoom-in
 - ui frontend: Fix bucket deletion dialogue in `Administrator` mode
+- ui frontend: Fix creating keys for users
 
 ## Breaking Changes
 
