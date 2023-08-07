@@ -130,9 +130,8 @@ jobs:
           export S3TEST_CONF="${FIXTURES}/s3tests.conf"
           export S3TEST_LIST="${FIXTURES}/s3-tests.txt"
 
-          # There are some s3tests that don't finish at all. Only run
-          # known-to-pass tests for now. TODO: fix inifite looping tests
-          # sed -r -i 's/^# //' "${S3TEST_LIST}"
+          # Let _all_ tests run, not just the ones that are known to pass
+          sed -r -i 's/^# //' "${S3TEST_LIST}"
 
           pushd s3tests
           ${GITHUB_WORKSPACE}/s3gw/tools/tests/s3tests-runner.sh
