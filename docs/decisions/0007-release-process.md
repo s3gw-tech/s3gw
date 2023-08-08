@@ -7,7 +7,7 @@ eventually released, the Release Process is not trivial.
 This document defines and agrees on the Release Process for the `s3gw` project,
 including the steps to be taken on its individual sub-projects, and results
 from several iterations defining the Release Process (previously kept in the
-[Release Captain ADR](/docs/decisions/0004-release-captain.md)). The previous
+[Release Captain ADR](/decisions/0004-release-captain)). The previous
 document suffered significant changes since its inception, being modified for
 almost every release we have had; we are hoping the present document will
 benefit from more stability.
