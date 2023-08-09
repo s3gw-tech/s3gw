@@ -91,8 +91,22 @@ jobs:
           DATE="$(date +%Y-%m-%d)"
           echo "tag=nightly-${DATE}" >> $GITHUB_OUTPUT
 
+      - name: Build Unittest Container
+        uses: docker/build-push-action@v4
+        with:
+          load: true
+          build-args: |
+            CMAKE_BUILD_TYPE=Release
+            S3GW_VERSION=${{ steps.date.outputs.tag }}
+            NPROC=16
+          tags: |
+            s3gw-unittests
+          target: s3gw-unittests
+          file: s3gw/Dockerfile
+          context: s3gw
+
       - name: Build Nightly Container
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
@@ -105,6 +119,10 @@ jobs:
             quay.io/s3gw/s3gw:nightly-latest
           file: s3gw/Dockerfile
           context: s3gw
+
+      - name: Run Unittests
+        run: |
+          docker run --rm s3gw-unittests
 
       - name: Run S3tests
         env:
