@@ -50,6 +50,7 @@ def make_full_results_database(results, pytest_markers, db_path):
             "result": get_test_result(result),
             "out": result["test_output"],
             "log_container": result["container_logs"],
+            "metrics": result["metrics"],
         }
         db["results"].insert(row, pk="test")
         for keyword in keywords:
