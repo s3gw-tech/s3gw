@@ -74,7 +74,7 @@ def make_full_results_database(results, pytest_markers, db_path):
        group by results.test
     """,
     )
-    db["results"].enable_fts(["out", "log_container"])
+    db["results"].enable_fts(["out", "log_container", "metrics"])
     db["results"].create_index(["result"])
     db["results_keywords"].create_index(["keyword"])
     db["results_keywords"].create_index(["test"])
