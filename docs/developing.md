@@ -52,9 +52,10 @@ To get a standalone Gateway running, follow these steps:
 cd build/
 mkdir -p dev/rgw.foo
 bin/radosgw -i foo -d --no-mon-config --debug-rgw 15 \
-  --rgw-backend-store dbstore \gem install mdl -v 0.11.0
+  --rgw-backend-store sfs \
   --rgw-data $(pwd)/dev/rgw.foo \
-  --run-dir $(pwd)/dev/rgw.foo
+  --run-dir $(pwd)/dev/rgw.foo \
+  --rgw-sfs-data-path $(pwd)/dev/rgw.foo
 ```
 
 Once the daemon is running and outputting its logs to the terminal,
@@ -114,13 +115,13 @@ will need:
 The build scripts expect the following directory hierarchy.
 
 ```text
-|
-|- ceph/
-|  |- build/
-|  ...
-|
-|- s3gw-core/
-   |- build/
+|- s3gw/
+   |- ceph/
+   |  |- build/
+   |  ...
+   |
+   |- tools/
+      |- build/
    ...
 ```
 
@@ -130,7 +131,7 @@ To build the `radosgw` binary, a containerized build environment is used. This
 container can be built by running the following command:
 
 ```shell
-cd ~/git/s3gw-core/build
+cd ~/git/s3gw/tools/build
 podman build --tag build-radosgw -f ./Dockerfile.build-radosgw
 ```
 
