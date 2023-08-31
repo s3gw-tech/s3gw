@@ -25,8 +25,16 @@ chart:
 
 ```shell
 helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
-helm install s3gw s3gw/s3gw --namespace s3gw-system --create-namespace
+helm install s3gw s3gw/s3gw --namespace s3gw-system --create-namespace \
+    --set publicDomain=YOUR_DOMAIN_NAME \
+    --set ui.publicDomain=YOUR_DOMAIN_NAME
 ```
+
+Helm is the preferred deployment method, and will automatically use your
+cluster's default storage class for the backing store. If you have Longhorn
+installed already, s3gw will thus use a Longhorn PV. The above assumes
+cert-manager and traefik are available, but these and other settings can
+be overridden via values.yaml.
 
 Check out the [documentation][helm-docs] for details and configuration options.
 </details>
@@ -37,6 +45,10 @@ Check out the [documentation][helm-docs] for details and configuration options.
 ```shell
 podman run --replace --name=s3gw -it -p 7480:7480 quay.io/s3gw/s3gw:latest
 ```
+
+Podman deployments will use ephemeral storage inside the container by default,
+which should only be used for testing purposes.  To use a directory on the
+host system for storage, pass `-v/host-path:/data`.
 
 </details>
 
@@ -52,6 +64,10 @@ In order to run the Docker container:
 ```shell
 docker run -p 7480:7480 quay.io/s3gw/s3gw:latest
 ```
+
+Docker deployments will use ephemeral storage inside the container by default,
+which should only be used for testing purposes.  To use a directory on the
+host system for storage, pass `-v/host-path:/data`.
 
 </details>
 

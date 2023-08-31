@@ -66,8 +66,8 @@ During the interactive configuration there are prompts with questions. We
 recommend using the following answers unless the deployment differs significantly.
 
 ```text
-  Access Key: 0555b35654ad1656d804
-  Secret Key: h7GhxuBLTrlhVUyxSPUKUV8r/2EI4ngqJxD7iBdBYLhwluN30JaT3Q==
+  Access Key: test
+  Secret Key: test
   Default Region: US
   S3 Endpoint: 127.0.0.1:7480
   DNS-style bucket+hostname:port template for accessing a bucket: 127.0.0.1:7480/%(bucket)
@@ -78,9 +78,10 @@ recommend using the following answers unless the deployment differs significantl
   HTTP Proxy server port: 0
 ```
 
-Note that both the `Access Key` and the `Secret Key` need to be copied
-verbatim. At this time, the `sfs` backend statically creates
-an initial user using these values.
+Note that the `sfs` backend automatically creates an initial user with
+`Access Key` and `Secret Key` set to "test".  This can be overridden when
+running the gateway via the `RGW_DEFAULT_USER_ACCESS_KEY` and
+`RGW_DEFAULT_USER_SECRET_KEY` environment variables.
 
 Should the configuration be correct, you should be able to issue commands
 against the running RGW. E.g., `s3cmd mb s3://foo`, to create a new bucket.
