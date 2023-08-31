@@ -3,8 +3,9 @@
 ## Introduction
 
 This project is exploring the use of Ceph's Rados Gateway (RGW) as a standalone
-daemon with a non-RADOS storage backend. The backend, `dbstore`, is
-backed by a SQLite database and is currently provided by RGW.
+daemon with a non-RADOS storage backend. The backend, `sfs`, is
+backed by a SQLite database for metadata with files for object data, and is
+currently provided by RGW.
 
 In order to ensure tests are conducted from the same point in time, a forked
 version of the latest development version of Ceph is available [here][1].
@@ -78,7 +79,7 @@ recommend using the following answers unless the deployment differs significantl
 ```
 
 Note that both the `Access Key` and the `Secret Key` need to be copied
-verbatim. At this time, the `dbstore` backend statically creates
+verbatim. At this time, the `sfs` backend statically creates
 an initial user using these values.
 
 Should the configuration be correct, you should be able to issue commands
@@ -208,7 +209,7 @@ docker run -p 7480:7480 localhost/s3gw
 By default, the container runs with the following arguments:
 
 ```text
---rgw-backend-store dbstore
+--rgw-backend-store sfs
 --debug-rgw 1
 ```
 
@@ -216,7 +217,7 @@ You can override them passing different values when starting the container. For
 example if you want to increase `radosgw` logging verbosity, you could run:
 
 ```shell
-podman run -p 7480:7480 localhost/s3gw --rgw-backend-store dbstore --debug-rgw 15
+podman run -p 7480:7480 localhost/s3gw --rgw-backend-store sfs --debug-rgw 15
 ```
 
 [5]: https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html

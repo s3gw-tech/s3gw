@@ -4,6 +4,7 @@ librados
 radosgw
 buildah
 dbstore
+sfs
 multiparts
 storageclass
 howdoi
