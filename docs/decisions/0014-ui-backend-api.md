@@ -49,6 +49,20 @@ Therefore, we have chosen to use POST operations for selected operations that
 are semantically the equivalent to a GET operation. This breaks the RESTfulness
 of our API for some operations, but we believe this to be a reasonable tradeoff.
 
+## Versioning
+
+Versioning of an API makes sense if it is public, but the UI backend API is
+not meant for public use. Since the UI and the associated backend REST API
+are always delivered together and are therefore tightly coupled, there is no
+real API versioning required. Nevertheless, for certain situations a simple
+API versioning is needed.
+To prevent situations where the UI does not know that the API and its behavior
+has changed, a custom header `S3GW-Accept-Version: X.Y.Z` is sent along.
+This  version is incremented in case of serious changes to the API. If the
+client sends a request with an API version unknown on the server, it will be
+rejected with an error. If the custom header is not sent, then no check is
+performed on the server side.
+
 [1]: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send
 [2]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET
 [3]: https://xhr.spec.whatwg.org/#the-send()-method
