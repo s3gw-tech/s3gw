@@ -39,8 +39,12 @@ nav:
       - Git branches tags: "decisions/0006-git-branches-tags.md"
       - Release process: "decisions/0007-release-process.md"
       - Pull requests and code review guide: "decisions/0008-pull-requests-code-review-guide.md"
-  - "Design Documents":
-      - UI backend: "design/0001-ui-backend.md"
+      - Collection of High Level Design Decisions: "decisions/0009-sfs-collection-of-high-level-design-decisions.md"
+      - SFS Versioning: "decisions/0010-sfs-versioning.md"
+      - SFS Timestamps: "decisions/0011-sfs-timestamps.md"
+      - SFS Error Handling: "decisions/0012-sfs-error-handling.md"
+      - s3gw-ui backend: "decisions/0013-ui-backend.md"
+      - s3gw-ui backend API: "decisions/0014-ui-backend-api.md"
   - "Release Notes":
       - v0.1.0: "release-notes/s3gw-v0.1.0.md"
       - v0.2.0: "release-notes/s3gw-v0.2.0.md"
@@ -60,6 +64,10 @@ nav:
       - v0.15.0: "release-notes/s3gw-v0.15.0.md"
       - v0.16.0: "release-notes/s3gw-v0.16.0.md"
       - v0.17.0: "release-notes/s3gw-v0.17.0.md"
+      - v0.18.0: "release-notes/s3gw-v0.18.0.md"
+      - v0.19.0: "release-notes/s3gw-v0.19.0.md"
+      - v0.20.0: "release-notes/s3gw-v0.20.0.md"
+      - v0.21.0: "release-notes/s3gw-v0.21.0.md"
   - "About and License":
       - Repositories: "s3gw-repos.md"
       - License: "license.md"
