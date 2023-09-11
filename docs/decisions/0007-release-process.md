@@ -352,7 +352,8 @@ release candidate was properly validated, version `vX.Y.1` was released.
 
 ## [Testing](testing)
 
-To be expanded in the future, or maybe link to a proper testing document.
+Our project testing is documented [here](/docs/testing.md).
+The list below needs to be expanded in the future.
 
 - [ ] Install the `s3gw-ui` container and sign-in. Perform some actions like
       creating/update/delete users and buckets. Also try uploading/deleting
