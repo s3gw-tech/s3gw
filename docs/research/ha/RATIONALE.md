@@ -1,51 +1,71 @@
 # High Availability with s3gw
 
 - [High Availability with s3gw](#high-availability-with-s3gw)
-  - [Active-Active pipelines](#active-active-pipelines)
-  - [Active-Passive pipelines](#active-passive-pipelines)
-  - [One Active pipeline](#one-active-pipeline)
+  - [Active/Active](#activeactive)
+  - [Active/Warm Standby](#activewarm-standby)
+  - [Active/Standby](#activestandby)
   - [Investigation's Rationale](#investigations-rationale)
   - [Failure cases](#failure-cases)
-    - [radosgw's POD failure](#radosgws-pod-failure)
+    - [radosgw's POD failure and radosgw's POD rescheduling](#radosgws-pod-failure-and-radosgws-pod-rescheduling)
     - [Cluster's node failure](#clusters-node-failure)
     - [radosgw's failure due to a bug not related to a certain input pattern](#radosgws-failure-due-to-a-bug-not-related-to-a-certain-input-pattern)
     - [radosgw's failure due to a bug related to a certain input pattern](#radosgws-failure-due-to-a-bug-related-to-a-certain-input-pattern)
-    - [PV Data corruption at application level due to radosgw's bug](#pv-data-corruption-at-application-level-due-to-radosgws-bug)
     - [PV Data corruption at application level due to radosgw's anomalous exit](#pv-data-corruption-at-application-level-due-to-radosgws-anomalous-exit)
+    - [PV Data corruption at application level](#pv-data-corruption-at-application-level)
   - [Measuring s3gw failures on Kubernetes](#measuring-s3gw-failures-on-kubernetes)
   - [The s3gw Probe](#the-s3gw-probe)
-  - [Tested scenarios](#tested-scenarios)
+  - [Notes on testing s3gw within K8s](#notes-on-testing-s3gw-within-k8s)
     - [EXIT-1, 10 measures](#exit-1-10-measures)
     - [EXIT-0, 10 measures](#exit-0-10-measures)
-    - [Considerations on the tests performed](#considerations-on-the-tests-performed)
 
 We want to investigate what *High Availability* - HA - means for a project like
 the s3gw.
 
 If we identify the meaning of HA as the ability to have N independent pipelines
-so that the failure of some of these does not affect the user's operations,
+so that the failure of some of those does not affect the user's operations,
 this is something that could be not easy to achieve with the s3gw.
 
-With pipeline we mean all the chain from the ingress to the `PV`:
+HA, anyway, is not necessarily tied to multiple independent pipelines.
+While High Availability (as a component of dependable computing) can be achieved
+through redundancy, it can also be achieved by significantly increased reliability
+and quality of the stack. e.g., improving the start time improves HA by lowering
+the *Recovery Time Objective* (RTO) metric after detecting and recovering from a
+fault.
+Furthermore, we must say: achieving HA in a way that never affects the
+user's operations is also not realistic, since not all faults can be masked,
+or the complexity required to attempt it would actually be detrimental to
+overall system reliability/availability (aka not cost-effective).
+Paradoxically, failing fast instead of hanging on an attempted fault recovery
+can also increase observed availability.
+
+Our key goal, for the s3gw, is to maximize user-visible, reliable service
+availability, and to be tolerant with regard to certain faults (such as pod crashes,
+single node outages ... - the faults we consider or explicitly exclude are discussed
+later in the document).
+
+With pipeline, we mean all the chain from the ingress to the persistent volume `PV`:
 
 ```mermaid
 flowchart LR
     ingress(ingress) ==> radosgw(radosgw) ==> PV((PV))
 ```
 
-The difficulty with a project like the s3gw is due to the fact that basically
-we have one process: the `radosgw`, that has the *exclusive* access to one resource:
-the Kubernetes `PV` where the S3 buckets and objects are persisted.
+HA can be difficult with a project like the s3gw because of one process: the `radosgw`,
+owning an *exclusive* access to a resource: the Kubernetes `PV` where the S3
+buckets and objects are persisted.
+Actually, this is also an advantage, due to its lower complexity.
+Active/active syncing of all operations is non-trivial,
+and an active/standby pattern is much simpler to implement with lower overhead
+in the absence of faults.
 
-Speaking in theory, 3 HA models are possible with s3gw:
+In theory, 3 HA models are possible with the s3gw:
 
-1. **Active-Active** pipelines
-2. **Active-Passive** pipelines
-3. **One Active** pipeline (no Passive pipelines preloaded)
+1. **Active/Active**
+2. **Active/Warm Standby**
+3. **Active/Standby**
 
-## Active-Active pipelines
+## Active/Active
 
-This is the model that guarantees the best HA characteristics.
 The *Active-Active* model must implement *true independent pipelines*
 where all the pieces are replicated.
 
@@ -53,11 +73,16 @@ The immediate consequence of this statement is that every pipeline being part of
 the same logical s3gw service must bind to a different `PV`; one per `radosgw` process.
 All the `PV`s for the same logical s3gw, must therefore, sync their data.
 
-This implies that with this model, the s3gw must implement an efficient replication
-model across all the pipelines being part of the same logical service.
+The need to synchronize and coordinate all operations across all nodes
+(to guarantee Atomicity/Independence/Durability, which even S3's eventual consistency
+model needs in some cases) is not free - even then there's a need to ensure the
+data has been replicated in reality, and since a fault can only be detected via
+a timeout of some form, there's still a blip in availability
+(just, hopefully, not a returned error message).
 
-Under these conditions, a client accessing the S3 service would experience a failure
-only for *the active operation* that were happening on the failed s3gw pipeline.
+Since the synchronization mechanism is often complex, there's an on-going price
+to be paid for achieving this, plus it is harder to get right
+(lowering availability through lowered quality).
 
 ```mermaid
 flowchart LR
@@ -70,8 +95,14 @@ flowchart LR
     linkStyle 2 stroke: red
 ```
 
-The subsequent access to the S3 service would result in a successful operation
-because the load balancer would immediately reroute to another active pipeline.
+The ingress might still mask it and automatically retry.
+That's another thing to consider: most S3 protocol libraries are built
+on the assumption of an unreliable network, and so a single non-repeatable
+failure might not show to the user, but just be (silently or not) retried and
+on it goes without anyone knowing beyond a blip in high latency, unless it happens
+too often.
+This is a property of the S3 protocol that makes it a bit easier for us
+to achieve, we hope.
 
 ```mermaid
 flowchart LR
@@ -86,10 +117,7 @@ flowchart LR
     linkStyle 4 stroke: green
 ```
 
-This model is potentially hugely expensive for the s3gw project
-because there isn't an implementation for the data replication with the SFS backend.
-
-## Active-Passive pipelines
+## Active/Warm Standby
 
 This model assumes N pipelines to be "allocated" on the cluster at the same time,
 but only one, the *active* pipeline, owns the *exclusive ownership*
@@ -99,12 +127,14 @@ Should the active pipeline suffer a failure, the next elected active pipeline,
 chosen to replace the old one, should pay a *time window* necessary to "transfer"
 the ownership over the shared `PV`.
 
-This means that, unlike the *Active-Active* solution, it is not guaranteed that
-the subsequent access made by a client after a failed one is always successful.
+The Active plus Warm Standby operation here has no meaningful advantages over the
+Active/Standby option; loading the s3gw pod is the cheapest part of the whole
+process, compared to fault detection (usually a timeout), mounting
+(journal recovery) of the file system, the process running the SQLite,
+recovery on start, etc.
 
-It can happen that a client issues an access to the S3 service while the system is
-translating the passive pipeline into the active state; in this case, the issued
-access is expected to fail.
+We'd pay for this with complexity (and resource consumption while in standby)
+hat likely would only give us very marginal benefits at best.
 
 ```mermaid
 flowchart LR
@@ -140,37 +170,46 @@ flowchart LR
     linkStyle 3 stroke: green
 ```
 
-## One Active pipeline
+## Active/Standby
 
-This model is logically equivalent to the *Active-Passive* model with the difference
-that only one pipeline is allocated on the cluster at a time.
+In this scenario, in the event of failure, the system should pay the time
+needed to fully load a new pipeline.
 
-In the *One pipeline* model, the only notable perceived difference between
-the *Active-Passive* model are the worst performances obtained in the event of failure.
-
-In this scenario, the system should pay also the time needed to fully load a new
-pipeline, that unlike that *Active-Passive* model, is not preloaded.
-
-So, supposing that the new pipeline has scheduled to load on a node where the
+Supposing that the new pipeline has scheduled to load on a node where the
 s3gw image is not cached, the system should pay the time needed to download
 the image from the registry before starting it.
+
+In general on Kubernetes, it can not be assumed that an image is pre-pulled,
+since nodes may come and go dynamically.
+
+Pre-pulled images is something we do want to ensure for eligible nodes.
+Otherwise, our restart is unpredictably long.
+
+It's always possible that a fault occurs exactly at the time where we are
+pre-loading the image, but that's just bad luck.
 
 ## Investigation's Rationale
 
 The 3 models described above have different performances and different implementation
-efforts. While the *Active-Active* model is expected to require a significant
-development effort due to its inherent complex nature, the *Passive-Active* model
-seems to offer a lower degree of implementation difficulty.
+efforts. While the *Active/Active* model is expected to require a significant
+development effort due to its inherent complex nature, for our use case,
+the Active/Standby model built on top of Longhorn actually makes
+the most sense and brings the "best" HA characteristics relative to implementing
+a more fully active/distributed solution.
 
-In particular, the *One Active pipeline* model, is expected to work with nothing
+In particular, the *Active/Standby* model, is expected to work with nothing
 but the primitives normally available on any Kubernetes cluster.
 
 Given that the backend s3gw architecture is composed by:
 
+- one ingress and one `ClusterIP` service
 - one *stateless* `radosgw` process associated with a *stateful* `PV`
 
-it is supposed that, on `radosgw` process failure, a simple reschedule
-of its POD is enough to fulfill this simple HA model.
+it is supposed that, when the `radosgw` process fails, a simple reschedule
+of its POD could be enough to fulfill this HA model.
+All of this has obviously timeouts and delays, we suspect we'll have to adjust them
+for our requirements.
+
 A clarification is needed here: the `PV` *state* is guaranteed by a third party
 service, that is: **Longhorn**.
 
@@ -178,44 +217,67 @@ Longhorn ensures that a `PV` (along with its content) is always available on
 any cluster's node, so that, a POD can mount it regardless of its allocation on the
 cluster.
 
-Relying on this assumption, while we are still in the process to decide what model
-we want to actually engage, the *One Active pipeline* model seems for sure
-the easiest thing to explore and to investigate.
+Obviously, we can't achieve higher availability or reliability than the underlying
+Longhorn volumes.
 
 ## Failure cases
 
 The `PV` state is kept coherent by Longhorn, so errors at this level are assumed
-NOT possible (application level corruptions to the `PV`'s state ARE possible).
+NOT possible; application level corruptions to the `PV`'s state ARE possible.
+s3gw won't corrupt the PV's state or the file system on it,
+but it might corrupt its own application data.
+Any corruption in the file system is outside what s3gw can reasonably protect
+against; at best, it can crash in a way that doesn't corrupt the data further,
+but that's all undefined behavior and "restore from backup" time.
 
 What are the failure cases that can happen for s3gw?
+Making these cases explicit could be useful for a theoretical reasoning on what
+scenarios we can actually think to solve with an HA model.
+If a case is clearly outside what an HA model can handle, we must expect that
+the Kubernetes back off mechanism to be the only mitigation when a restart loop
+should occur.
 
 Let's examine the following scenarios:
 
-1. `radosgw`'s POD failure or rescheduling
+1. `radosgw`'s POD failure and `radosgw`'s POD rescheduling
 2. Cluster's node failure
 3. `radosgw`'s failure due to a bug not related to a certain input pattern
 4. `radosgw`'s failure due to a bug related to a certain input pattern
-5. `PV` Data corruption at application level due to `radosgw`'s bug
-6. `PV` Data corruption at application level due to `radosgw`'s anomalous exit
+5. `PV` PV Data corruption at application level due to radosgw's anomalous exit
 
 We are supposing all these bugs or conditions to be fatal for the s3gw's process
 so that they trigger an anomalous exit.
 
-### radosgw's POD failure
+### radosgw's POD failure and radosgw's POD rescheduling
 
 This case is when the `radosgw` process stops due to a failure of its POD.
+
 This case applies also when Kubernetes decides to reschedule the POD
 to another node, eg: when the node goes low on resources.
+This would often be called a "switch-over" in an HA cluster -
+e.g., an administratively orchestrated transition of the service to a new node
+(say, for maintenance/upgrade/etc reasons).
+This has the advantage of being schedulable, so it can happen at times
+of low load if these exist.
+In combination with proper interaction with the ingress - pausing requests
+there instead of failing them - we should be able to mask these cleanly.
+
+Bonus: this is also what we need to seamlessly restart on upgrade/update of the
+pod itself transparently.
 
 This can be thought as an infrastructure issue independent to the s3gw.
-In this case, the *One Active pipeline* model fully restores the service by
+In this case, the *Active/Standby* model fully restores the service by
 rescheduling a new POD somewhere in the cluster.
 
 ### Cluster's node failure
 
 This case is when the `radosgw` process stops due to a cluster's node failure.
-The *One Active pipeline* model fully restores the service by
+The *Active/Standby* model fully restores the service by
 rescheduling a new POD somewhere in the cluster.
+this also means we weren't shut down cleanly.
+So the on start recovery needs to be optimized for the stack, and as soon as we
+can, we need to hook into the ingress and tell it to pause until we're done,
+and then resume.
 
 ### radosgw's failure due to a bug not related to a certain input pattern
 
@@ -229,7 +291,7 @@ Examples:
 - Periodic operations or routines not related to an input (GC, measures,
   telemetry, etc)
 
-For a bug like this, the *One Active pipeline* model could guarantee
+For a bug like this, the *Active/Standby* model could guarantee
 the user's operations *until the next occurrence* of the same malfunctioning.
 
 A definitive solution would be available only when a patch for the issue
@@ -246,23 +308,25 @@ Examples:
 - Putting Objects that have a certain size
 - Performing an admin operation over a suspended user
 
-For a bug like this, the *One Active pipeline* model could guarantee
+For a bug like this, the *Active/Standby* model could guarantee
 the user's operations under the condition that the crash-triggering
 input is recognized by the user and thus its submission blocked.
 
-### PV Data corruption at application level due to radosgw's bug
+### PV Data corruption at application level due to radosgw's anomalous exit
 
-This case is when the state on the `PV` corrupts due to a `radosgw`
-bug.
+This case is when the state on the `PV` corrupts due to a `radosgw`'s
+anomalous exit.
 
-In this unfortunate scenario, the *One Active pipeline* can hardly help.
+In this unfortunate scenario, the *Active/Standby* can hardly help.
 A restart could evenly fix the problem or trigger an endless restarting loop.
-
+Logical data corruption is a Robustness/Reliability problem; the best we can
+aim for is to detect it (and abort with prejudice and finally so, so as to not
+make the corruption worse).
 The fix for this could contemplate an human intervention.
 A definitive solution would be available only when a patch for the issue
 is available.
 
-### PV Data corruption at application level due to radosgw's anomalous exit
+### PV Data corruption at application level
 
 This case is when the state on the PV corrupts due to a `radosgw`
 anomalous exit, eg: after a node failure.
@@ -279,8 +343,26 @@ an HA model with s3gw is when the failure is not dependent to applicative bugs.
 We can handle temporary issues involving the infrastructure that is hosting
 the `radosgw` process.
 
-So, we are mostly interested in observing and measuring the timing of
-Kubernetes when a `radosgw`'s POD is being rescheduled.
+We are interested in measuring:
+
+- The (kill - re) start loop timing outside of k8s/LH.
+So we have a baseline and we can measure of what Kubernetes adds, and how slow
+the s3gw is when exiting:
+
+  - Cleanly
+  - Crashing with no ops in flight
+  - Crashing with a load on-going
+
+- Then, fault detection times for k8s - how long until it notices that the
+process has crashed (that should be quick due to the generated signal),
+but what about the process hanging? (e.g., crashes are separate from timeouts)
+
+- Node failures, again, we need to understand which factors affect k8s detecting
+that and reacting to them, and what latencies are introduced by k8s/LH.
+
+Actively asking k8s to restart is different (see case one, switch- vs fail-over).
+That should be smooth, but is not actually a failure scenario.
+Probably worth handling in a separate section.
 
 Hence, The idea to collect measures regarding a series of restarts
 artificially triggered on the `radosgw`'s POD.
@@ -349,17 +431,19 @@ flowchart LR
     linkStyle 1 stroke: blue
 ```
 
-## Tested scenarios
-
-As previously said, we want to compute some statistics regarding the Kubernetes
-performances when restarting the `radosgw`'s POD.
-The `radosgw` code has been patched to accept a REST call from a client
+The `radosgw` code has been patched to accept a REST call from the probe
 where the user can specify the way the `radosgw` will exit.
-Currently, 3 modes are possible:
+Currently, 4 modes are possible:
 
 - `EXIT_0`
 - `EXIT_1`
 - `CORE_BY_SEG_FAULT`
+- `REGULAR`
+
+## Notes on testing s3gw within K8s
+
+As previously said, we want to compute some statistics regarding the Kubernetes
+performances when restarting the `radosgw`'s Pod.
 
 ### EXIT-1, 10 measures
 
@@ -389,9 +473,6 @@ Currently, 3 modes are possible:
     time_unit: s
 ```
 
-<h1 align="left"><img alt="chatterbox-logo" src="./assets/1node-10restarts-exit1.png"/>
-</h1>
-
 ### EXIT-0, 10 measures
 
 ```yaml
@@ -420,27 +501,16 @@ Currently, 3 modes are possible:
 time_unit: s
 ```
 
-<h1 align="left"><img alt="chatterbox-logo" src="./assets/1node-10restarts-exit0.png"/>
-</h1>
-
-### Considerations on the tests performed
-
-While the Kubernetes's behavior for `EXIT-1` was the expected one, the writer
-was expecting a different behavior for the `EXIT-0` test.
-
-It is reasonable for Kubernetes to put a POD whose process exits with a code
-different than zero into `CrashLoopBackoff` state; it is less obvious that the
-same state is applied also for a POD whose process exits "normally".
-A clarification: Kubernetes puts a POD exited with `0` into `Completed` state,
-but if that POD is rescheduled, the state becomes `CrashLoopBackoff` and thus
-the behavioral schema is the same as if the process run by the POD exited
-abnormally.
+Regardless of the exit code, with Deployments, Kubernetes deals with a restart loop
+using the same strategy.
+A Pod handled by a Deployment goes into the `CrashLoopBackoff` state.
+The Pod is not managed on its own. It is managed through a ReplicaSet, which in
+turn is managed through a Deployment. A Deployment is a Kubernetes workload
+primitive whose Pods are assumed to run indefinitely.
 
 About this behavior, there is actually an opened request to make the
 [CrashLoopBackoff timing tuneable](https://github.com/kubernetes/kubernetes/issues/57291),
 at least for the cases when the process exits with zero.
 
 Anyway, this behavior limits the number of measures we can collect and thus is
-preventing us to compute decent statistics on restart timings.
-Currently, we can say that a `radosgw` POD restarting on the same node is taking
-~1 second.
+preventing us to compute decent statistics on restart timings using Deployments.

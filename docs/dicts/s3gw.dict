@@ -66,3 +66,5 @@ errno
 signoff
 kubeconfig
 KUBECONFIG
+schedulable
+Backoff
