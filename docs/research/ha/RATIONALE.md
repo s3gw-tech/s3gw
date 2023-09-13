@@ -17,6 +17,14 @@
   - [Notes on testing s3gw within K8s](#notes-on-testing-s3gw-within-k8s)
     - [EXIT-1, 10 measures](#exit-1-10-measures)
     - [EXIT-0, 10 measures](#exit-0-10-measures)
+  - [Tested Scenarios - radosgw focused](#tested-scenarios---radosgw-focused)
+    - [regular\_localhost\_zeroload\_emptydb](#regular_localhost_zeroload_emptydb)
+    - [segfault\_localhost\_zeroload\_emptydb](#segfault_localhost_zeroload_emptydb)
+    - [regular\_localhost\_load\_fio\_64\_write](#regular_localhost_load_fio_64_write)
+    - [regular\_localhost\_zeroload\_400\_800Kdb](#regular_localhost_zeroload_400_800kdb)
+      - [400K objects - measures done with the WAL file zeroed](#400k-objects---measures-done-with-the-wal-file-zeroed)
+      - [800K objects - measures done with the WAL file still to be processed (size 32G)](#800k-objects---measures-done-with-the-wal-file-still-to-be-processed-size-32g)
+    - [regular-localhost-incremental-fill-5k](#regular-localhost-incremental-fill-5k)
 
 We want to investigate what *High Availability* - HA - means for a project like
 the s3gw.
@@ -514,3 +522,123 @@ at least for the cases when the process exits with zero.
 
 Anyway, this behavior limits the number of measures we can collect and thus is
 preventing us to compute decent statistics on restart timings using Deployments.
+
+## Tested Scenarios - radosgw focused
+
+When we test a scenario we are interested in collecting `radosgw`'s restart
+events; for each of those we measure the following metrics:
+
+- `to_main`: this is evaluated as the duration elapsed between a `radosgw`'s
+  death event and the measure at the very begin of the `main` body
+  in the newly restarted process.
+
+- `to_frontend_up`: this is evaluated as the duration elapsed between a `radosgw`'s
+  death event and the measure just after the newly restarted process is
+  able to accept a `TCP/IP` connection from a client.
+
+From these 2 metrics, we produce also a derived metric: `frontend_up_main_delta`,
+that is just the arithmetic difference between `to_frontend_up` and `to_main`.
+
+For each scenario tested we collect a set of 100 measures.
+For each scenario tested we produce 5 artifacts:
+
+- deathtype-environment-description_stats_TS.json
+  - It is the `json` file containing all the measures done for a scenario.
+    It also contains some key statistics.
+
+- deathtype-environment-description_raw_TS.svg
+  - It is the plot containing the all the charts for the measures:
+    - `to_main`
+    - `to_frontend_up`
+    - `frontend_up_main_delta`
+
+  The ordinate axis is the `ID` of the restart event.
+  This is the natural order in which the restart events occurred.
+
+- deathtype-environment-description_percentiles_to_main_TS.svg
+  - It is the plot containing the percentile graph for the `to_main`
+    metric.
+
+- deathtype-environment-description_percentiles_to_fup_TS.svg
+  - It is the plot containing the percentile graph for the `to_frontend_up`
+    metric.
+
+- deathtype-environment-description_percentiles_fup_main_delta_TS.svg
+  - It is the plot containing the percentile graph for the `frontend_up_main_delta`
+    metric.
+
+Each file has a pattern name, where:
+
+- deathtype: is the way the `radosgw` process is asked to die:
+  - `exit0`
+  - `exit1`
+  - `segfault`
+  - `regular`
+
+- environment: is the environment where the scenario is tested:
+  - `localhost`
+  - `k8s`
+
+- description: is a key description of the scenario
+- TS: this is just a timestamp of when the artifacts were produced
+
+### regular_localhost_zeroload_emptydb
+
+|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_raw_1694425886.svg">|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_main_1694425886.svg">|
+|---|---|
+|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_fup_1694425886.svg">| <img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694425886.svg">|
+
+### segfault_localhost_zeroload_emptydb
+
+|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_raw_1694428197.svg">|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_main_1694428197.svg">|
+|---|---|
+|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_fup_1694428197.svg">| <img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694428197.svg">|
+
+### regular_localhost_load_fio_64_write
+
+`fio` configuration:
+
+```ini
+[global]
+ioengine=http
+http_verbose=0
+https=off
+http_mode=s3
+http_s3_key=test
+http_s3_keyid=test
+http_host=localhost:7480
+
+[s3-write]
+filename=/workload-1/obj1
+numjobs=8
+rw=write
+size=128m
+bs=1m
+```
+
+|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_raw_1694440297.svg">|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_main_1694440297.svg">|
+|---|---|
+|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_fup_1694440297.svg">| <img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_fup_main_delta_1694440297.svg">|
+
+### regular_localhost_zeroload_400_800Kdb
+
+#### 400K objects - measures done with the WAL file zeroed
+
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_raw_1694522179.svg">|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_main_1694522179.svg">|
+|---|---|
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_fup_1694522179.svg">| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_fup_main_delta_1694522179.svg">|
+
+#### 800K objects - measures done with the WAL file still to be processed (size 32G)
+
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_raw_1694524508.svg">|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_main_1694524508.svg">|
+|---|---|
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_fup_1694524508.svg">| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_fup_main_delta_1694524508.svg">|
+
+### regular-localhost-incremental-fill-5k
+
+Between every restart there is an interposed `PUT` of 5K objects,
+the sqlite db initially contained 800K objects.
+
+|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_raw_1694534032.svg">|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_main_1694534032.svg">|
+|---|---|
+|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_fup_1694534032.svg">| <img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_fup_main_delta_1694534032.svg">|
