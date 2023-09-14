@@ -174,8 +174,8 @@ jobs:
           tags: |
             quay.io/s3gw/s3gw-ui:${{ github.ref_name }}
             quay.io/s3gw/s3gw-ui:latest
-          file: ui/src/frontend/Dockerfile
-          context: ui/src/frontend
+          file: ui/src/Dockerfile
+          context: ui/src
 
   # Build and push the COSI sidecar and driver
   build-s3gw-cosi-sidecar-and-driver:
