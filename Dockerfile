@@ -97,7 +97,6 @@ RUN zypper -n install --no-recommends \
       libpmemobj-devel \
       librabbitmq-devel \
       librdkafka-devel \
-      libsqliteorm \
       libstdc++6-devel-gcc12 \
       libtool \
       libtsan0 \
