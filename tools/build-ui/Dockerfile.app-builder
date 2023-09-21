@@ -1,6 +1,0 @@
-FROM node:lts-alpine
-
-COPY build-app.sh /usr/bin/build-app.sh
-
-VOLUME ["/srv/app"]
-ENTRYPOINT [ "/usr/bin/build-app.sh" ]
