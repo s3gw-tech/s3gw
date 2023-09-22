@@ -68,3 +68,9 @@ kubeconfig
 KUBECONFIG
 schedulable
 Backoff
+zeroload
+writeload
+emptydb
+deathtype
+putobj
+clusterip

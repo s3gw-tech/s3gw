@@ -17,7 +17,7 @@
   - [Notes on testing s3gw within K8s](#notes-on-testing-s3gw-within-k8s)
     - [EXIT-1, 10 measures](#exit-1-10-measures)
     - [EXIT-0, 10 measures](#exit-0-10-measures)
-  - [Tested Scenarios - radosgw focused](#tested-scenarios---radosgw-focused)
+  - [Tested Scenarios - radosgw-restart](#tested-scenarios---radosgw-restart)
     - [regular\_localhost\_zeroload\_emptydb](#regular_localhost_zeroload_emptydb)
     - [segfault\_localhost\_zeroload\_emptydb](#segfault_localhost_zeroload_emptydb)
     - [regular\_localhost\_load\_fio\_64\_write](#regular_localhost_load_fio_64_write)
@@ -25,6 +25,10 @@
       - [400K objects - measures done with the WAL file zeroed](#400k-objects---measures-done-with-the-wal-file-zeroed)
       - [800K objects - measures done with the WAL file still to be processed (size 32G)](#800k-objects---measures-done-with-the-wal-file-still-to-be-processed-size-32g)
     - [regular-localhost-incremental-fill-5k](#regular-localhost-incremental-fill-5k)
+    - [scale\_deployment\_0\_1-k3s3nodes\_zeroload\_emptydb](#scale_deployment_0_1-k3s3nodes_zeroload_emptydb)
+  - [Tested Scenarios - S3-workload during s3gw Pod outage](#tested-scenarios---s3-workload-during-s3gw-pod-outage)
+    - [PutObj-100ms-ClusterIp](#putobj-100ms-clusterip)
+    - [PutObj-100ms-Ingress](#putobj-100ms-ingress)
 
 We want to investigate what *High Availability* - HA - means for a project like
 the s3gw.
@@ -523,10 +527,10 @@ at least for the cases when the process exits with zero.
 Anyway, this behavior limits the number of measures we can collect and thus is
 preventing us to compute decent statistics on restart timings using Deployments.
 
-## Tested Scenarios - radosgw focused
+## Tested Scenarios - radosgw-restart
 
 When we test a scenario we are interested in collecting `radosgw`'s restart
-events; for each of those we measure the following metrics:
+events; for each restart we measure the following metrics:
 
 - `to_main`: this is evaluated as the duration elapsed between a `radosgw`'s
   death event and the measure at the very begin of the `main` body
@@ -539,62 +543,84 @@ events; for each of those we measure the following metrics:
 From these 2 metrics, we produce also a derived metric: `frontend_up_main_delta`,
 that is just the arithmetic difference between `to_frontend_up` and `to_main`.
 
-For each scenario tested we collect a set of 100 measures.
-For each scenario tested we produce 5 artifacts:
+For each scenario tested we collect a set of measures.
+For each scenario tested we produce a set of artifacts:
 
-- deathtype-environment-description_stats_TS.json
+- `*_stats.json`
   - It is the `json` file containing all the measures done for a scenario.
     It also contains some key statistics.
 
-- deathtype-environment-description_raw_TS.svg
+- `*_raw.svg`
   - It is the plot containing the all the charts for the measures:
     - `to_main`
     - `to_frontend_up`
     - `frontend_up_main_delta`
 
-  The ordinate axis is the `ID` of the restart event.
-  This is the natural order in which the restart events occurred.
+  On the X axis there are the restart event's `ID`s.
+  They follow the temporal order of the restart events.
 
-- deathtype-environment-description_percentiles_to_main_TS.svg
+- `*_percentiles_to_main.svg`
   - It is the plot containing the percentile graph for the `to_main`
     metric.
 
-- deathtype-environment-description_percentiles_to_fup_TS.svg
+- `*_percentiles_to_fup.svg`
   - It is the plot containing the percentile graph for the `to_frontend_up`
     metric.
 
-- deathtype-environment-description_percentiles_fup_main_delta_TS.svg
+- `*_percentiles_fup_main_delta.svg`
   - It is the plot containing the percentile graph for the `frontend_up_main_delta`
     metric.
 
-Each file has a pattern name, where:
+The file name, normally, contains some information such as:
 
-- deathtype: is the way the `radosgw` process is asked to die:
-  - `exit0`
-  - `exit1`
-  - `segfault`
-  - `regular`
+- deathtype: the way the `radosgw` process is asked to die:
 
-- environment: is the environment where the scenario is tested:
-  - `localhost`
-  - `k8s`
+  - `exit0` - the process is asked to immediately exit with `exit(0)`
+  - `exit1` - the process is asked to immediately exit with `exit(1)`
+  - `segfault` - the process is asked to trigger a `segmentation fault`
+  - `regular` - the process is asked to exit with the ordered shutdown procedure
+
+- environment: the environment where the scenario is tested:
+
+  - `localhost/host-path-volume`
+  - `k8s/k3d/k3s ... /host-path-volume`
+  - `k8s/k3d/k3s ... /LH-volume`
 
 - description: is a key description of the scenario
 - TS: this is just a timestamp of when the artifacts were produced
 
 ### regular_localhost_zeroload_emptydb
 
+- restart-type: `regular`
+- env: `localhost/host-path-volume`
+- load: `zero-empty-db`
+- #measures: `100`
+
+<!-- markdownlint-disable MD013 -->
 |<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_raw_1694425886.svg">|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_main_1694425886.svg">|
 |---|---|
 |<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_fup_1694425886.svg">| <img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694425886.svg">|
+<!-- markdownlint-enable MD013 -->
 
 ### segfault_localhost_zeroload_emptydb
 
+- restart-type: `segfault`
+- env: `localhost/host-path-volume`
+- load: `zero-empty-db`
+- #measures: `100`
+
+<!-- markdownlint-disable MD013 -->
 |<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_raw_1694428197.svg">|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_main_1694428197.svg">|
 |---|---|
 |<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_fup_1694428197.svg">| <img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694428197.svg">|
+<!-- markdownlint-enable MD013 -->
 
 ### regular_localhost_load_fio_64_write
+
+- restart-type: `regular`
+- env: `localhost/host-path-volume`
+- load: `fio`
+- #measures: `100`
 
 `fio` configuration:
 
@@ -612,33 +638,130 @@ http_host=localhost:7480
 filename=/workload-1/obj1
 numjobs=8
 rw=write
-size=128m
+size=64m
 bs=1m
 ```
 
+<!-- markdownlint-disable MD013 -->
 |<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_raw_1694440297.svg">|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_main_1694440297.svg">|
 |---|---|
 |<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_fup_1694440297.svg">| <img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_fup_main_delta_1694440297.svg">|
+<!-- markdownlint-enable MD013 -->
 
 ### regular_localhost_zeroload_400_800Kdb
 
 #### 400K objects - measures done with the WAL file zeroed
 
+- restart-type: `regular`
+- env: `localhost/host-path-volume`
+- load: `zero-400K-db`
+- #measures: `100`
+
+<!-- markdownlint-disable MD013 -->
 |<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_raw_1694522179.svg">|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_main_1694522179.svg">|
 |---|---|
 |<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_fup_1694522179.svg">| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_fup_main_delta_1694522179.svg">|
+<!-- markdownlint-enable MD013 -->
 
 #### 800K objects - measures done with the WAL file still to be processed (size 32G)
 
+- restart-type: `regular`
+- env: `localhost/host-path-volume`
+- load: `zero-800K-db`
+- #measures: `100`
+
+<!-- markdownlint-disable MD013 -->
 |<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_raw_1694524508.svg">|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_main_1694524508.svg">|
 |---|---|
 |<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_fup_1694524508.svg">| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_fup_main_delta_1694524508.svg">|
+<!-- markdownlint-enable MD013 -->
 
 ### regular-localhost-incremental-fill-5k
 
-Between every restart there is an interposed `PUT` of 5K objects,
+- restart-type: `regular`
+- env: `localhost/host-path-volume`
+- load: `5K-incremental-800K-db`
+- #measures: `100`
+
+Between every restart there is an interposed `PUT-Object` sequence, each of 5K objects;
 the sqlite db initially contained 800K objects.
 
+<!-- markdownlint-disable MD013 -->
 |<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_raw_1694534032.svg">|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_main_1694534032.svg">|
 |---|---|
 |<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_fup_1694534032.svg">| <img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_fup_main_delta_1694534032.svg">|
+<!-- markdownlint-enable MD013 -->
+
+### scale_deployment_0_1-k3s3nodes_zeroload_emptydb
+
+- restart-type: `scale_deployment_0_1`
+- env: `virtual-machine/k3s-3-nodes/LH-volume`
+- load: `zero-empty-db`
+- #measures: `300`
+
+The test has been conducted in 3 blocks, each of 100 restarts.
+Each restart in a block is constrained to occur on a specific node.
+The schema is the following:
+
+1. taint all nodes but `node-1`
+2. trigger 100 pod restarts
+3. taint all nodes but `node-2`
+4. trigger 100 pod restarts
+5. taint all nodes but `node-3`
+6. trigger 100 pod restarts
+
+<!-- markdownlint-disable MD013 -->
+|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_raw_1695046129.svg">|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_to_main_1695046129.svg">|
+|---|---|
+|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_to_fup_1695046129.svg">| <img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_fup_main_delta_1695046129.svg">|
+<!-- markdownlint-enable MD013 -->
+
+## Tested Scenarios - S3-workload during s3gw Pod outage
+
+These scenarios are focused in collecting data from an S3 client performing
+a workload during an s3gw outage.
+For each S3 operation we collect both its Round Trip Time - `RTT` - and its
+`result` (success/failure).
+Then, we correlate an s3gw's outage with collected results and RTTs.
+
+For each scenario tested we produce a specific artifact:
+
+- `*_S3WL_RTT_raw.svg`
+  - It is the plot containing the `RTT S3Workload` chart:
+
+    - **X-Axis**: Relative time (starting from 0) when an S3 operation occurred.
+    - **Y-Axis**: The `RTT`'s duration in milliseconds.
+    - Each vertical bar is colorized in: `Green` when the corresponding S3 operation
+      was successful, in `Red` when the operation failed.
+    - On the **X-Axis**, in `Yellow`, are drawn all the s3gw's outages occurred
+      in the test; the segment represents the begin and the end of an outage.
+    - On the **X-Axis**, in `Cyan`, are drawn the durations before
+      the first successful S3 operation after an outage.
+
+### PutObj-100ms-ClusterIp
+
+- restart-type: `regular`
+- env: `k3d/host-path-volume`
+- client-S3-workload: `PutObject/100ms`
+- S3-endpoint: `s3gw-ClusterIP-service`
+- #restarts: `10`
+- #S3-operations: `394`
+
+<!-- markdownlint-disable MD013 -->
+|<img src="measurements/s3wl-putobj-100ms-clusterip/1695396383_s3wl-putobj-100ms-ClusterIp_S3WL_RTT_raw.svg">|<img src="measurements/s3wl-putobj-100ms-clusterip/1695396383_s3wl-putobj-100ms-ClusterIp_raw.svg">|
+|---|---|
+<!-- markdownlint-enable MD013 -->
+
+### PutObj-100ms-Ingress
+
+- restart-type: `regular`
+- env: `k3d/host-path-volume`
+- client-S3-workload: `PutObject/100ms`
+- S3-endpoint: `s3gw-Ingress`
+- #restarts: `10`
+- #S3-operations: `504`
+
+<!-- markdownlint-disable MD013 -->
+|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_S3WL_RTT_raw.svg">|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_raw.svg">|
+|---|---|
+<!-- markdownlint-enable MD013 -->
