@@ -1,22 +1,19 @@
-# High Availability with s3gw
+# High Availability with s3gw + Longhorn
 
-- [High Availability with s3gw](#high-availability-with-s3gw)
+- [High Availability with s3gw + Longhorn](#high-availability-with-s3gw--longhorn)
   - [Active/Active](#activeactive)
   - [Active/Warm Standby](#activewarm-standby)
   - [Active/Standby](#activestandby)
   - [Investigation's Rationale](#investigations-rationale)
   - [Failure cases](#failure-cases)
     - [radosgw's POD failure and radosgw's POD rescheduling](#radosgws-pod-failure-and-radosgws-pod-rescheduling)
-    - [Cluster's node failure](#clusters-node-failure)
-    - [radosgw's failure due to a bug not related to a certain input pattern](#radosgws-failure-due-to-a-bug-not-related-to-a-certain-input-pattern)
-    - [radosgw's failure due to a bug related to a certain input pattern](#radosgws-failure-due-to-a-bug-related-to-a-certain-input-pattern)
+    - [Non-graceful node failure](#non-graceful-node-failure)
+    - [radosgw's failure due to a bug](#radosgws-failure-due-to-a-bug)
+      - [Bug not related to a certain input pattern](#bug-not-related-to-a-certain-input-pattern)
+      - [Bug related to a certain input pattern](#bug-related-to-a-certain-input-pattern)
     - [PV Data corruption at application level due to radosgw's anomalous exit](#pv-data-corruption-at-application-level-due-to-radosgws-anomalous-exit)
-    - [PV Data corruption at application level](#pv-data-corruption-at-application-level)
   - [Measuring s3gw failures on Kubernetes](#measuring-s3gw-failures-on-kubernetes)
-  - [The s3gw Probe](#the-s3gw-probe)
   - [Notes on testing s3gw within K8s](#notes-on-testing-s3gw-within-k8s)
-    - [EXIT-1, 10 measures](#exit-1-10-measures)
-    - [EXIT-0, 10 measures](#exit-0-10-measures)
   - [Tested Scenarios - radosgw-restart](#tested-scenarios---radosgw-restart)
     - [regular\_localhost\_zeroload\_emptydb](#regular_localhost_zeroload_emptydb)
     - [segfault\_localhost\_zeroload\_emptydb](#segfault_localhost_zeroload_emptydb)
@@ -30,8 +27,8 @@
     - [PutObj-100ms-ClusterIp](#putobj-100ms-clusterip)
     - [PutObj-100ms-Ingress](#putobj-100ms-ingress)
 
-We want to investigate what *High Availability* - HA - means for a project like
-the s3gw.
+We want to investigate what *High Availability* - HA - means for the s3gw when
+used with Longhorn.
 
 If we identify the meaning of HA as the ability to have N independent pipelines
 so that the failure of some of those does not affect the user's operations,
@@ -55,7 +52,8 @@ availability, and to be tolerant with regard to certain faults (such as pod cras
 single node outages ... - the faults we consider or explicitly exclude are discussed
 later in the document).
 
-With pipeline, we mean all the chain from the ingress to the persistent volume `PV`:
+With pipeline, we mean all the chain from the ingress to the persistent volume `PV`
+(provided by Longhorn):
 
 ```mermaid
 flowchart LR
@@ -222,8 +220,7 @@ of its POD could be enough to fulfill this HA model.
 All of this has obviously timeouts and delays, we suspect we'll have to adjust them
 for our requirements.
 
-A clarification is needed here: the `PV` *state* is guaranteed by a third party
-service, that is: **Longhorn**.
+A clarification is needed here: the `PV` *state* is guaranteed by **Longhorn**.
 
 Longhorn ensures that a `PV` (along with its content) is always available on
 any cluster's node, so that, a POD can mount it regardless of its allocation on the
@@ -252,17 +249,16 @@ should occur.
 Let's examine the following scenarios:
 
 1. `radosgw`'s POD failure and `radosgw`'s POD rescheduling
-2. Cluster's node failure
-3. `radosgw`'s failure due to a bug not related to a certain input pattern
-4. `radosgw`'s failure due to a bug related to a certain input pattern
-5. `PV` PV Data corruption at application level due to radosgw's anomalous exit
+2. Non-graceful node failure
+3. `radosgw`'s failure due to a bug
+4. `PV` PV Data corruption at application level due to radosgw's anomalous exit
 
 We are supposing all these bugs or conditions to be fatal for the s3gw's process
 so that they trigger an anomalous exit.
 
 ### radosgw's POD failure and radosgw's POD rescheduling
 
-This case is when the `radosgw` process stops due to a failure of its POD.
+This case occurs when the `radosgw` process stops due to a failure of its POD.
 
 This case applies also when Kubernetes decides to reschedule the POD
 to another node, eg: when the node goes low on resources.
@@ -281,20 +277,34 @@ This can be thought as an infrastructure issue independent to the s3gw.
 In this case, the *Active/Standby* model fully restores the service by
 rescheduling a new POD somewhere in the cluster.
 
-### Cluster's node failure
+### Non-graceful node failure
 
-This case is when the `radosgw` process stops due to a cluster's node failure.
-The *Active/Standby* model fully restores the service by
-rescheduling a new POD somewhere in the cluster.
-this also means we weren't shut down cleanly.
-So the on start recovery needs to be optimized for the stack, and as soon as we
+This case occurs when the `radosgw` process stops due to a cluster's node failure.
+This also means we weren't shut down cleanly.
+So the recovery needs to be optimized for the stack, and as soon as we
 can, we need to hook into the ingress and tell it to pause until we're done,
 and then resume.
 
-### radosgw's failure due to a bug not related to a certain input pattern
+Kubernetes detects node failures but a recovery in this situation may take a
+very long time due to timeouts and grace periods; see Longhorn's documentation:
+[what to expect when a kubernetes node fails][lh-node-failure]
+( suggests "up to 7 minutes", which is often unacceptable in response to node failures).
 
-This case is when the `radosgw` process crashes due to a bug not directly
-related to any input type.
+In Kubernetes 1.28, k8s has gained GA support for the concept of [non-graceful
+node shutdowns][non-graceful-node-shutdown-ga] and orchestrating recovery actions
+once the taint/flag is manually set.
+Currently, this relies on manual intervention - the administrator needs to ensure
+the node(s) is (are) really down to avoid risk of split-brain scenarios.
+
+Regarding this topic, we have opened a specific issue:
+[Improving recovery times for non-graceful node failures][longhorn-issue-1]
+within the Longhorn project.
+
+### radosgw's failure due to a bug
+
+#### Bug not related to a certain input pattern
+
+The crash is caused by a bug not directly related to any input type.
 
 Examples:
 
@@ -309,10 +319,9 @@ the user's operations *until the next occurrence* of the same malfunctioning.
 A definitive solution would be available only when a patch for the issue
 has released.
 
-### radosgw's failure due to a bug related to a certain input pattern
+#### Bug related to a certain input pattern
 
-This case is when the `radosgw` process crashes due to a bug directly
-related to a certain input type.
+The crash is caused by a bug directly related to a certain input type.
 
 Examples:
 
@@ -326,7 +335,7 @@ input is recognized by the user and thus its submission blocked.
 
 ### PV Data corruption at application level due to radosgw's anomalous exit
 
-This case is when the state on the `PV` corrupts due to a `radosgw`'s
+This case occurs when the state on the `PV` corrupts due to a `radosgw`'s
 anomalous exit.
 
 In this unfortunate scenario, the *Active/Standby* can hardly help.
@@ -337,16 +346,6 @@ make the corruption worse).
 The fix for this could contemplate an human intervention.
 A definitive solution would be available only when a patch for the issue
 is available.
-
-### PV Data corruption at application level
-
-This case is when the state on the PV corrupts due to a `radosgw`
-anomalous exit, eg: after a node failure.
-
-This scenario could even be NOT possible because of the safety features
-implemented on the radosgw SFS backend.
-
-The fix for this could contemplate an human intervention.
 
 ## Measuring s3gw failures on Kubernetes
 
@@ -381,140 +380,36 @@ artificially triggered on the `radosgw`'s POD.
 Obtaining such measures would allow to compute some arbitrary statistics
 for the time required by Kubernetes to restart the `radosgw`'s POD.
 
-## The s3gw Probe
+## Notes on testing s3gw within K8s
 
-The `s3gw Probe` is a program developed with the purpose of collecting restart
-events coming from the `radosgw` process.
-The tool is acting as a client/server service inside the Kubernetes cluster.
+As previously said, we want to compute some statistics regarding the Kubernetes
+performances when restarting the `radosgw`'s Pod.
+
+We developed the `s3gw Probe`, a program with the purpose of collecting
+certain events coming from the `radosgw` process.
+The tool acts as a client/server service inside the Kubernetes cluster.
 
 - It acts as client vs the `radosgw` process requesting it to die.
+- It acts as client vs the k8s's `control plane` requesting a certain deployment
+  to scale up and down.
 - It acts as server of `radosgw` process collecting its `death` and `start` events.
 - It acts as server of the user's client accepting configurations of restart
   scenarios to be triggered against the `radosgw` process.
 - It acts as server of the user's client returning statistics over the collected
   data.
 
-In nutshell:
-
-- The `s3gw Probe` can be instructed to trigger `radosgw` restarts
-  with a RESTful call.
-- The `s3gw Probe` can be queried for statistics over the collected data.
-
-The usage sequence for the s3gw Probe is the following:
-
-- The user instructs the tool
-
-```mermaid
-flowchart LR
-    user[curl] == setup & trigger restarts  ==> probe(s3gw probe)
-
-    linkStyle 0 stroke: green
-```
-
-- The tool performs the `die request` cycle collecting the `death` and `start`
-  events from the `radosgw` process.
-
-```mermaid
-flowchart LR
-    probe(s3gw probe) == die request #1  ==> radosgw(radosgw)
-    == death notice #1  ==> probe
-
-    linkStyle 0 stroke: red
-    linkStyle 1 stroke: blue
-```
-
-```mermaid
-flowchart LR
-    radosgw(radosgw) == start notice #1  ==> probe(s3gw probe)
-    probe(s3gw probe) == collect restart event #1  ==> probe(s3gw probe)
-
-    linkStyle 0 stroke: green
-    linkStyle 1 stroke: blue
-```
-
-- The user queries the tool for the statistics
-
-```mermaid
-flowchart LR
-    user[curl] == query statistics  ==> probe(s3gw probe)
-    == statistics ==> user
-
-    linkStyle 0 stroke: green
-    linkStyle 1 stroke: blue
-```
-
 The `radosgw` code has been patched to accept a REST call from the probe
 where the user can specify the way the `radosgw` will exit.
-Currently, 4 modes are possible:
 
-- `EXIT_0`
-- `EXIT_1`
-- `CORE_BY_SEG_FAULT`
-- `REGULAR`
+Currently, 4 modes are possible against the `radosgw`:
 
-## Notes on testing s3gw within K8s
+- `exit0`
+- `exit1`
+- `segfault`
+- `regular`
 
-As previously said, we want to compute some statistics regarding the Kubernetes
-performances when restarting the `radosgw`'s Pod.
-
-### EXIT-1, 10 measures
-
-```yaml
-  - mark: exit1
-    series:
-      - restart_id: 1
-        duration: 0
-      - restart_id: 2
-        duration: 15
-      - restart_id: 3
-        duration: 24
-      - restart_id: 4
-        duration: 42
-      - restart_id: 5
-        duration: 91
-      - restart_id: 6
-        duration: 174
-      - restart_id: 7
-        duration: 307
-      - restart_id: 8
-        duration: 302
-      - restart_id: 9
-        duration: 302
-      - restart_id: 10
-        duration: 304
-    time_unit: s
-```
-
-### EXIT-0, 10 measures
-
-```yaml
-  - mark: exit0
-    series:
-      - restart_id: 1
-        duration: 1
-      - restart_id: 2
-        duration: 13
-      - restart_id: 3
-        duration: 25
-      - restart_id: 4
-        duration: 49
-      - restart_id: 5
-        duration: 91
-      - restart_id: 6
-        duration: 161
-      - restart_id: 7
-        duration: 302
-      - restart_id: 8
-        duration: 304
-      - restart_id: 9
-        duration: 305
-      - restart_id: 10
-        duration: 308
-time_unit: s
-```
-
-Regardless of the exit code, with Deployments, Kubernetes deals with a restart loop
-using the same strategy.
+Regardless of the process's exit code, with Deployments, Kubernetes deals
+with a restart loop using the same strategy.
 A Pod handled by a Deployment goes into the `CrashLoopBackoff` state.
 The Pod is not managed on its own. It is managed through a ReplicaSet, which in
 turn is managed through a Deployment. A Deployment is a Kubernetes workload
@@ -524,8 +419,20 @@ About this behavior, there is actually an opened request to make the
 [CrashLoopBackoff timing tuneable](https://github.com/kubernetes/kubernetes/issues/57291),
 at least for the cases when the process exits with zero.
 
-Anyway, this behavior limits the number of measures we can collect and thus is
-preventing us to compute decent statistics on restart timings using Deployments.
+Anyway, this behavior led us to think a different way we could use to achieve a
+sufficient number of restarts samples for the `radosgw`'s Pod.
+We ended up issuing a `scale deployment 0` followed by a `scale deployment 1` applied
+to the `radosgw`'s deployment.
+This trick allows to generate an arbitrary number of Pod restarts without falling
+into the `CrashLoopBackoff` state.
+
+So, inside a Kubernetes environment, the probe tool can pilot the `control plane`
+to scale down and up the s3gw's backend pod.
+
+Currently, 2 modes are possible against the `control plane`:
+
+- `k8s_scale_deployment_0_1`
+- `k8s_scale_deployment_0_1_node_rr`
 
 ## Tested Scenarios - radosgw-restart
 
@@ -765,3 +672,9 @@ For each scenario tested we produce a specific artifact:
 |<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_S3WL_RTT_raw.svg">|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_raw.svg">|
 |---|---|
 <!-- markdownlint-enable MD013 -->
+
+----
+
+[lh-node-failure]: https://longhorn.io/docs/1.5.1/high-availability/node-failure/#what-to-expect-when-a-kubernetes-node-fails
+[non-graceful-node-shutdown-ga]: https://kubernetes.io/blog/2023/08/16/kubernetes-1-28-non-graceful-node-shutdown-ga
+[longhorn-issue-1]: https://github.com/longhorn/longhorn/issues/6803
