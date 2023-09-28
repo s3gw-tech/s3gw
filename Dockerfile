@@ -6,6 +6,7 @@ RUN zypper ar \
  && zypper --gpg-auto-import-keys ref
 
 RUN zypper -n install \
+  libsqlite3-0=3.43.1 \
   libblkid1 \
   libexpat1 \
   libtcmalloc4 \
