@@ -1,4 +1,16 @@
-# Context and Problem Statement
+# Release Process
+
+## Note Before
+
+This document is superseded by three different ADRs, covering the same topics
+and expanding them: [Release Methodology][adr_methodology],
+[Release Steps][adr_steps], and [Release Testing][adr_testing].
+
+[adr_methodology]: /docs/decisions/0015-release-methodology.md
+[adr_steps]: /docs/decisions/0016-release-steps.md
+[adr_testing]: /docs/decisions/0017-release-testing.md
+
+## Context and Problem Statement
 
 Releasing is an essential process for the `s3gw` project. Given the project is
 composed by various sub-projects, that need to be prepared, tested, and

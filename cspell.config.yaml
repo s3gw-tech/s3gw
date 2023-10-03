@@ -5,6 +5,10 @@ dictionaryDefinitions:
   - name: errno
     path: docs/dicts/errno.dict
     addWords: true
+  - name: misc
+    path: docs/dicts/misc.dict
+    addWords: true
 dictionaries:
   - s3gw
   - errno
+  - misc
