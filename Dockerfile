@@ -1,5 +1,8 @@
 FROM opensuse/leap:15.4 as s3gw-base
 
+# This makes sure the Docker cache is invalidated
+# if packages in the s3gw repo on OBS have changed
+ADD https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/repodata/repomd.xml /tmp/
 RUN zypper ar \
   https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
   s3gw-deps \
