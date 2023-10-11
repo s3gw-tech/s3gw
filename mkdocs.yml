@@ -29,6 +29,7 @@ nav:
       - Testing the s3gw: "testing.md"
       - UI: "ui.md"
       - S3 API compatibility table: "s3-compatibility-table.md"
+      - Metrics: "metrics.md"
   - "Team Decisions":
       - Use markdown any decision records: "decisions/0000-use-markdown-any-decision-records.md"
       - Reorganize documentation: "decisions/0001-reorganize-documentation.md"
