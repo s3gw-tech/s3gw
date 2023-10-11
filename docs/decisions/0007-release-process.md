@@ -1,6 +1,6 @@
 # Context and Problem Statement
 
-Releasing is an essential process for the `s3gw` process. Given the project is
+Releasing is an essential process for the `s3gw` project. Given the project is
 composed by various sub-projects, that need to be prepared, tested, and
 eventually released, the Release Process is not trivial.
 
