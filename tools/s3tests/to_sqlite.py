@@ -50,6 +50,7 @@ def make_full_results_database(results, pytest_markers, db_path):
             "result": get_test_result(result),
             "out": result["test_output"],
             "log_container": result["container_logs"],
+            "metrics": result["metrics"],
         }
         db["results"].insert(row, pk="test")
         for keyword in keywords:
@@ -73,7 +74,7 @@ def make_full_results_database(results, pytest_markers, db_path):
        group by results.test
     """,
     )
-    db["results"].enable_fts(["out", "log_container"])
+    db["results"].enable_fts(["out", "log_container", "metrics"])
     db["results"].create_index(["result"])
     db["results_keywords"].create_index(["keyword"])
     db["results_keywords"].create_index(["test"])
@@ -83,18 +84,18 @@ def make_comparison_database(results_by_versions, db_path):
     db = sqlite_utils.Database(db_path)
     db["versions"].insert_all(
         [
-            {"name": version, "id": result["index"]}
-            for version, result in results_by_versions.items()
+            {"name": version, "id": index}
+            for (version, index), result in results_by_versions.items()
         ],
         pk="id",
     )
-    for results in results_by_versions.values():
+    for (_, index), results in results_by_versions.items():
         for result in results:
             db["results"].insert(
                 {
                     "test": result["test"].split("::")[1],
                     "result": get_test_result(result),
-                    "version_id": result["index"],
+                    "version_id": index,
                 },
                 pk="id",
                 foreign_keys=("version_id", "versions"),
@@ -187,6 +188,14 @@ def serve(pytest_ini, datasette_metadata, input):
 
 
 @to_sqlite.command()
+@click.option(
+    "--pytest-ini",
+    envvar="PYTEST_INI",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=False, path_type=pathlib.Path
+    ),
+    required=True,
+)
 @click.argument(
     "db_path",
     type=click.Path(
@@ -210,8 +219,7 @@ def comparison(pytest_ini, db_path, input_files):
     for i, file in enumerate(input_files):
         with open(file) as fp:
             results = json.load(fp)
-        results["index"] = i
-        results_by_versions[file.name] = results
+        results_by_versions[(file.name, i)] = results
 
     make_comparison_database(results_by_versions, db_path)
 

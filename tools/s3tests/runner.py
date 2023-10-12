@@ -55,7 +55,7 @@ S3TESTS_USERS = {
 }
 
 
-def make_radosgw_command(id, port):
+def make_radosgw_command(id: str, port: int, lifecycle_debug: bool):
     return [
         "stdbuf",
         "-oL",
@@ -88,7 +88,7 @@ def make_radosgw_command(id, port):
         "--rgw_crypt_default_encryption_key",
         "4YSmvJtBv0aZ7geVgAsdpRnLBEwWSWlMIGnRS8a9TSA=",
         "--rgw-lc-debug-interval",
-        "10",
+        "10" if lifecycle_debug else "-1",
         "--log-flush-on-exit",
         "1",
         "--log-to-stderr",
@@ -100,7 +100,7 @@ def make_radosgw_command(id, port):
         "--debug-rgw",
         "10",
         "--rgw-frontends",
-        f'"beast port={port}"',
+        f'"beast port={port}, status bind=0.0.0.0 port={port + 10000}"',
         "2>&1 1> /log",
     ]
 
@@ -115,16 +115,17 @@ class S3GW:
     Admin OPs: create_user()
     """
 
-    def __init__(self, cri, image, container_run_args, name, port):
+    def __init__(self, cri, image, container_run_args, name, port, hints):
         self.cri = cri
         self.image = image
         self.container_run_args = container_run_args
         self.name = name
         self.port = port
         self.container = None
+        self.hints = hints
 
     def start(self):
-        command = make_radosgw_command(self.name, self.port)
+        command = make_radosgw_command(self.name, self.port, "lifecycle" in self.hints)
         kwargs = self.container_run_args | {
             "image": self.image,
             "name": f"s3gw_{self.name}",
@@ -164,6 +165,15 @@ class S3GW:
             return resp.ok
         except requests.exceptions.ConnectionError:
             return False
+
+    def metrics(self):
+        try:
+            resp = requests.get(
+                f"http://{self.network_address()}:{self.port + 10000}/prometheus"
+            )
+            return resp.text
+        except requests.exceptions.ConnectionError:
+            return ""
 
     def create_user(self, **kwargs):
         rgwadmin = radosgw.connection.RadosGWAdminConnection(
@@ -298,7 +308,12 @@ def run_test(docker_api, image, container_run_args, s3_tests, name, port):
     start_time_ns = time.perf_counter_ns()
     cri = docker.DockerClient(base_url=docker_api)
     container_name = name.split("::")[1]
-    container = S3GW(cri, image, container_run_args, container_name, port)
+    container_hints = set()
+    if "_lifecycle" in name:
+        container_hints.add("lifecycle")
+    container = S3GW(
+        cri, image, container_run_args, container_name, port, container_hints
+    )
     container.start()
 
     for retry in range(10):
@@ -366,6 +381,7 @@ def run_test(docker_api, image, container_run_args, s3_tests, name, port):
             LOG.exception("unhandled exception during test %s. rethrowing.", name)
             raise e
 
+    metrics = container.metrics()
     container_ret = container.stop()
     logs = container.logfile()
     container.remove()
@@ -374,6 +390,7 @@ def run_test(docker_api, image, container_run_args, s3_tests, name, port):
         "test_return": ret,
         "container_return": container_ret,
         "container_logs": logs,
+        "metrics": metrics,
         "test_output": out,
         "test_data": data_out,
         "runtime_ns": time.perf_counter_ns() - start_time_ns,
@@ -509,7 +526,7 @@ def run(
     )
     LOG.info(
         'Running radosgw with command "%s"',
-        " ".join(make_radosgw_command("PLACEHOLDER", "PLACEHOLDER")),
+        " ".join(make_radosgw_command("PLACEHOLDER", -1, True)),
     )
     try:
         results = run_tests(

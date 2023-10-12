@@ -4,13 +4,13 @@
 Simple analysis tasks for s3tr JSON results
 """
 
+import csv
 import json
 import logging
 import pathlib
 import sys
 
 import click
-import requests
 import rich
 from rich.console import Console
 from rich.table import Table
@@ -23,32 +23,19 @@ def analyze():
     """Analyze s3tr JSON results"""
 
 
-def get_upstream_list():
-    resp = requests.get(
-        "https://raw.githubusercontent.com/aquarist-labs/ceph"
-        "/s3gw/qa/rgw/store/sfs/tests/fixtures/s3-tests.txt"
-    )
-    resp.raise_for_status()
-    return resp.text
-
-
-def get_known_good(file=None):
-    if file:
-        with open(file) as fp:
-            data = fp.read().split("\n")
-    else:
-        data = get_upstream_list().split("\n")
-
-    return frozenset(test for test in data if test and not test.startswith("#"))
+def get_excuses(file):
+    result = {}
+    with open(file) as fp:
+        csvreader = csv.reader(fp, delimiter=";")
+        for row in csvreader:
+            result[row[0]] = {
+                "url": row[1],
+                "excuse": row[2],
+            }
+    return result
 
 
 @analyze.command()
-@click.option(
-    "--known-good-file",
-    type=click.Path(
-        file_okay=True, dir_okay=False, allow_dash=False, path_type=pathlib.Path
-    ),
-)
 @click.argument(
     "file",
     type=click.Path(
@@ -57,66 +44,81 @@ def get_known_good(file=None):
     required=True,
     nargs=1,
 )
-def new_failures(known_good_file, file):
+@click.argument(
+    "excuses-file",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=False, path_type=pathlib.Path
+    ),
+    required=False,
+    nargs=1,
+)
+def summary(file, excuses_file):
     """
     Compare results to known good from latest main branch
     """
     console = Console()
+    if excuses_file:
+        excuses = get_excuses(excuses_file)
+    else:
+        excuses = None
 
-    known_good = get_known_good(known_good_file)
     with open(file) as fp:
         results = json.load(fp)
 
     results = {result["test"].split("::")[1]: result for result in results}
-
-    success = frozenset(
+    failures = frozenset(
+        (name for name, result in results.items() if result["test_return"] != "success")
+    )
+    successes = frozenset(
         (name for name, result in results.items() if result["test_return"] == "success")
     )
 
-    known_good_that_fail_now = known_good - success
+    table = Table(box=rich.box.SIMPLE, title="S3 Test Stats")
+    table.add_column("")
+    table.add_column("")
+    table.add_row("Failed tests", str(len(failures)))
+    table.add_row("Successful tests", str(len(successes)))
+    table.add_row("Total tests", str(len(results)))
+    if excuses:
+        table.add_row("Tests OK to fail", str(len(excuses)))
 
-    table = Table(box=rich.box.SIMPLE, caption="Known good tests that fail now")
-    table.add_column("Test Name")
-    table.add_column("Test Result")
-    table.add_column("Container Exit")
-    for test in known_good_that_fail_now:
-        table.add_row(
-            test, results[test]["test_return"], results[test]["container_return"]
-        )
+    if not excuses:
+        sys.exit(0)
+
+    failures_that_must_not_be = failures - excuses.keys()
+    new_successes = excuses.keys() & successes
+    table.add_row("Failures, not excused", str(len(failures_that_must_not_be)))
+    table.add_row("Successes, excused", str(len(new_successes)))
     console.print(table)
-    if len(known_good_that_fail_now) > 0:
+
+    if failures_that_must_not_be:
+        table = Table(box=rich.box.SIMPLE, title="Failures not in excuse file")
+        table.add_column("Test Name")
+        table.add_column("Test Result")
+        table.add_column("Container Exit")
+        for test in sorted(failures_that_must_not_be):
+            table.add_row(
+                test, results[test]["test_return"], results[test]["container_return"]
+            )
+        console.print(table)
+
+    if new_successes:
+        table = Table(
+            box=rich.box.SIMPLE, title="Tests in excuse file no longer failing"
+        )
+        table.add_column("Test Name")
+        table.add_column("URL")
+        table.add_column("Excuse")
+        for test in sorted(new_successes):
+            table.add_row(test, excuses[test]["url"], excuses[test]["excuse"])
+        console.print(table)
+        console.print("Please remove no longer failing tests from excuse file")
+
+    if len(failures_that_must_not_be) > 0 or len(new_successes) > 0:
+        console.print("💥")
         sys.exit(23)
-
-
-@analyze.command()
-@click.option(
-    "--known-good-file",
-    type=click.Path(
-        file_okay=True, dir_okay=False, allow_dash=False, path_type=pathlib.Path
-    ),
-)
-@click.argument(
-    "file",
-    type=click.Path(
-        file_okay=True, dir_okay=False, allow_dash=False, path_type=pathlib.Path
-    ),
-    required=True,
-    nargs=1,
-)
-def new_successes(known_good_file, file):
-    """
-    What to add to s3-tests.txt?
-    """
-    known_good = get_known_good(known_good_file)
-    with open(file) as fp:
-        results = json.load(fp)
-    results = {result["test"].split("::")[1]: result for result in results}
-    success = frozenset(
-        (name for name, result in results.items() if result["test_return"] == "success")
-    )
-
-    succeeding_not_in_known_good = success - known_good
-    print("\n".join(succeeding_not_in_known_good))
+    else:
+        console.print("🥳")
 
 
 def get_result(file, test_name):
