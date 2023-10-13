@@ -63,3 +63,6 @@ open-iscsi
 letsencrypt
 certmanager
 errno
+signoff
+kubeconfig
+KUBECONFIG

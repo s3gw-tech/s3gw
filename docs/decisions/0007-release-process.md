@@ -1,6 +1,18 @@
-# Context and Problem Statement
+# Release Process
 
-Releasing is an essential process for the `s3gw` process. Given the project is
+## Note Before
+
+This document is superseded by three different ADRs, covering the same topics
+and expanding them: [Release Methodology][adr_methodology],
+[Release Steps][adr_steps], and [Release Testing][adr_testing].
+
+[adr_methodology]: /docs/decisions/0015-release-methodology.md
+[adr_steps]: /docs/decisions/0016-release-steps.md
+[adr_testing]: /docs/decisions/0017-release-testing.md
+
+## Context and Problem Statement
+
+Releasing is an essential process for the `s3gw` project. Given the project is
 composed by various sub-projects, that need to be prepared, tested, and
 eventually released, the Release Process is not trivial.
 
@@ -53,11 +65,6 @@ The `s3gw` project is composed by multiple sub-projects:
 - [`s3gw`][3]: Where most of our tooling and infrastructure scripts live.
 - [`ceph`][4]: Where the core backend of `s3gw` lives.
 
-[1]: https://github.com/aquarist-labs/s3gw-ui/
-[2]: https://github.com/aquarist-labs/s3gw-charts/
-[3]: https://github.com/aquarist-labs/s3gw/
-[4]: https://github.com/aquarist-labs/ceph/
-
 Releasing `s3gw` is essentially a coordinated process with all the sub-projects,
 which need to be prepared at different stages.
 
@@ -85,8 +92,6 @@ main development branch). The version tags specify the point at which a given
 release branch is released. A release branch may have multiple version tags
 throughout the duration of its support lifecycle, as bug fixes are backported to
 that particular release.
-
-[5]: https://semver.org/
 
 ### Branching
 
@@ -329,11 +334,6 @@ release candidate was properly validated, version `vX.Y.1` was released.
     release it is important to keep this information. A lightweight tag, on the
     other hand, is often used for temporary purposes.
 
-[6]: https://github.com/aquarist-labs/s3gw/branches
-[7]: https://git-scm.com/book/en/v2/Git-Basics-Tagging
-[8]: https://github.com/aquarist-labs/s3gw/wiki/Current-CHANGELOG
-[9]: https://github.com/aquarist-labs/s3gw/releases
-
 ### [Sanity Checks](sanity-checks)
 
 - [ ] `s3gw` container has been published on Quay for `vX.Y.Z`.
@@ -348,8 +348,6 @@ release candidate was properly validated, version `vX.Y.1` was released.
 - [ ] The release notes are in place, both on the `s3gw` repository's `main`
       branch and on the `s3gw-vX.Y` branch.
 
-[10]: https://artifacthub.io/packages/helm/s3gw/s3gw
-
 ## [Testing](testing)
 
 To be expanded in the future, or maybe link to a proper testing document.
@@ -357,3 +355,14 @@ To be expanded in the future, or maybe link to a proper testing document.
 - [ ] Install the `s3gw-ui` container and sign-in. Perform some actions like
       creating/update/delete users and buckets. Also try uploading/deleting
       objects in buckets.
+
+[1]: https://github.com/aquarist-labs/s3gw-ui/
+[2]: https://github.com/aquarist-labs/s3gw-charts/
+[3]: https://github.com/aquarist-labs/s3gw/
+[4]: https://github.com/aquarist-labs/ceph/
+[5]: https://semver.org/
+[6]: https://github.com/aquarist-labs/s3gw/branches
+[7]: https://git-scm.com/book/en/v2/Git-Basics-Tagging
+[8]: https://github.com/aquarist-labs/s3gw/wiki/Current-CHANGELOG
+[9]: https://github.com/aquarist-labs/s3gw/releases
+[10]: https://artifacthub.io/packages/helm/s3gw/s3gw
