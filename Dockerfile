@@ -187,9 +187,11 @@ FROM s3gw-base as s3gw
 
 ARG QUAY_EXPIRATION=Never
 ARG S3GW_VERSION=Development
-ARG ID=s3gw
+ARG S3GW_ID=s3gw
 
-ENV ID=${ID}
+ENV S3GW_ID=${S3GW_ID}
+ENV S3GW_DNS_NAME=""
+ENV S3GW_DEBUG="none"
 
 LABEL Name=s3gw
 LABEL Version=${S3GW_VERSION}
@@ -206,13 +208,14 @@ COPY --from=buildenv [ \
     "/srv/ceph/build/lib/libceph-common.so.2", \
     "/radosgw/lib/" ]
 
+COPY tools/entrypoint.sh /radosgw/bin/
+
+# ports for S3 endpoints
+#  http:  7480
+#  https: 7481
 EXPOSE 7480
 EXPOSE 7481
+# port for status endpoints
+EXPOSE 9090
 
-ENTRYPOINT [ "radosgw", "-d", \
-    "--no-mon-config", \
-    "--id", "${ID}", \
-    "--rgw-data", "/data/", \
-    "--run-dir", "/run/", \
-    "--rgw-sfs-data-path", "/data" ]
-CMD [ "--rgw-backend-store", "sfs", "--debug-rgw", "1" ]
+ENTRYPOINT [ "entrypoint.sh" ]
