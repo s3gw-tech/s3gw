@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 """
 A s3-tests runner tailored to s3gw containers with parallel execution,

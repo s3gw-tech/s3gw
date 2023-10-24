@@ -92,26 +92,34 @@ def summary(file, excuses_file):
     console.print(table)
 
     if failures_that_must_not_be:
+        min_width_test = max(len(test) for test in failures_that_must_not_be)
         table = Table(box=rich.box.SIMPLE, title="Failures not in excuse file")
-        table.add_column("Test Name")
+        table.add_column("Test Name", min_width=min_width_test)
         table.add_column("Test Result")
         table.add_column("Container Exit")
         for test in sorted(failures_that_must_not_be):
             table.add_row(
                 test, results[test]["test_return"], results[test]["container_return"]
             )
-        console.print(table)
+        console.print(table, soft_wrap=True)
 
     if new_successes:
+        min_width_url = max(len(excuses[test]["url"]) for test in new_successes)
+        min_width_test = max(len(test) for test in new_successes)
+        min_width_excuse = 20
+        min_width_total = max(120, min_width_url + min_width_test + min_width_excuse)
         table = Table(
-            box=rich.box.SIMPLE, title="Tests in excuse file no longer failing"
+            box=rich.box.SIMPLE,
+            title="Tests in excuse file no longer failing",
+            expand=True,
+            width=min_width_total,
         )
-        table.add_column("Test Name")
-        table.add_column("URL")
-        table.add_column("Excuse")
+        table.add_column("Test Name", min_width=min_width_test)
+        table.add_column("URL", min_width=min_width_url)
+        table.add_column("Excuse", min_width=min_width_excuse)
         for test in sorted(new_successes):
             table.add_row(test, excuses[test]["url"], excuses[test]["excuse"])
-        console.print(table)
+        console.print(table, soft_wrap=True)
         console.print("Please remove no longer failing tests from excuse file")
 
     if len(failures_that_must_not_be) > 0 or len(new_successes) > 0:
