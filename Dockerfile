@@ -3,12 +3,14 @@ FROM opensuse/leap:15.4 as s3gw-base
 # This makes sure the Docker cache is invalidated
 # if packages in the s3gw repo on OBS have changed
 ADD https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/repodata/repomd.xml /tmp/
+# Add OBS repository for additional dependencies necessary on Leap 15.4
 RUN zypper ar \
   https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
   s3gw-deps \
  && zypper --gpg-auto-import-keys ref
 
-RUN zypper -n install \
+# Try `zypper install` up to three times to workaround mirror timeouts
+RUN for i in {1..3} ; do zypper -n install \
   libsqlite3-0=3.43.1 \
   libblkid1 \
   libexpat1 \
@@ -30,6 +32,7 @@ RUN zypper -n install \
   libboost_serialization1_80_0 \
   libboost_system1_80_0 \
   libboost_thread1_80_0 \
+ && break ; done \
  && zypper clean --all \
  && mkdir -p \
   /radosgw/bin \
@@ -46,8 +49,8 @@ ARG CMAKE_BUILD_TYPE=Debug
 ENV SRC_CEPH_DIR="${SRC_CEPH_DIR:-"./ceph"}"
 ENV ENABLE_GIT_VERSION=OFF
 
-# Add OBS repository for additional dependencies necessary on Leap 15.4
-RUN zypper -n install --no-recommends \
+# Try `zypper install` up to three times to workaround mirror timeouts
+RUN for i in {1..3} ; do zypper -n install --no-recommends \
       'cmake>3.5' \
       'fmt-devel>=6.2.1' \
       'gperftools-devel>=2.4' \
@@ -138,6 +141,7 @@ RUN zypper -n install --no-recommends \
       valgrind-devel \
       xfsprogs-devel \
       xmlstarlet \
+ && break ; done \
  && zypper clean --all
 
 COPY $SRC_CEPH_DIR /srv/ceph
@@ -149,9 +153,11 @@ RUN /srv/ceph/qa/rgw/store/sfs/build-radosgw.sh
 
 FROM s3gw-base as s3gw-unittests
 
-RUN zypper -n install --no-recommends \
+# Try `zypper install` up to three times to workaround mirror timeouts
+RUN for i in {1..3} ; do zypper -n install --no-recommends \
       gtest \
       gmock \
+ && break ; done \
  && zypper clean --all
 
 COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_* /radosgw/bin/
