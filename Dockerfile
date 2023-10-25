@@ -1,11 +1,11 @@
-FROM opensuse/leap:15.4 as s3gw-base
+FROM registry.suse.com/bci/bci-base:15.5 as s3gw-base
 
 # This makes sure the Docker cache is invalidated
 # if packages in the s3gw repo on OBS have changed
-ADD https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/repodata/repomd.xml /tmp/
-# Add OBS repository for additional dependencies necessary on Leap 15.4
+ADD https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.5/repodata/repomd.xml /tmp/repodata-s3gw.xml
+# Add OBS repository for additional dependencies necessary on Leap 15.5
 RUN zypper ar \
-  https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.4/ \
+  https://download.opensuse.org/repositories/filesystems:/ceph:/s3gw/15.5/ \
   s3gw-deps \
  && zypper --gpg-auto-import-keys ref
 
@@ -48,6 +48,17 @@ ARG CMAKE_BUILD_TYPE=Debug
 
 ENV SRC_CEPH_DIR="${SRC_CEPH_DIR:-"./ceph"}"
 ENV ENABLE_GIT_VERSION=OFF
+
+# Needed for extra build deps
+ADD https://download.opensuse.org/update/leap/15.5/oss/repodata/repomd.xml /tmp/repodata-update.xml
+ADD https://download.opensuse.org/update/leap/15.5/backports/repodata/repomd.xml /tmp/repodata-backports-update.xml
+ADD https://download.opensuse.org/update/leap/15.5/sle/repodata/repomd.xml /tmp/repodata-sle-update.xml
+RUN zypper ar \
+  http://download.opensuse.org/distribution/leap/15.5/repo/oss/ repo-oss \
+ && zypper ar http://download.opensuse.org/update/leap/15.5/oss/ repo-update \
+ && zypper ar http://download.opensuse.org/update/leap/15.5/backports/ repo-backports-update \
+ && zypper ar http://download.opensuse.org/update/leap/15.5/sle/ repo-sle-update \
+ && zypper --gpg-auto-import-keys ref
 
 # Try `zypper install` up to three times to workaround mirror timeouts
 RUN for i in {1..3} ; do zypper -n install --no-recommends \
@@ -109,7 +120,7 @@ RUN for i in {1..3} ; do zypper -n install --no-recommends \
       libtsan0 \
       libxml2-devel \
       lttng-ust-devel \
-      lua-devel \
+      lua53-devel \
       lua53-luarocks \
       make \
       memory-constraints \
