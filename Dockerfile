@@ -35,12 +35,12 @@ RUN for i in {1..3} ; do zypper -n install \
     && break ; done \
     && zypper clean --all \
     && mkdir -p \
-    /radosgw/bin \
-    /radosgw/lib \
+    /s3gw/bin \
+    /s3gw/lib \
     /data
 
-ENV PATH=/radosgw/bin:$PATH
-ENV LD_LIBRARY_PATH=/radosgw/lib:$LD_LIBRARY_PATH
+ENV PATH=/s3gw/bin:$PATH
+ENV LD_LIBRARY_PATH=/s3gw/lib:$LD_LIBRARY_PATH
 
 FROM s3gw-base as buildenv
 
@@ -171,17 +171,17 @@ RUN for i in {1..3} ; do zypper -n install --no-recommends \
     && break ; done \
     && zypper clean --all
 
-COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_* /radosgw/bin/
+COPY --from=buildenv /srv/ceph/build/bin/unittest_rgw_* /s3gw/bin/
 COPY --from=buildenv [ \
     "/srv/ceph/build/lib/librados.so", \
     "/srv/ceph/build/lib/librados.so.2", \
     "/srv/ceph/build/lib/librados.so.2.0.0", \
     "/srv/ceph/build/lib/libceph-common.so", \
     "/srv/ceph/build/lib/libceph-common.so.2", \
-    "/radosgw/lib/" ]
+    "/s3gw/lib/" ]
 
 ENTRYPOINT [ "bin/bash", "-x", "-c" ]
-CMD [ "find /radosgw/bin -name \"unittest_rgw_*\" -print0 | xargs -0 -n1 bash -ec"]
+CMD [ "find /s3gw/bin -name \"unittest_rgw_*\" -print0 | xargs -0 -n1 bash -ec"]
 
 FROM s3gw-base as s3gw
 
@@ -199,16 +199,16 @@ LABEL quay.expires-after=${QUAY_EXPIRATION}
 
 VOLUME ["/data"]
 
-COPY --from=buildenv /srv/ceph/build/bin/radosgw /radosgw/bin
+COPY --from=buildenv /srv/ceph/build/bin/radosgw /s3gw/bin
 COPY --from=buildenv [ \
     "/srv/ceph/build/lib/librados.so", \
     "/srv/ceph/build/lib/librados.so.2", \
     "/srv/ceph/build/lib/librados.so.2.0.0", \
     "/srv/ceph/build/lib/libceph-common.so", \
     "/srv/ceph/build/lib/libceph-common.so.2", \
-    "/radosgw/lib/" ]
+    "/s3gw/lib/" ]
 
-COPY tools/entrypoint.sh /radosgw/bin/
+COPY tools/entrypoint.sh /s3gw/bin/
 
 # ports for S3 endpoints
 #  http:  7480
