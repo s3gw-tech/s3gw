@@ -13,7 +13,7 @@ functional features, and our forward-looking plans for upcoming releases.
 | Bucket Lifecycle       | 🟨      | ✅     | ✅     |
 | Object Locking         | ✅      | ✅     | ✅     |
 | Bucket/User Quotas     | ✅      | ✅     | ✅     |
-| Server Side Encryption | 🟥      | ✅     | ✅     |
+| Server Side Encryption | 🟨      | ✅     | ✅     |
 | Bucket Website         | 🟥      | ✅     | ✅     |
 | Bucket Notifications   | 🟥      | 🔹     | ✅     |
 | Bucket Request Payment | 🟥      | 🟥     | 🔹     |
