@@ -87,3 +87,8 @@ repos:
       - id: pyupgrade
         args: [--py36-plus]
         files: (?x)^tools/(release|s3tests)/.+\.py$
+
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+      - id: shellcheck
