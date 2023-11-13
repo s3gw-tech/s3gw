@@ -149,7 +149,7 @@ jobs:
           export S3TEST_LIST="${FIXTURES}/s3-tests.txt"
 
           # There are some s3tests that don't finish at all. Only run
-          # known-to-pass tests for now. TODO: fix inifite looping tests
+          # known-to-pass tests for now. TODO: fix infinite looping tests
           # sed -r -i 's/^# //' "${S3TEST_LIST}"
 
           pushd s3tests
