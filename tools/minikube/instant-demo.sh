@@ -36,7 +36,7 @@ traefik_cluster_ip="$(kubectl \
 	get service \
 	traefik-ingress -ojsonpath='{.spec.clusterIP}')"
 helm_values_file="$(mktemp)"
-trap "rm $helm_values_file" EXIT
+trap 'rm $helm_values_file' EXIT
 
 cat >"$helm_values_file" <<EOF
 ingress:
