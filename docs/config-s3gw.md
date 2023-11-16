@@ -207,15 +207,18 @@ set up a node-local volume for testing if you do not have Longhorn.
 ## Log settings
 
 The log verbosity can also be configured for the s3gw pod. Set the `logLevel`
-property to a number, with `"0"` being the least verbose and higher numbers
-being more verbose:
+property to one of `none`, `low`, `medium`, or `high`:
 
 ```yaml
-logLevel: "1"
+logLevel: "none"
 ```
 
-The highest `logLevel` that we recommend is 10, however, any integer required
-is valid.
+Generally speaking, `none` or `low` should be fine for most deployments, unless
+there is reason to believe it's misbehaving. In that case, the highest
+`logLevel` we recommend is `medium`. Higher log levels should be used only in
+case the system is misbehaving significantly and there's a suspicion more
+verbose debugging might be necessary. Please note that at `high` the system may
+be impacted.
 
 ## Developer options
 
