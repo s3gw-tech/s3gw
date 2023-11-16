@@ -21,12 +21,33 @@ OUTPUT_DIR=${OUTPUT_DIR:-"/tmp/s3tests"}
 CEPH_BUILD_DIR=${CEPH_BUILD_DIR:-"${CEPH_DIR}/build"}
 NPROC=${NPROC:-"$(nproc --ignore=2)"}
 
+_usage() {
+  echo "# RUNS ALL S3TESTS AND ANALYSIS"
+  echo "CEPH_DIR=/home/user/dev/ceph ${0}"
+  echo ""
+  echo "# RUNS ONLY test_object_copy_to_itself S3TEST"
+  echo "CEPH_DIR=/home/user/dev/ceph ${0} test_object_copy_to_itself"
+  echo ""
+  echo "# RUNS ALL S3TESTS, CEPH_BUILD_DIR is different to CEPH_DIR/build"
+  echo "export CEPH_DIR=/home/user/dev/ceph"
+  echo "export CEPH_BUILD_DIR=/home/user/dev/ceph/build_clang"
+  echo "${0}"
+}
+
+while getopts ":h" o; do
+  case "${o}" in
+    *)
+      _usage
+      exit 0
+      ;;
+  esac
+done
+
 if [ -z "$CEPH_DIR" ]
 then
   echo "CEPH_DIR environment variable is not set!"
   exit 1
 fi
-
 
 TESTS_PARAMETER="s3tests_boto3/functional/test_s3.py"
 if [ "$#" -eq 1 ]
