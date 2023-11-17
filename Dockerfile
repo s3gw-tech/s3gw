@@ -45,8 +45,9 @@ ENV LD_LIBRARY_PATH=/s3gw/lib:$LD_LIBRARY_PATH
 FROM s3gw-base as buildenv
 
 ARG CMAKE_BUILD_TYPE=Debug
+ARG SRC_CEPH_DIR=./ceph
 
-ENV SRC_CEPH_DIR="${SRC_CEPH_DIR:-"./ceph"}"
+ENV SRC_CEPH_DIR=${SRC_CEPH_DIR}
 ENV ENABLE_GIT_VERSION=OFF
 
 # Needed for extra build deps
@@ -189,6 +190,8 @@ ARG QUAY_EXPIRATION=Never
 ARG S3GW_VERSION=Development
 ARG S3GW_ID=s3gw
 
+ARG SRC_S3GW_DIR=.
+
 ENV S3GW_ID=${S3GW_ID}
 ENV S3GW_DNS_NAME=""
 ENV S3GW_DEBUG="none"
@@ -208,7 +211,7 @@ COPY --from=buildenv [ \
     "/srv/ceph/build/lib/libceph-common.so.2", \
     "/s3gw/lib/" ]
 
-COPY tools/entrypoint.sh /s3gw/bin/
+COPY ${SRC_S3GW_DIR}/tools/entrypoint.sh /s3gw/bin/
 
 # ports for S3 endpoints
 #  http:  7480
