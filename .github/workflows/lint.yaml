@@ -1,15 +1,18 @@
 ---
 name: Lint
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+    branches-ignore:
+      - "s3gw-v*"
+    tags-ignore:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-
       - name: Set up Git repository
         uses: actions/checkout@v3
 
