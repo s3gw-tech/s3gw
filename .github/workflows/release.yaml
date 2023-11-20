@@ -6,6 +6,25 @@ on:
       - "v*"
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@v40
+
+      - name: Run pre-commit Linters
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --files ${{ steps.changed.outputs.all_changed_files }}
+
+
   # Build the build-environment container, using it's workflow
   build-s3gw:
     runs-on: self-hosted
