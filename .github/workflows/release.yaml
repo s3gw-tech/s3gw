@@ -39,7 +39,6 @@ jobs:
           docker run --rm s3gw-unittests
 
       - name: Build s3gw Container Image
-        uses: docker/build-push-action@v4
         run: |
           docker build \
             --build-arg CMAKE_BUILD_TYPE=Release \
