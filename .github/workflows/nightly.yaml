@@ -29,9 +29,6 @@ jobs:
         with:
           endpoint: builder
 
-      - name: Docker prune
-
-
   build-and-test:
     runs-on: self-hosted
     steps:
