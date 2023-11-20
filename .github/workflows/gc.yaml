@@ -1,0 +1,73 @@
+---
+name: Cleanup Docker
+on:
+  schedule:
+    - cron: '0 1 * * 0'  # Every sunday at 1 in the morning
+  workflow_dispatch: {}
+
+# The following job exists as three sepearate copies scheduled in parralel,
+# because this will let the three instances of the job be exectuted on all three
+# runners, otherwise some runners would never see a cleanup
+jobs:
+  dockergc1:
+    runs-on: self-hosted
+    steps:
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Context
+        run: |
+          docker context create builder
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builder
+
+      - name: Docker Prune
+        run: |
+          docker builder prune
+          docker system prune -a --volumes --filter "until=24h"
+
+  dockergc2:
+    runs-on: self-hosted
+    steps:
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Context
+        run: |
+          docker context create builder
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builder
+
+      - name: Docker Prune
+        run: |
+          docker builder prune
+          docker system prune -a --volumes --filter "until=24h"
+
+  dockergc3:
+    runs-on: self-hosted
+    steps:
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Context
+        run: |
+          docker context create builder
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builder
+
+      - name: Docker Prune
+        run: |
+          docker builder prune
+          docker system prune -a --volumes --filter "until=24h"
