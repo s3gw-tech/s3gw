@@ -8,7 +8,7 @@ on:
 jobs:
   # Build the build-environment container, using it's workflow
   build-s3gw:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
 
       - name: Checkout
@@ -44,7 +44,7 @@ jobs:
             --build-arg CMAKE_BUILD_TYPE=Release \
             --build-arg NPROC=16 \
             --build-arg S3GW_VERSION=${{ github.ref_name }} \
-            --build-arg QUAY_EXPIRATION=Never
+            --build-arg QUAY_EXPIRATION=Never \
             --file Dockerfile \
             --tag quay.io/s3gw/s3gw:latest \
             --tag quay.io/s3gw/s3gw:${{ github.ref_name }} \
