@@ -1,0 +1,13 @@
+---
+name: Debug
+on:
+  - workflow_dispatch
+
+jobs:
+  lint:
+    runs-on: self-hosted
+    steps:
+
+      - name: Sleep
+        run: |
+          sleep 1d
