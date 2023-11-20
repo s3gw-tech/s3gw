@@ -12,6 +12,8 @@ jobs:
 
       - name: Set up Git repository
         uses: actions/checkout@v3
+        with:
+          fetch-tags: true
 
       - name: Set up Python3
         uses: actions/setup-python@v4
