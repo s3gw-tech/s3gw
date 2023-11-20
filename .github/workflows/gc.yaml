@@ -27,8 +27,8 @@ jobs:
 
       - name: Docker Prune
         run: |
-          docker builder prune
-          docker system prune -a --volumes --filter "until=24h"
+          docker builder prune --force
+          docker system prune -a --volumes --filter "until=24h" --force
 
   dockergc2:
     runs-on: self-hosted
@@ -48,8 +48,8 @@ jobs:
 
       - name: Docker Prune
         run: |
-          docker builder prune
-          docker system prune -a --volumes --filter "until=24h"
+          docker builder prune --force
+          docker system prune -a --volumes --filter "until=24h" --force
 
   dockergc3:
     runs-on: self-hosted
@@ -69,5 +69,5 @@ jobs:
 
       - name: Docker Prune
         run: |
-          docker builder prune
-          docker system prune -a --volumes --filter "until=24h"
+          docker builder prune --force
+          docker system prune -a --volumes --filter "until=24h" --force
