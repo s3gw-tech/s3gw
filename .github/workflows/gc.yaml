@@ -5,8 +5,8 @@ on:
     - cron: '0 1 * * 0'  # Every sunday at 1 in the morning
   workflow_dispatch: {}
 
-# The following job exists as three sepearate copies scheduled in parralel,
-# because this will let the three instances of the job be exectuted on all three
+# The following job exists as three separate copies scheduled in parallel,
+# because this will let the three instances of the job be executed on all three
 # runners, otherwise some runners would never see a cleanup
 jobs:
   dockergc1:
