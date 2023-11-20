@@ -3,7 +3,7 @@ name: Nightly Builds
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Every night midnight
+    - cron: '0 2 * * *'  # Every night at two in the morning
 
   # This workflow needs to pass if there is a PR changing it.
   pull_request:
@@ -13,6 +13,25 @@ on:
   workflow_dispatch:   # Or manually - for testing
 
 jobs:
+  prune1:
+    runs-on: self-hosted
+    steps:
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Context
+        run: |
+          docker context create builder
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builder
+
+      - name: Docker prune
+
+
   build-and-test:
     runs-on: self-hosted
     steps:
