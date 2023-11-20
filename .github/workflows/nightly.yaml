@@ -97,7 +97,7 @@ jobs:
             --build-arg S3GW_VERSION=${{ steps.date.outputs.tag }} \
             --build-arg QUAY_EXPIRATION=1w \
             --file s3gw/Dockerfile \
-            --tag quay.io/s3gw/s3gw:latest \
+            --tag quay.io/s3gw/s3gw:nightly-latest \
             --tag quay.io/s3gw/s3gw:${{ steps.date.outputs.tag }} \
             s3gw
           docker push quay.io/s3gw/s3gw:nightly-latest
