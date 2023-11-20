@@ -31,7 +31,6 @@ jobs:
             --file Dockerfile \
             --tag s3gw-unittests \
             --target s3gw-unittests \
-            --load \
             .
 
       - name: Run Unittests
