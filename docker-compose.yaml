@@ -4,9 +4,6 @@ services:
   s3gw:
     image: quay.io/s3gw/s3gw:latest
     restart: always
-    command:
-      - "--rgw-backend-store"
-      - "sfs"
     ports:
       - "7480:7480"
     environment:
@@ -24,18 +21,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      RGW_SERVICE_URL: "http://localhost:3080"
-
-  proxy:
-    image: docker.io/nginx:latest
-    restart: always
-    depends_on:
-      - s3gw-ui
-    ports:
-      - "80:80"
-      - "3080:3080"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      S3GW_SERVICE_URL: "http://s3gw:7480"
 
 volumes:
   data:

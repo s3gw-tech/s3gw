@@ -71,6 +71,22 @@ host system for storage, pass `-v/host-path:/data`.
 
 </details>
 
+### Docker Compose
+
+**1. Configure the default secrets as environment variables**
+
+```yaml
+environment:
+  RGW_DEFAULT_USER_ACCESS_KEY: "test"
+  RGW_DEFAULT_USER_SECRET_KEY: "test"
+```
+
+**2. Run docker-compose**
+
+```bash
+docker-compose up -d
+```
+
 ## Documentation
 
 You can access our documentation [here][docs-link].
