@@ -42,12 +42,20 @@ args:
   Any option supported by RADOS Gateway. For advanced use only.
 
 env variables:
-  S3GW_ID               Specifies a custom instance ID.
-  S3GW_DNS_NAME         Specifies a DNS domain to be used for vhost style
-                        buckets.
-  S3GW_DEBUG            Specifies the debug level to be used.
-  S3GW_CERT_FILE        Specifies the SSL certificate file.
-  S3GW_CERT_KEY         Specifies the SSL certificate key file.
+  S3GW_ID                         Specifies a custom instance ID.
+  S3GW_DNS_NAME                   Specifies a DNS domain to be used for vhost style
+                                  buckets.
+  S3GW_DEBUG                      Specifies the debug level to be used.
+  S3GW_CERT_FILE                  Specifies the SSL certificate file.
+  S3GW_CERT_KEY                   Specifies the SSL certificate key file.
+
+  S3GW_DEFAULT_USER_ID            Specifies the default admin user's ID.
+  S3GW_DEFAULT_USER_DISPLAY_NAME  Specifies the default admin user's name.
+  S3GW_DEFAULT_USER_EMAIL         Specifies the default admin user's email.
+  S3GW_DEFAULT_USER_ACCESS_KEY    Specifies the default admin user's access key.
+  S3GW_DEFAULT_USER_SECRET_KEY    Specifies the default admin user's secret key.
+  S3GW_DEFAULT_USER_CAPS          Specifies the default admin user's capabilities.
+  S3GW_DEFAULT_USER_SYSTEM        Specifies whether the default admin user should be a system user.
 
   Options always override environment variables.
 EOF
@@ -68,6 +76,14 @@ cert_key=${S3GW_CERT_KEY:-}
 with_telemetry=1
 telemetry_url=
 with_status=0
+
+export RGW_DEFAULT_USER_ID=${S3GW_DEFAULT_USER_ID:-"testid"}
+export RGW_DEFAULT_USER_DISPLAY_NAME=${S3GW_DEFAULT_USER_DISPLAY_NAME:-"Admin User"}
+export RGW_DEFAULT_USER_EMAIL=${S3GW_DEFAULT_USER_EMAIL:-""}
+export RGW_DEFAULT_USER_ACCESS_KEY=${S3GW_DEFAULT_USER_ACCESS_KEY:-"test"}
+export RGW_DEFAULT_USER_SECRET_KEY=${S3GW_DEFAULT_USER_SECRET_KEY:-"test"}
+export RGW_DEFAULT_USER_CAPS=${S3GW_DEFAULT_USER_CAPS:-"usage=read,write;users=read,write"}
+export RGW_DEFAULT_USER_SYSTEM=${S3GW_DEFAULT_USER_SYSTEM:-"0"}
 
 extra_args=()
 
