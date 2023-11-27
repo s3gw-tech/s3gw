@@ -28,8 +28,12 @@ should feel encouraged to file an issue in our
 - rgw/sfs: Init bucket mtime
 - rgw/sfs: Delete multiparts only on existing buckets
 - rgw/sfs: Mark all OPEN versions DELETED on startup
+- rgw/sfs: Ignore deleted buckets when listing multiparts
+- rgw/sfs: Remove dangling multipart build files in case of error
 - ui: Prevent user from logging out when deleting a locked object version
 - ui: Fix error when deleting an object in an unversioned bucket
+- ui: Fix buggy prefix handling in REST API
+- ui: Fix object deletion behavior when objects share the same base pattern
 
 ## Breaking Changes
 
