@@ -23,6 +23,7 @@ nav:
       - Installing s3gw with Helm charts: helm-charts.md
       - Configuring the s3gw: config-s3gw.md
       - Advanced usage: advanced-usage.md
+  - High Availability: high-availability.md
   - Troubleshooting the s3gw: troubleshoot-s3gw.md
   - Development Manual:
       - Developing the S3gw: developing.md
