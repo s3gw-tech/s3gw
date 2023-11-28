@@ -69,6 +69,7 @@ nav:
       - v0.19.0: release-notes/s3gw-v0.19.0.md
       - v0.20.0: release-notes/s3gw-v0.20.0.md
       - v0.21.0: release-notes/s3gw-v0.21.0.md
+      - v0.22.0: release-notes/s3gw-v0.22.0.md
       - v0.23.0: release-notes/s3gw-v0.23.0.md
   - About and License:
       - Repositories: s3gw-repos.md
