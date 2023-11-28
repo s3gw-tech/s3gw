@@ -48,7 +48,7 @@ ARG CMAKE_BUILD_TYPE=Debug
 ARG SRC_CEPH_DIR=./ceph
 
 ENV SRC_CEPH_DIR=${SRC_CEPH_DIR}
-ENV ENABLE_GIT_VERSION=OFF
+ENV ENABLE_GIT_VERSION=ON
 
 # Needed for extra build deps
 ADD https://download.opensuse.org/update/leap/15.5/oss/repodata/repomd.xml /tmp/repodata-update.xml
@@ -157,6 +157,26 @@ RUN for i in {1..3} ; do zypper -n install --no-recommends \
     && zypper clean --all
 
 COPY $SRC_CEPH_DIR /srv/ceph
+# If the ceph source was checked out as a submodule of s3gw, then
+# /srv/ceph/.git will now be a regular file containing the string
+# "gitdir: ../.git/modules/ceph", and ceph's ENABLE_GIT_VERSION
+# magic won't work properly (remember, we're only copying the
+# ceph source directory into the build environment, not the parent
+# s3gw directory).  Happily, we can cheat by mounting the current
+# directory (the one with the s3gw source) into the buildenv, then
+# we can run a couple of git commands inside *there* to extract
+# the commit hash and version tags ceph needs then save them to
+# /srv/ceph/src/.git_version where they'll be picked up by the
+# ceph build.  If the ceph source wasn't checked out as a submodule
+# of s3gw, /srv/ceph/.git will be a directory as it is in a normal
+# git repo, and ceph's ENABLE_GIT_VERSION magic will work as usual.
+RUN --mount=target=/tmp/s3gw-git-tmp \
+	if [ -f "/srv/ceph/.git" ]; then \
+		rm /srv/ceph/.git && \
+		cd /tmp/s3gw-git-tmp && \
+		(git -C ceph rev-parse HEAD ; git -C ceph describe --long --match 's3gw-v*') 2>/dev/null > /srv/ceph/src/.git_version && \
+		echo Using $(cat /srv/ceph/src/.git_version) ; \
+	fi
 
 WORKDIR /srv/ceph
 
