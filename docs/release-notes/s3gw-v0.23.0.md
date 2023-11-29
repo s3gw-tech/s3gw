@@ -37,8 +37,17 @@ should feel encouraged to file an issue in our
 
 ## Breaking Changes
 
-- No breaking changes are known.
+One major user-facing behavior has changed for those relying on the vanilla
+container images. If you rely on the Helm Chart you should not be affected.
+
+- The `s3gw` container's entrypoint is now a wrapper script, `entrypoint.sh`,
+  abstracting some options and functionality. Options provided when running the
+  container image must now conform to the new script, although previous options
+  can still be passed directly to the underlying `rgw` after `--`. For more
+  information, please check the documentation at [Advanced Usage][1].
 
 ## Known Issues
 
 - No known issues.
+
+[1]: https://s3gw-docs.readthedocs.io/en/latest/advanced-usage/
