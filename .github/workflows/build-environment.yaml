@@ -1,9 +1,6 @@
 ---
 name: Build Environment
 on:
-  schedule:
-    - cron: '0 0 * * 0'  # Every sunday night midnight
-
   push:
     branches:
       - "main"

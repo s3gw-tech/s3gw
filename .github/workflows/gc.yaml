@@ -1,8 +1,6 @@
 ---
 name: Cleanup Docker
 on:
-  schedule:
-    - cron: '0 1 * * 0'  # Every sunday at 1 in the morning
   workflow_dispatch: {}
 
 # The following job exists as three separate copies scheduled in parallel,
