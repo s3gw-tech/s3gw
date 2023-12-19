@@ -2,9 +2,6 @@
 name: Nightly Builds
 
 on:
-  schedule:
-    - cron: '0 2 * * *'  # Every night at two in the morning
-
   # This workflow needs to pass if there is a PR changing it.
   pull_request:
     paths:
