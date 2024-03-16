@@ -21,7 +21,7 @@ jobs:
       - name: Checkout ceph
         uses: actions/checkout@v3
         with:
-          repository: aquarist-labs/ceph
+          repository: s3gw-tech/s3gw-ceph
           path: s3gw/ceph
 
       - name: Checkout s3tests

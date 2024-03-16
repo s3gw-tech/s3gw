@@ -137,10 +137,10 @@ jobs:
           popd
 
           git clone \
-            https://user:${GITHUB_TOKEN}@github.com/aquarist-labs/s3gw-status
+            https://user:${GITHUB_TOKEN}@github.com/s3gw-tech/s3gw-status
           pushd s3gw-status
           git config user.name "github nightly bot"
-          git config user.email "bot@github.com"
+          git config user.email "bot@s3gw.tech"
           cp \
             "${OUTPUT_DIR}/report.json" \
             results/s3tests/${{ steps.date.outputs.tag }}.json

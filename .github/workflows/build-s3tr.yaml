@@ -36,7 +36,7 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/aquarist-labs/s3tr:latest
-            ghcr.io/aquarist-labs/s3tr:${{ github.sha }}
+            ghcr.io/s3gw-tech/s3tr:latest
+            ghcr.io/s3gw-tech/s3tr:${{ github.sha }}
           file: 'tools/s3tests/Dockerfile'
           context: 'tools/s3tests'

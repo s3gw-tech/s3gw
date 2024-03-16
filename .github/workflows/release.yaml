@@ -107,7 +107,7 @@ jobs:
           OLD_VERSION_RAW="$(curl -L \
                               -H 'Accept: application/vnd.github+json' \
                               -H 'X-GitHub-Api-Version: 2022-11-28' \
-                              'https://api.github.com/repos/aquarist-labs/s3gw/releases/latest' \
+                              'https://api.github.com/repos/s3gw-tech/s3gw/releases/latest' \
                              | jq -r .name)"
           OLD_VERSION="${OLD_VERSION_RAW//[^v0-9.]/}"
 
