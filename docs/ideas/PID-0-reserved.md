@@ -28,7 +28,7 @@ PIDs should observe the following qualities:
 
 PID-0 is the only PID record that is allowed to break the file name convention.
 
-All PIDs should be kept under `/docs/ideas/` in the `aquarist-labs/s3gw`
+All PIDs should be kept under `/docs/ideas/` in the `s3gw-tech/s3gw`
 repository.
 
 ### PID Structure

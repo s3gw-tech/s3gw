@@ -43,8 +43,8 @@ apps that do not require petabyte-scale storage.
 - Designed to integrate with Rancher's product catalog
 - Open source licensing (Apache 2.0)
 
-[1]: https://github.com/aquarist-labs/ceph
-[2]: https://github.com/aquarist-labs/s3gw
-[3]: https://github.com/aquarist-labs/s3gw-charts
-[4]: https://github.com/aquarist-labs/s3gw-ui
+[1]: https://github.com/s3gw-tech/s3gw-ceph
+[2]: https://github.com/s3gw-tech/s3gw
+[3]: https://github.com/s3gw-tech/s3gw-charts
+[4]: https://github.com/s3gw-tech/s3gw-ui
 [5]: https://longhorn.io/

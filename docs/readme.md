@@ -19,23 +19,23 @@ If you are using Read the Docs for the first time, have a look at the official
 
 This is how our documentation is currently structured:
 
-- [docs/](https://github.com/aquarist-labs/s3gw/tree/main/docs)
+- [docs/](https://github.com/s3gw-tech/s3gw/tree/main/docs)
   A basic MkDocs project lives in `docs/`, it was generated using MkDocs defaults.
   All the `*.md` make up sections in the documentation.
 
-- [.readthedocs.yaml](https://github.com/aquarist-labs/s3gw/tree/main/.readthedocs.yaml)
+- [.readthedocs.yaml](https://github.com/s3gw-tech/s3gw/tree/main/.readthedocs.yaml)
   Read the Docs Build configuration is stored in `.readthedocs.yaml`.
 
-- [mkdocs.yml](https://github.com/aquarist-labs/s3gw/tree/main/mkdocs.yaml)
+- [mkdocs.yml](https://github.com/s3gw-tech/s3gw/tree/main/mkdocs.yaml)
   A [MkDocs configuration](https://www.mkdocs.org/user-guide/configuration/) is
   stored here, including the navigation structure, a few extensions for MkDocs
   and Markdown. Add your own configurations here, such as extensions and themes.
   Remember that many extensions and themes require additional Python packages to
   be installed.
 
-- [docs/requirements.txt](https://github.com/aquarist-labs/s3gw/tree/main/docs/requirements.txt)
+- [docs/requirements.txt](https://github.com/s3gw-tech/s3gw/tree/main/docs/requirements.txt)
   and
-- [docs/requirements.in](https://github.com/aquarist-labs/s3gw/tree/main/docs/requirements.in)
+- [docs/requirements.in](https://github.com/s3gw-tech/s3gw/tree/main/docs/requirements.in)
   Python dependencies are
   [pinned](https://docs.readthedocs.io/en/latest/guides/reproducible-builds.html)
   (uses [pip-tools](https://pip-tools.readthedocs.io/en/latest/)) here. Make

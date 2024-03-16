@@ -1,9 +1,9 @@
 site_name: s3gw Project Documentation
-repo_url: "https://github.com/aquarist-labs/s3gw"
-repo_name: aquarist-labs/s3gw
+repo_url: "https://github.com/s3gw-tech/s3gw"
+repo_name: s3gw-tech/s3gw
 theme:
   name: material
-  logo: "https://raw.githubusercontent.com/aquarist-labs/s3gw/main/assets/images/s3gw-logo.png"
+  logo: "https://raw.githubusercontent.com/s3gw-tech/s3gw/main/assets/images/s3gw-logo.png"
   highlightjs: true
   features:
     - navigation.instant

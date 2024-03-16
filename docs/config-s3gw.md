@@ -227,7 +227,7 @@ environment or for developers. In that case, you can modify the registry and
 image settings:
 
 ```yaml
-imageRegistry: "ghcr.io/aquarist-labs"
+imageRegistry: "quay.io/s3gw"
 imageName: "s3gw"
 imageTag: "latest"
 imagePullPolicy: "Always"
@@ -236,7 +236,7 @@ imagePullPolicy: "Always"
 To configure the image and registry for the user interface, use:
 
 ```yaml
-ui.imageRegistry: "ghc.io/aquarist-labs"
+ui.imageRegistry: "quay.io/s3gw"
 ui.imageName: "s3gw-ui"
 ui.imagePullPolicy: "Always"
 ui.imageTag: "latest"

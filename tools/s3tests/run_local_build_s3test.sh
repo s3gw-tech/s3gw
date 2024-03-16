@@ -75,7 +75,7 @@ fi
 docker run \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v "${OUTPUT_DIR}":/out  \
-  ghcr.io/aquarist-labs/s3tr:latest \
+  ghcr.io/s3gw-tech/s3tr:latest \
   run \
     --docker-api unix://run/docker.sock \
     --image docker.io/opensuse/tumbleweed:latest \
@@ -98,7 +98,7 @@ then
   docker run --rm \
     -v "${OUTPUT_DIR}":/out \
     -v "${CEPH_DIR}":/ceph:ro \
-      ghcr.io/aquarist-labs/s3tr:latest \
+      ghcr.io/s3gw-tech/s3tr:latest \
         analyze summary \
         /out/s3tr.json \
 	/ceph/qa/rgw/store/sfs/tests/fixtures/s3tr_excuses.csv

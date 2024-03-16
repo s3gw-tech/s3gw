@@ -3,11 +3,11 @@
 The 5 repositories used for the s3gw are located within our main GitHub
 organization.
 
-- Main: <https://github.com/aquarist-labs/s3gw>
-- Ceph: <https://github.com/aquarist-labs/ceph>
-- UI: <https://github.com/aquarist-labs/s3gw-ui>
-- Charts: <https://github.com/aquarist-labs/s3gw-charts>
-- COSI: <https://github.com/aquarist-labs/s3gw-cosi-driver>
+- Main: <https://github.com/s3gw-tech/s3gw>
+- Ceph: <https://github.com/s3gw-tech/ceph>
+- UI: <https://github.com/s3gw-tech/s3gw-ui>
+- Charts: <https://github.com/s3gw-tech/s3gw-charts>
+- COSI: <https://github.com/s3gw-tech/s3gw-cosi-driver>
 
 We welcome new feature implementations, patches that fix bugs or code cleanup.
 
@@ -16,7 +16,7 @@ We welcome new feature implementations, patches that fix bugs or code cleanup.
 You can clone from GitHub with:
 
 ```bash
-git clone https://github.com/aquarist-labs/s3gw
+git clone https://github.com/s3gw-tech/s3gw
 ```
 
 This applies to all the repositories.
@@ -24,7 +24,7 @@ This applies to all the repositories.
 ### Submitting Bugs and Requesting New Features
 
 All bugs and feature requests can be filed in "Issues" in
-[the s3gw Project](https://github.com/aquarist-labs/s3gw/issues/new/choose). We
+[the s3gw Project](https://github.com/s3gw-tech/s3gw/issues/new/choose). We
 use GitHub templates to manage the requests. You will either select:
 
 - Backlog item
@@ -72,7 +72,7 @@ For example:
 ```bash
    backend: add initial README doc
 
-   This commit introduces the first README doc for aquarist-labs.
+   This commit introduces the first README doc for s3gw-tech.
 
    Signed-off-by: Random Developer <random@developer.io>
 ```
@@ -95,7 +95,7 @@ Finally, please be sure to sign all commits with your GPG key (`git commit -S`).
 ### Pull Request Best Practices
 
 PRs should be opened on branches contained in your fork of
-`aquarist-labs/s3gw.git`. PRs should target the `main` branch.
+`s3gw-tech/s3gw.git`. PRs should target the `main` branch.
 
 If your PR has only one commit, the PR title can be the same as the commit title
 (and GitHub will suggest this). If the PR has multiple commits, do not accept

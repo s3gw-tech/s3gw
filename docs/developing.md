@@ -29,7 +29,7 @@ there are two key options available:
 If you are new to Ceph development, the best way to find out how to build these
 sources is to refer to the [original Ceph documentation][3].
 
-The `aquarist-labs/ceph` repository  is a requirement for this project.
+The `s3gw-tech/s3gw-ceph` repository  is a requirement for this project.
 We can't guarantee that our instructions, or the project as a whole,
 will work flawlessly with the original Ceph project from `ceph/ceph`.
 
@@ -88,8 +88,8 @@ against the running RGW. E.g., `s3cmd mb s3://foo`, to create a new bucket.
 
 <!--- Probably should think about some troubleshooting docs for the above (A.S) -->
 
-[1]: https://github.com/aquarist-labs/ceph.git
-[2]: https://github.com/aquarist-labs/ceph/tree/s3gw
+[1]: https://github.com/s3gw-tech/s3gw-ceph.git
+[2]: https://github.com/s3gw-tech/s3gw-ceph/tree/s3gw
 [3]: https://docs.ceph.com/en/pacific/install/build-ceph/#id1
 [4]: https://github.com/s3tools/s3cmd
 

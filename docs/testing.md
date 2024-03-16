@@ -40,9 +40,9 @@ This script requires the resulting log file from an `s3gw-s3tests.sh` run.
 
 The report is a `json` file containing relevant information about the run, and
 is meant to be shared via the
-[aquarist-labs/s3gw-status](https://github.com/aquarist-labs/s3gw-status)
+[s3gw-tech/s3gw-status](https://github.com/s3gw-tech/s3gw-status)
 repository (see more information on the [project's README
-file](https://github.com/aquarist-labs/s3gw-status#readme).)
+file](https://github.com/s3gw-tech/s3gw-status#readme).)
 
 Check `create-s3tests-report.sh --help` for more information.
 

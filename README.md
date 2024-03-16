@@ -24,7 +24,7 @@ An easy way to deploy the S3 Gateway on your Kubernetes cluster is via a Helm
 chart:
 
 ```shell
-helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
+helm repo add s3gw https://s3gw-tech.github.io/s3gw-charts/
 helm install s3gw s3gw/s3gw --namespace s3gw-system --create-namespace \
     --set publicDomain=YOUR_DOMAIN_NAME \
     --set ui.publicDomain=YOUR_DOMAIN_NAME
@@ -93,20 +93,20 @@ limitations under the License.
 
 ----
 
-[s3gw]: https://s3gw.io
+[s3gw]: https://s3gw.tech
 [longhorn]: https://longhorn.io
 [chart-badge]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/s3gw
 [chart-link]: https://artifacthub.io/packages/search?repo=s3gw
 [docs-badge]: https://readthedocs.org/projects/s3gw-docs/badge/?version=latest
 [docs-link]: https://s3gw-docs.readthedocs.io/en/latest/?badge=latest
-[issues-badge]: https://img.shields.io/github/issues/aquarist-labs/s3gw
-[issues-link]: https://github.com/aquarist-labs/s3gw/issues
-[license-badge]: https://img.shields.io/github/license/aquarist-labs/s3gw
-[license-link]: https://github.com/aquarist-labs/s3gw/blob/main/LICENSE
-[linter-badge]: https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml/badge.svg
-[linter-link]: https://github.com/aquarist-labs/s3gw/actions/workflows/lint.yaml
-[release-badge]: https://img.shields.io/github/v/release/aquarist-labs/s3gw
-[release-link]: https://github.com/aquarist-labs/s3gw/releases/latest
+[issues-badge]: https://img.shields.io/github/issues/s3gw-tech/s3gw
+[issues-link]: https://github.com/s3gw-tech/s3gw/issues
+[license-badge]: https://img.shields.io/github/license/s3gw-tech/s3gw
+[license-link]: https://github.com/s3gw-tech/s3gw/blob/main/LICENSE
+[linter-badge]: https://github.com/s3gw-tech/s3gw/actions/workflows/lint.yaml/badge.svg
+[linter-link]: https://github.com/s3gw-tech/s3gw/actions/workflows/lint.yaml
+[release-badge]: https://img.shields.io/github/v/release/s3gw-tech/s3gw
+[release-link]: https://github.com/s3gw-tech/s3gw/releases/latest
 [slack-badge]: https://img.shields.io/badge/slack-s3gw-brightgreen.svg?logo=slack
 [slack-link]: https://slack.com/app_redirect?channel=C04DCMUV8SE
 [helm-docs]: https://s3gw-docs.readthedocs.io/en/latest/helm-charts/

@@ -31,14 +31,14 @@ Integrated analysis tools:
 ## Container Images
 
 Live on GH in the [s3tr
-container](https://github.com/aquarist-labs/s3gw/pkgs/container/s3tr)
+container](https://github.com/s3gw-tech/s3gw/pkgs/container/s3tr)
 registry.
 
 Merging a PR triggers an action that builds and pushes a fresh image.
 
 ## Where do we use this?
 
-- [PR CI pipeline](https://github.com/aquarist-labs/ceph/blob/s3gw/.github/workflows/test-s3gw.yml)
+- [PR CI pipeline](https://github.com/s3gw-tech/s3gw-ceph/blob/s3gw/.github/workflows/test-s3gw.yml)
 - On a developer machine
 
 ## Where do the s3-tests come from?
@@ -93,7 +93,7 @@ docker run \
 docker run  \
        -v /var/run/docker.sock:/var/run/docker.sock \
        -v $(readlink -f .):/out \
-       ghcr.io/aquarist-labs/s3tr:latest \
+       ghcr.io/s3gw-tech/s3tr:latest \
        run \
        --image ghcr.io/irq0/s3tr:latest \
        --tests s3tests_boto3/functional/test_s3.py::test_copy_to_itself \

@@ -12,7 +12,7 @@ chmod 700 get_helm.sh
 Clone the s3gw-charts repo and change directory:
 
 ```bash
-git clone https://aquarist-labs.github.io/s3gw-charts/
+git clone https://s3gw-tech.github.io/s3gw-charts/
 cd s3gw-charts
 ```
 
@@ -37,4 +37,4 @@ helm install $RELEASE_NAME charts/s3gw --namespace $S3GW_NAMESPACE \
 ```
 
 For details on the various s3gw releases and names, see the release section on
-[GitHub](https://github.com/aquarist-labs/s3gw/releases).
+[GitHub](https://github.com/s3gw-tech/s3gw/releases).
