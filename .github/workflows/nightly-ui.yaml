@@ -19,6 +19,7 @@ jobs:
         with:
           path: s3gw
           submodules: true
+          fetch-depth: 0
 
       - name: Checkout UI HEAD
         working-directory: s3gw/ui

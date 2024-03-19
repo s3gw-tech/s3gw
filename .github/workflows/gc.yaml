@@ -3,53 +3,11 @@ name: Cleanup Docker
 on:
   workflow_dispatch: {}
 
-# The following job exists as three separate copies scheduled in parallel,
-# because this will let the three instances of the job be executed on all three
-# runners, otherwise some runners would never see a cleanup
 jobs:
+  # the following job should be duplicated for each existing runner, so all
+  # runners see their caches purged. We only have one runner now, so we only
+  # have one job.
   dockergc1:
-    runs-on: self-hosted
-    steps:
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Context
-        run: |
-          docker context create builder
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          endpoint: builder
-
-      - name: Docker Prune
-        run: |
-          docker builder prune --force
-          docker system prune -a --volumes --force
-
-  dockergc2:
-    runs-on: self-hosted
-    steps:
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Context
-        run: |
-          docker context create builder
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          endpoint: builder
-
-      - name: Docker Prune
-        run: |
-          docker builder prune --force
-          docker system prune -a --volumes --force
-
-  dockergc3:
     runs-on: self-hosted
     steps:
 
