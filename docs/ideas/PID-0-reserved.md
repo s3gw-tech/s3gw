@@ -1,7 +1,8 @@
 ---
+slug: /
 status: accepted
 tags: [ area/docs ]
-updated: 20231013
+updated: 2023-10-13
 ---
 
 # Project Idea Document (PID)
@@ -51,9 +52,10 @@ record:
 
 ```yaml
 ---
-status: <proposed | accepted | rejected | superseded by [PID-yyyymmdd](/docs/ideas/PID-yyyymmdd-foo.md)]>
+status: <proposed | accepted | rejected | superseded>
+superseded-by: PID-yyyymmdd-foo.md
 tags: <area/foo>
-updated: <yyyymmdd>
+updated: <yyyy-mm-dd>
 ---
 ```
 
