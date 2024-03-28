@@ -168,9 +168,9 @@ patch `F'` backported, and a new release candidate for version `X.Y.1` was
 created, `s3gw-vX.Y.1-rc1`. Once this release candidate was properly validated,
 version `vX.Y.1` was released.
 
-[process_adr]: /docs/decisions/0007-release-process.md
-[steps_adr]: /docs/decisions/0016-release-steps.md
-[testing_adr]: /docs/decisions/0017-release-testing.md
+[process_adr]: ./0007-release-process.md
+[steps_adr]: ./0016-release-steps.md
+[testing_adr]: ./0017-release-testing.md
 [quay_url]: https://quay.io
 [1_1]: https://github.com/aquarist-labs/s3gw-ui/
 [1_2]: https://github.com/aquarist-labs/s3gw-charts/

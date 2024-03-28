@@ -6,7 +6,7 @@ We analyzed some High Availability - HA - concepts applied to the s3gw when used
 The final aim of the research is to identify an HA model we can reasonably rely on.
 
 The full and initial HA research document can be found here:
-[High Availability research](../research/ha/RATIONALE.md).
+[High Availability research](../research/ha/RATIONALE).
 You can find there all the rationales, motivations and the details about the tests performed.
 
 ## Considered Options
@@ -32,7 +32,7 @@ List of *desirable* characteristics owned by the *Active/Standby* model
 - Compatible with RWO persistent volume semantics
 - Acceptable restart timings on switch-overs and fail-overs (excluding the non-graceful node failure)
 
-Be aware that the [non-graceful node failure](../research/ha/RATIONALE.md#non-graceful-node-failure)
+Be aware that the [non-graceful node failure](../research/ha/RATIONALE#non-graceful-node-failure)
 problem cannot be entirely solved with the *Active/Standby* model alone.
 Regarding this, we have opened a [dedicated issue](https://github.com/longhorn/longhorn/issues/6803)
 within the Longhorn project.

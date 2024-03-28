@@ -1,6 +1,8 @@
 # High Availability with s3gw + Longhorn
 
-- [High Availability with s3gw + Longhorn](#high-availability-with-s3gw--longhorn)
+<!-- markdownlint-disable MD045 -->
+
+- High Availability with s3gw + Longhorn
   - [Active/Active](#activeactive)
   - [Active/Warm Standby](#activewarm-standby)
   - [Active/Standby](#activestandby)

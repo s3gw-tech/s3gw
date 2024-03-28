@@ -6,9 +6,9 @@ This document is superseded by three different ADRs, covering the same topics
 and expanding them: [Release Methodology][adr_methodology],
 [Release Steps][adr_steps], and [Release Testing][adr_testing].
 
-[adr_methodology]: /docs/decisions/0015-release-methodology.md
-[adr_steps]: /docs/decisions/0016-release-steps.md
-[adr_testing]: /docs/decisions/0017-release-testing.md
+[adr_methodology]: ./0015-release-methodology.md
+[adr_steps]: ./0016-release-steps.md
+[adr_testing]: ./0017-release-testing.md
 
 ## Context and Problem Statement
 
@@ -19,7 +19,7 @@ eventually released, the Release Process is not trivial.
 This document defines and agrees on the Release Process for the `s3gw` project,
 including the steps to be taken on its individual sub-projects, and results
 from several iterations defining the Release Process (previously kept in the
-[Release Captain ADR](/decisions/0004-release-captain)). The previous
+[Release Captain ADR](./0004-release-captain)). The previous
 document suffered significant changes since its inception, being modified for
 almost every release we have had; we are hoping the present document will
 benefit from more stability.
@@ -334,7 +334,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
     release it is important to keep this information. A lightweight tag, on the
     other hand, is often used for temporary purposes.
 
-### [Sanity Checks](sanity-checks)
+### [Sanity Checks] {#sanity-checks}
 
 - [ ] `s3gw` container has been published on Quay for `vX.Y.Z`.
 - [ ] `s3gw-ui` container has been published on Quay for `vX.Y.Z`.
@@ -348,7 +348,7 @@ release candidate was properly validated, version `vX.Y.1` was released.
 - [ ] The release notes are in place, both on the `s3gw` repository's `main`
       branch and on the `s3gw-vX.Y` branch.
 
-## [Testing](testing)
+## [Testing] {#testing}
 
 To be expanded in the future, or maybe link to a proper testing document.
 

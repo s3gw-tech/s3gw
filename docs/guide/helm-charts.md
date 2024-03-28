@@ -24,8 +24,8 @@ the domain and then set the options on the command line directly using
 `helm --set key=value`.
 
 > **Note:** We do recommend at least updating the default access credentials,
-> but it is not necessary for a test installation. See the [options](#options)
-> section for more details.
+> but it is not necessary for a test installation. See the [Configuration](./config-s3gw.md)
+> document for more details.
 
 Once the domain has been configured, the chart can then be installed from
 within the repository directory:

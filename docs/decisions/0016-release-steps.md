@@ -31,7 +31,7 @@ There are five repositories involved in the release process:
 Of these, we refer to `s3gw` as the project's repository, and the remaining four
 to be sub-projects of the `s3gw` project.
 
-### [Note on the `s3gw-charts` repository](s3gw-charts-note)
+### [Note on the `s3gw-charts` repository] {#s3gw-charts-note}
 
 The Helm Chart requires the containers to be available for download from Quay
 before it can be published. Therefore, we can't trigger the `s3gw-charts`
@@ -211,7 +211,7 @@ For example purposes, we assume we are releasing version `0.99.0`.
     - project mailing list at `s3gw@suse.com`
 
     The format for the release announcement can be found in the
-    [Release Announcement][#announcement] section.
+    [Release Announcement](#announcement) section.
 
 19. Finally, we need to synchronize the `main` branches of the `s3gw` and the
     `s3gw-charts` repositories with their respective `s3gw-v0.99` branches, so
@@ -241,7 +241,7 @@ For example purposes, we assume we are releasing version `0.99.0`.
     release it is important to keep this information. A lightweight tag, on the
     other hand, is often used for temporary purposes.
 
-## [Manual Process](manual-process)
+## [Manual Process] {#manual-process}
 
 Assuming we are releasing version `0.99.0`, for every repository, first we need
 to branch off `main` to a new branch `s3gw-v0.99.0`. We can do this via the
@@ -367,7 +367,7 @@ GitHub web UI or via the CLI. This document describes doing it via the CLI.
    ```
 
 9. Once the release workflow finishes, and the containers are available in
-   [s3gw's Quay][quay_s3gw], we can start testing the release candidate. Please
+   [s3gw's Quay][s3gw_quay], we can start testing the release candidate. Please
    refer to the [Release Testing ADR][testing_adr] for more information
 
 10. If there is a need for further release candidates, go back to `step 4.`, and
@@ -393,7 +393,7 @@ GitHub web UI or via the CLI. This document describes doing it via the CLI.
     There may be drafts for the release candidates as well - delete them
 
 13. Announce the release on the various communication channels. Please refer to
-    the [Release Announcement][#announcement] section for more information.
+    the [Release Announcement](#announcement) section for more information.
 
 14. Finally, we just synchronize the `main` branches of the `s3gw` and the
     `s3gw-charts` repositories with their respective `s3gw-v0.99` branches, so
@@ -417,7 +417,7 @@ GitHub web UI or via the CLI. This document describes doing it via the CLI.
     And then open a Pull Request on each branch, from their respective
     `merge_v0.99_into_main` branches to `main`, and ask for a review.
 
-## [Release Announcement](announcement)
+## [Release Announcement] {#announcement}
 
 ### via Slack
 
@@ -485,7 +485,7 @@ Subject: Release v0.99.0
   [2] https://artifacthub.io/packages/helm/s3gw/s3gw
 ```
 
-### [Sanity Checks](sanity-checks)
+### [Sanity Checks] {#sanity-checks}
 
 - [ ] `s3gw` container has been published on Quay for `vX.Y.Z`.
 - [ ] `s3gw-ui` container has been published on Quay for `vX.Y.Z`.
@@ -494,15 +494,14 @@ Subject: Release v0.99.0
 - [ ] `latest` version containers are the same as the `vX.Y.Z` containers on
       Quay.
 - [ ] Helm Chart has been properly updated for `vX.Y.Z`.
-- [ ] Helm Chart for `vX.Y.Z` is visible on [ArtifactHub][10]. This can take
+- [ ] Helm Chart for `vX.Y.Z` is visible on [ArtifactHub][artifacthub]. This can take
       about 20 minutes.
 - [ ] The release notes are in place, both on the `s3gw` repository's `main`
       branch and on the `s3gw-vX.Y` branch.
 
-[process_adr]: /docs/decisions/0007-release-process.md
-[methodology_adr]: /docs/decisions/0015-release-methodology.md
-[testing_adr]: /docs/decisions/0017-release-testing.md
-[quay_url]: https://quay.io
+[process_adr]: ./0007-release-process.md
+[methodology_adr]: ./0015-release-methodology.md
+[testing_adr]: ./0017-release-testing.md
 [repo_ui]: https://github.com/aquarist-labs/s3gw-ui/
 [repo_charts]: https://github.com/aquarist-labs/s3gw-charts/
 [repo_s3gw]: https://github.com/aquarist-labs/s3gw/

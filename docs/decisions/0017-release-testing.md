@@ -64,8 +64,8 @@ document with further testing scenarios.
 7. If at any point there's an indication that something is not working right, or
    you find a crash, please file an [issue on GitHub][new_issue].
 
-[process_adr]: /docs/decisions/0007-release-process.md
-[methodology_adr]: /docs/decisions/0015-release-methodology.md
-[release_adr]: /docs/decisions/0016-release-steps.md
+[process_adr]: ./0007-release-process.md
+[methodology_adr]: ./0015-release-methodology.md
+[release_adr]: ./0016-release-steps.md
 [helm_install_docs]: https://s3gw-docs.readthedocs.io/en/latest/helm-charts/
 [new_issue]: https://github.com/aquarist-labs/s3gw/issues/new/choose
