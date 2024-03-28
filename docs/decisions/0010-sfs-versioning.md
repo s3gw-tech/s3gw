@@ -8,7 +8,7 @@ In this document we only look at tables Objects and Versioned Objects.
 
 An *object* has a name, id, and reference to a *bucket*
 
-A *object version* has an id, checksum, {create, commit, delete}_time,
+A *object version* has an id, checksum, \{create, commit, delete\}_time,
 mtime, size, **state**, **type**, ETag, serialized attributes, etc.
 
 An *object* is a group of versions identified by bucket and name.

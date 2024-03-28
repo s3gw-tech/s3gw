@@ -1,6 +1,6 @@
 ---
 status: accepted
-tags: area/docs
+tags: [ area/docs ]
 updated: 20231013
 ---
 

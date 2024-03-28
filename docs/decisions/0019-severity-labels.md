@@ -39,7 +39,7 @@ issues should have a severity label set from now on.
 
 ### Longhorn
 
-This is the current severity labels used by <https://github.com/longhorn/longhorn/labels>:
+This is the current severity labels used by [Longhorn](https://github.com/longhorn/longhorn/labels):
 
 - severity/1
   - Function broken (a critical incident with very high impact (ex: data corruption, failed upgrade)
@@ -52,8 +52,7 @@ This is the current severity labels used by <https://github.com/longhorn/longhor
 
 ### openSUSE
 
-This is the current severity fields used for openSUSE bugs:
-<https://en.opensuse.org/openSUSE:Bug_definitions>
+This is the current severity fields used for [openSUSE bugs](https://en.opensuse.org/openSUSE:Bug_definitions):
 
 - Blocker
   - Prevents developers or testers from performing their jobs. Impacts the development process

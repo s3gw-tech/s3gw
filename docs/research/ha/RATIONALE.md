@@ -504,9 +504,9 @@ The file name, normally, contains some information such as:
 - #measures: `100`
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_raw_1694425886.svg">|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_main_1694425886.svg">|
+|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_raw_1694425886.svg"/>|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_main_1694425886.svg"/>|
 |---|---|
-|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_fup_1694425886.svg">| <img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694425886.svg">|
+|<img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_to_fup_1694425886.svg"/>| <img src="measurements/regular_localhost_zeroload_emptydb/regular-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694425886.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 ### segfault_localhost_zeroload_emptydb
@@ -517,9 +517,9 @@ The file name, normally, contains some information such as:
 - #measures: `100`
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_raw_1694428197.svg">|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_main_1694428197.svg">|
+|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_raw_1694428197.svg"/>|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_main_1694428197.svg"/>|
 |---|---|
-|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_fup_1694428197.svg">| <img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694428197.svg">|
+|<img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_to_fup_1694428197.svg"/>| <img src="measurements/segfault_localhost_zeroload_emptydb/segfault-localhost-zeroload-emptydb_percentiles_fup_main_delta_1694428197.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 ### regular_localhost_load_fio_64_write
@@ -550,9 +550,9 @@ bs=1m
 ```
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_raw_1694440297.svg">|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_main_1694440297.svg">|
+|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_raw_1694440297.svg"/>|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_main_1694440297.svg"/>|
 |---|---|
-|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_fup_1694440297.svg">| <img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_fup_main_delta_1694440297.svg">|
+|<img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_to_fup_1694440297.svg"/>| <img src="measurements/regular_localhost_load_fio_64_write/regular-localhost-writeload_percentiles_fup_main_delta_1694440297.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 ### regular_localhost_zeroload_400_800Kdb
@@ -565,9 +565,9 @@ bs=1m
 - #measures: `100`
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_raw_1694522179.svg">|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_main_1694522179.svg">|
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_raw_1694522179.svg"/>|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_main_1694522179.svg"/>|
 |---|---|
-|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_fup_1694522179.svg">| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_fup_main_delta_1694522179.svg">|
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_to_fup_1694522179.svg"/>| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-400Kdb_percentiles_fup_main_delta_1694522179.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 #### 800K objects - measures done with the WAL file still to be processed (size 32G)
@@ -578,9 +578,9 @@ bs=1m
 - #measures: `100`
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_raw_1694524508.svg">|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_main_1694524508.svg">|
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_raw_1694524508.svg"/>|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_main_1694524508.svg"/>|
 |---|---|
-|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_fup_1694524508.svg">| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_fup_main_delta_1694524508.svg">|
+|<img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_to_fup_1694524508.svg"/>| <img src="measurements/regular_localhost_zeroload_400_800Kdb/regular-localhost-zeroload-800Kdb_percentiles_fup_main_delta_1694524508.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 ### regular-localhost-incremental-fill-5k
@@ -594,9 +594,9 @@ Between every restart there is an interposed `PUT-Object` sequence, each of 5K o
 the sqlite db initially contained 800K objects.
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_raw_1694534032.svg">|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_main_1694534032.svg">|
+|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_raw_1694534032.svg"/>|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_main_1694534032.svg"/>|
 |---|---|
-|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_fup_1694534032.svg">| <img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_fup_main_delta_1694534032.svg">|
+|<img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_to_fup_1694534032.svg"/>| <img src="measurements/regular-localhost-incremental-fill-5k/regular-localhost-incremental-fill-5k_percentiles_fup_main_delta_1694534032.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 ### scale_deployment_0_1-k3s3nodes_zeroload_emptydb
@@ -618,9 +618,9 @@ The schema is the following:
 6. trigger 100 pod restarts
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_raw_1695046129.svg">|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_to_main_1695046129.svg">|
+|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_raw_1695046129.svg"/>|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_to_main_1695046129.svg"/>|
 |---|---|
-|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_to_fup_1695046129.svg">| <img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_fup_main_delta_1695046129.svg">|
+|<img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_to_fup_1695046129.svg"/>| <img src="measurements/scale_deployment_0_1-k3s3nodes-zeroload-emptydb/scale_deployment_0_1-k3s3nodes-zeroload-emptydb_percentiles_fup_main_delta_1695046129.svg"/>|
 <!-- markdownlint-enable MD013 -->
 
 ## Tested Scenarios - S3-workload during s3gw Pod outage
@@ -655,7 +655,7 @@ For each scenario tested we produce a specific artifact:
 - #S3-operations: `394`
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/s3wl-putobj-100ms-clusterip/1695396383_s3wl-putobj-100ms-ClusterIp_S3WL_RTT_raw.svg">|<img src="measurements/s3wl-putobj-100ms-clusterip/1695396383_s3wl-putobj-100ms-ClusterIp_raw.svg">|
+|<img src="measurements/s3wl-putobj-100ms-clusterip/1695396383_s3wl-putobj-100ms-ClusterIp_S3WL_RTT_raw.svg"/>|<img src="measurements/s3wl-putobj-100ms-clusterip/1695396383_s3wl-putobj-100ms-ClusterIp_raw.svg"/>|
 |---|---|
 <!-- markdownlint-enable MD013 -->
 
@@ -669,7 +669,7 @@ For each scenario tested we produce a specific artifact:
 - #S3-operations: `504`
 
 <!-- markdownlint-disable MD013 -->
-|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_S3WL_RTT_raw.svg">|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_raw.svg">|
+|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_S3WL_RTT_raw.svg"/>|<img src="measurements/s3wl-putobj-100ms-ingress/1695396145_s3wl-putobj-100ms-Ingress_raw.svg"/>|
 |---|---|
 <!-- markdownlint-enable MD013 -->
 

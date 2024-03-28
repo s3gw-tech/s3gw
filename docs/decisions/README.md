@@ -1,3 +1,8 @@
+---
+title: Introduction
+---
+
+<!-- markdownlint-disable MD025 -->
 # Decisions
 
 This directory contains decision records for s3gw.
@@ -10,5 +15,5 @@ This directory contains decision records for s3gw.
 
 ## Resources
 
-- MADRs <https://adr.github.io/madr/>.
-- General information about ADRs <https://adr.github.io/>.
+- [MADRs](https://adr.github.io/madr/)
+- [General information about ADRs](https://adr.github.io/)

@@ -6,7 +6,8 @@ You can install the s3gw via the Rancher App Catalog. The steps are as follows:
 
 - Cluster -> Projects/Namespaces - create the `s3gw` namespace.
 - Apps -> Repositories -> Create `s3gw` using the s3gw-charts Web URL
-  <https://s3gw-tech.github.io/s3gw-charts/> and the main branch.
+  [https://s3gw-tech.github.io/s3gw-charts/](https://s3gw-tech.github.io/s3gw-charts/)
+  and the main branch.
 - Apps -> Charts -> Install Traefik.
 - Apps -> Charts -> Install `s3gw`.
   Select the `s3gw` namespace previously created.

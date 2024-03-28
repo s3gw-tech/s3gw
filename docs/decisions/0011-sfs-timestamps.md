@@ -1,5 +1,5 @@
-<!-- #cSpell:words multicol datefunc -->
 # SFS Timestamps
+<!-- #cSpell:words multicol datefunc -->
 
 ## Context and Problem Statement
 
