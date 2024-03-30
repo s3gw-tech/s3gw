@@ -1,0 +1,43 @@
+---
+name: Update Documentation
+
+on:
+  push:
+    paths:
+      - "docs/**"
+
+  workflow_dispatch:
+
+jobs:
+  update-docs:
+    runs-on: self-hosted
+    steps:
+      - name: Prepare environment
+        env:
+          GITHUB_TOKEN: ${{ secrets.DOCS_DEPLOY_SECRET }}
+        run: |
+          mkdir -p ${HOME}/.ssh || true
+          echo -e "${GITHUB_KEY}\n" > ${HOME}/.ssh/github
+          cat <<EOF>${HOME}/.ssh/config
+          Host github
+          Hostname github.com
+          IdentityFile ~/.ssh/github
+          User git
+          EOF
+
+      - name: Update docs repository
+        run: |
+          git clone git@github:s3gw-tech/s3gw-docs.git docs.git || exit 1
+          pushd docs.git || exit 1
+
+          git config user.name "s3gw.tech github bot" || exit 1
+          git config user.email "bot@s3gw.tech" || exit 1
+
+          pushd s3gw || exit 1
+          git remote update origin
+          git checkout origin/main
+          popd || exit 1
+
+          git add s3gw || exit 1
+          git commit -m "docs: update s3gw to current main" || exit 1
+          git push || exit 1
