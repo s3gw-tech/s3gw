@@ -10,32 +10,57 @@ on:
 
 jobs:
   update-docs:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Prepare environment
         env:
-          GITHUB_TOKEN: ${{ secrets.DOCS_DEPLOY_SECRET }}
+          GITHUB_KEY: ${{ secrets.DOCS_DEPLOY_SECRET }}
         run: |
+          rm -fr ${HOME}/.ssh || true
           mkdir -p ${HOME}/.ssh || true
-          echo -e "${GITHUB_KEY}\n" > ${HOME}/.ssh/github
+          chmod 700 ${HOME}/.ssh || exit 1
+          cat <<EOF>${HOME}/.ssh/github
+          ${GITHUB_KEY}
+          EOF
+          chmod 400 ${HOME}/.ssh/github
+
           cat <<EOF>${HOME}/.ssh/config
           Host github
-          Hostname github.com
-          IdentityFile ~/.ssh/github
-          User git
+            Hostname github.com
+            IdentityFile ${HOME}/.ssh/github
+            User git
           EOF
+          chmod 600 ${HOME}/.ssh/config
+
+          cat <<EOF>${HOME}/.ssh/known_hosts
+          github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+          EOF
+          chmod 600 ${HOME}/.ssh/known_hosts
 
       - name: Update docs repository
         run: |
-          git clone git@github:s3gw-tech/s3gw-docs.git docs.git || exit 1
+          git clone github:s3gw-tech/s3gw-docs.git docs.git || exit 1
           pushd docs.git || exit 1
 
           git config user.name "s3gw.tech github bot" || exit 1
           git config user.email "bot@s3gw.tech" || exit 1
 
+          git submodule update --init || exit 1
+
           pushd s3gw || exit 1
+
+          CUR_SHA=$(git rev-parse --short HEAD)
+
           git remote update origin
           git checkout origin/main
+
+          NEW_SHA=$(git rev-parse --short HEAD)
+
+          if [[ "${CUR_SHA}" == "${NEW_SHA}" ]]; then
+            echo "no updates needed"
+            exit 0
+          fi
+
           popd || exit 1
 
           git add s3gw || exit 1
