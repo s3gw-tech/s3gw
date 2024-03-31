@@ -1,20 +1,23 @@
-<h1 align="center"><img alt="s3gw-logo" src="./assets/images/s3gw-logo.png" /></h1>
+<h1 align="center">
+    <img alt="s3gw-logo" src="./assets/images/s3gw-tech-logo-round.png" height=150/>
+</h1>
 
 # s3gw
 
 [![License][license-badge]][license-link]
 [![Documentation][docs-badge]][docs-link]
 [![Issues][issues-badge]][issues-link]
+[![Discussions][discussions-badge]][discussions-link]
 [![Lint][linter-badge]][linter-link]
 [![Release][release-badge]][release-link]
 [![Artifact Hub][chart-badge]][chart-link]
-[![Slack][slack-badge]][slack-link]
 
-[s3gw][s3gw] is an S3-compatible service focused on deployments in a Kubernetes
-environment backed by any PVC, including [Longhorn][longhorn].
-Since its inception, the primary focus has been on cloud native deployments.
-However, the s3gw can be deployed in a myriad of scenarios, provided some form
-of storage is attached.
+[s3gw][s3gw] is a lightweight, S3-compatible object store, focused on small
+deployments.
+
+The s3gw service can be deployed in a myriad of scenarios, provided some form
+of storage is attached. This includes cloud native environments, such as
+Kubernetes, and can be backed by any PVC.
 
 ## Quickstart
 
@@ -67,7 +70,7 @@ docker run -p 7480:7480 quay.io/s3gw/s3gw:latest
 
 Docker deployments will use ephemeral storage inside the container by default,
 which should only be used for testing purposes.  To use a directory on the
-host system for storage, pass `-v/host-path:/data`.
+host system for storage, pass `-v /host-path:/data`.
 
 </details>
 
@@ -94,12 +97,11 @@ limitations under the License.
 ----
 
 [s3gw]: https://s3gw.tech
-[longhorn]: https://longhorn.io
 [chart-badge]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/s3gw
 [chart-link]: https://artifacthub.io/packages/search?repo=s3gw
-[docs-badge]: https://readthedocs.org/projects/s3gw-docs/badge/?version=latest
-[docs-link]: https://s3gw-docs.readthedocs.io/en/latest/?badge=latest
-[issues-badge]: https://img.shields.io/github/issues/s3gw-tech/s3gw
+[docs-badge]: https://img.shields.io/badge/docs-s3gw-brightgreen
+[docs-link]: https://docs.s3gw.tech
+[issues-badge]: https://img.shields.io/github/issues/s3gw-tech/s3gw?logo=github
 [issues-link]: https://github.com/s3gw-tech/s3gw/issues
 [license-badge]: https://img.shields.io/github/license/s3gw-tech/s3gw
 [license-link]: https://github.com/s3gw-tech/s3gw/blob/main/LICENSE
@@ -107,6 +109,6 @@ limitations under the License.
 [linter-link]: https://github.com/s3gw-tech/s3gw/actions/workflows/lint.yaml
 [release-badge]: https://img.shields.io/github/v/release/s3gw-tech/s3gw
 [release-link]: https://github.com/s3gw-tech/s3gw/releases/latest
-[slack-badge]: https://img.shields.io/badge/slack-s3gw-brightgreen.svg?logo=slack
-[slack-link]: https://slack.com/app_redirect?channel=C04DCMUV8SE
-[helm-docs]: https://s3gw-docs.readthedocs.io/en/latest/helm-charts/
+[helm-docs]: https://docs.s3gw.tech/helm-charts/
+[discussions-badge]: https://img.shields.io/github/discussions/s3gw-tech/s3gw?logo=github
+[discussions-link]: https://github.com/orgs/s3gw-tech/discussions
