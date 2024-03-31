@@ -7,13 +7,12 @@ on:
     paths:
       - ".github/workflows/nightly.yaml"
 
-  workflow_dispatch:   # Or manually - for testing
+  workflow_dispatch: # Or manually - for testing
 
 jobs:
   build-and-test:
     runs-on: self-hosted
     steps:
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -105,9 +104,32 @@ jobs:
         run: |
           docker run --rm s3gw-unittests
 
-      - name: Run S3tests
+      - name: Prepare environment
         env:
-          GITHUB_TOKEN: ${{ secrets.STATUS_PUSH_TOKEN }}
+          GITHUB_KEY: ${{ secrets.STATUS_DEPLOY_SECRET }}
+        run: |
+          mkdir -p ${HOME}/.ssh || true
+          rm -f ${HOME}/.ssh/github-s3gw-status || true
+          chmod 700 ${HOME}/.ssh || exit 1
+          cat <<EOF>${HOME}/.ssh/github-s3gw-status
+          ${GITHUB_KEY}
+          EOF
+          chmod 400 ${HOME}/.ssh/github-s3gw-status
+
+          cat <<EOF>${HOME}/.ssh/config
+          Host github-status
+            Hostname github.com
+            IdentityFile ${HOME}/.ssh/github-s3gw-status
+            User git
+          EOF
+          chmod 600 ${HOME}/.ssh/config
+
+          cat <<EOF>${HOME}/.ssh/known_hosts
+          github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
+          EOF
+          chmod 600 ${HOME}/.ssh/known_hosts
+
+      - name: Run S3tests
         run: |
           set +e  # don't exit on error
           set -x
@@ -137,18 +159,21 @@ jobs:
           ${GITHUB_WORKSPACE}/s3gw/tools/tests/s3tests-runner.sh
           popd
 
-          git clone \
-            https://user:${GITHUB_TOKEN}@github.com/s3gw-tech/s3gw-status
-          pushd s3gw-status
+          git clone github-status:s3gw-tech/s3gw-status.git s3gw-status.git || exit 1
+          pushd s3gw-status.git || exit 1
           git config user.name "github nightly bot"
           git config user.email "bot@s3gw.tech"
           cp \
             "${OUTPUT_DIR}/report.json" \
             results/s3tests/${{ steps.date.outputs.tag }}.json
 
-          git add results/s3tests/${{ steps.date.outputs.tag }}.json
-          git commit -m "Nightly Results $(date +%Y-%m-%d)"
-          git push
+          git add results/s3tests/${{ steps.date.outputs.tag }}.json || exit 1
+          git commit -m "Nightly Results $(date +%Y-%m-%d)" || exit 1
+          git push || exit 1
 
           # We expect some tests to fail, we just want to see _which_ tests fail
           # exit 0
+
+      - name: Cleanup SSH environment
+        run: |
+          rm -f ${HOME}/.ssh/github-s3gw-status
